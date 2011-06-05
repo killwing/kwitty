@@ -1,0 +1,271 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>kwitty options</title>
+<link type="text/css" href="css/options.css" rel="stylesheet" />
+
+<script type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="js/config.js"></script>
+<script type="text/javascript">
+    var config = requireConfig()
+
+    var saveValue = function(elem, val) {
+        if (val == undefined) {
+            val = $(elem).val()
+        }
+        console.debug('v:', val, $(elem).val(), 't:', $(elem).text())
+        var item = $(elem).attr('id').replace(/-/g, '.')
+        config.saveValue(item, val)
+        // notify main page
+        chrome.extension.sendRequest({item: item, value: val}, function(response) {
+            console.log('update value ok')
+        })
+    }
+
+    var loadValues = function(obj, id) {
+        $.each(obj, function(k, v) {
+            if (typeof(v) == 'object') {
+                var subid = id + k + '-'
+                loadValues(v, subid) 
+            } else {
+                if (typeof(v) == 'boolean') { // checkbox
+                    $('#'+id+k).attr('checked', v)
+                } else if (k == 'imageFileName') {
+                    $('#'+id+k).text(v)
+                } else { // others
+                    $('#'+id+k).val(v)
+                }
+            } 
+        })
+    }
+
+
+    $(function() {
+        $('#navbar li').click(function() {
+            $(this).addClass('navbar-item-selected')
+            $(this).siblings().removeClass('navbar-item-selected')
+            var pageID = '#' + $(this).attr('id').replace('Nav', '')
+            $(pageID).siblings().hide()
+            $(pageID).fadeIn()
+        }) 
+
+        // select
+        $('#refreshSection select, #themeSection select').change(function() {
+            saveValue(this)
+        })
+
+        // input
+        $('#basics-api-address').change(function() {
+            var addr = $(this).val()
+            if (!/^http[s]?:\/\//.test(addr)) {
+                addr = 'http://' + addr
+            }
+            $(this).val(encodeURI(addr))
+            saveValue(this)
+        })
+
+        $('#bgImageData').change(function() {
+            var file = this.files[0]
+            if (!file) {
+                return
+            }
+            if(!/image\/\w+/.test(file.type)){
+                alert('Not image file!')
+                return
+            }
+
+            $('#gui-background-imageFileName').text(file.fileName)
+            saveValue('#gui-background-imageFileName', file.fileName)
+
+            var reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onload = function(e){
+                config.saveToLS('bgImgData', this.result)
+                chrome.extension.sendRequest({item: 'bgImgData', value: this.result}, function(response) {
+                    console.log('update bgImgData ok')
+                })
+            }
+        })
+
+        $('#bgImageBrowse').click(function() {
+            $('#bgImageData').click()
+        })
+
+        // checkbox
+        $('#basics-refresh-autoload, #gui-display-compact, #gui-display-expandurl, #gui-display-rich').change(function() {
+            saveValue(this, $(this).attr('checked'))
+        })
+
+        config.init()
+        loadValues(config.get(), '') 
+    })
+</script>
+</head>
+
+<body>
+<div id="main-content">
+    <div id="navbar-container">
+         <h1 id="settings-title">Options</h1>
+         <ul id="navbar">
+             <li id="basicsPageNav" class="navbar-item navbar-item-selected">Basics</li>
+             <li id="guiPageNav" class="navbar-item">GUI</li>
+         </ul>
+    </div>
+
+    <div id="mainview">
+        <div id="mainview-content">
+            <div id="basicsPage" class="page">
+                <h1>Basics</h1>
+                <section id="refreshSection">
+                    <h3>Refresh:</h3>
+                    <div>
+                        <div class="section-group">
+                            <label class="web-content-select-label">
+                                <span>Home:</span>
+                                <select id="basics-refresh-home">
+                                    <option value="1">1 min</option>
+                                    <option value="2">2 min</option>
+                                    <option value="3">3 min</option>
+                                    <option value="5">5 min</option>
+                                    <option value="10">10 min</option>
+                                    <option value="20">20 min</option>
+                                    <option value="30">30 min</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="section-group">
+                            <label class="web-content-select-label">
+                                <span>Mentions:</span>
+                                <select id="basics-refresh-mentions">
+                                    <option value="1">1 min</option>
+                                    <option value="2">2 min</option>
+                                    <option value="3">3 min</option>
+                                    <option value="5">5 min</option>
+                                    <option value="10">10 min</option>
+                                    <option value="20">20 min</option>
+                                    <option value="30">30 min</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="section-group">
+                            <label class="web-content-select-label">
+                                <span>Messages:</span>
+                                <select id="basics-refresh-messages">
+                                    <option value="1">1 min</option>
+                                    <option value="2">2 min</option>
+                                    <option value="3">3 min</option>
+                                    <option value="5">5 min</option>
+                                    <option value="10">10 min</option>
+                                    <option value="20">20 min</option>
+                                    <option value="30">30 min</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="section-group">
+                            <label class="checkbox">
+                                <input id="basics-refresh-autoload" type="checkbox">
+                                <span>Auto load new tweets</span>
+                            </label>
+                        </div>
+
+                    </div>
+                </section>
+
+                <section id="apiSection">
+                    <h3>API:</h3>
+                    <div>
+                        <div class="section-group">
+                            <span>API Address:</span>
+                            <input id="basics-api-address" type="url" />
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="guiPage" class="page hidden">
+                <h1>GUI</h1>
+                <section id="backgroundSection">
+                    <h3>Background:</h3>
+                    <div>
+                        <div class="section-group">
+                            <span>Background image:</span>
+                            <button id="bgImageBrowse">Browse...</button>
+                            <span id="gui-background-imageFileName"></span>
+                            <input id="bgImageData" type="file" />
+                        </div>
+                    </div>
+                </section>
+                <section id="themeSection">
+                    <h3>Theme:</h3>
+                    <div>
+                        <div class="section-group">
+                            <label class="web-content-select-label">
+                                <span>Timeline theme:</span>
+                                <select id="gui-theme-tltheme">
+                                    <option value="UI lightness">UI lightness</option>
+                                    <option value="UI darkness">UI darkness</option>
+                                    <option value="Smoothness">Smoothness</option>
+                                    <option value="Start">Start</option>
+                                    <option value="Redmond">Redmond</option>
+                                    <option value="Sunny">Sunny</option>
+                                    <option value="Overcast">Overcast</option>
+                                    <option value="Le Frog">Le Frog</option>
+                                    <option value="Flick">Flick</option>
+                                    <option value="Pepper Grinder">Pepper Grinder</option>
+                                    <option value="Eggplant">Eggplant</option>
+                                    <option value="Dark Hive">Dark Hive</option>
+                                    <option value="Cupertino">Cupertino</option>
+                                    <option value="South Street">South Street</option>
+                                    <option value="Blitzer">Blitzer</option>
+                                    <option value="Humanity">Humanity</option>
+                                    <option value="Hot sneaks">Hot sneaks</option>
+                                    <option value="Excite Bike">Excite Bike</option>
+                                    <option value="Vader">Vader</option>
+                                    <option value="Dot Luv">Dot Luv</option>
+                                    <option value="Mint Choc">Mint Choc</option>
+                                    <option value="Black Tie">Black Tie</option>
+                                    <option value="Trontastic">Trontastic</option>
+                                    <option value="Swanky Purse">Swanky Purse</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+                <section id="displaySection">
+                    <h3>Display:</h3>
+                    <div>
+                        <div class="section-group">
+                            <label class="checkbox">
+                                <input id="gui-display-compact" type="checkbox">
+                                <span>Use compact view when open as window (app mode)</span>
+                            </label>
+                        </div>
+
+                        <div class="section-group">
+                            <label class="checkbox">
+                                <input id="gui-display-expandurl" type="checkbox">
+                                <span>Expand shortened URL</span>
+                            </label>
+                        </div>
+
+                        <div class="section-group">
+                            <label class="checkbox">
+                                <input id="gui-display-rich" type="checkbox">
+                                <span>Show rich content (photo, video etc.) inline</span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
+

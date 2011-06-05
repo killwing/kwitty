@@ -1,0 +1,444 @@
+
+body { 
+    font: 12px "Trebuchet MS", sans-serif;
+    margin: 0px;
+    padding: 0px;
+    background: #C0DEED url('../img/bgc.png') repeat-x;
+    background-attachment: fixed;
+    overflow-x: hidden;
+}
+
+.hidden {
+    display: none;
+}
+.invisible {
+    visibility: hidden;
+}
+
+#holder {
+    height: 60px;
+}
+
+#login {
+    width: 500px;
+    margin: 100px auto;
+    text-align: center;
+    line-height: 50px;
+}
+#login input {
+    border: 1px solid #bbb;
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0);
+    color: #fff;
+}
+#login img {
+    cursor: pointer;
+}
+
+
+#logout {
+    float: left;
+    height: 50px;
+    width: 13px;
+    cursor: pointer;
+    background-color: rgba(33, 33, 33, 0.8);
+    display: none;
+}
+#logout:hover {
+    color: #fff;
+    background-color: #000;
+}
+
+#topbar {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(33, 33, 33, 0.8);
+    position: fixed;
+    z-index: 1;
+    font-size: 16px;
+    color: #bbb;
+}
+#topbar a {
+    text-decoration: none;
+    color: #bbb;
+}
+#topbar a:hover {
+    text-decoration: none;
+    color: #fff;
+}
+
+#container {
+    width: 540px;
+    margin: 0px auto;
+    position: relative;
+    z-index: 0;
+}
+
+#logo {
+    margin: 12px;
+    float: right;
+}
+
+#profile {
+    float: left;
+    margin: 0px;
+    padding: 0px;
+    height: 50px;
+    width: 170px;
+    display: none;
+}
+
+.i_head {
+    float: left;
+    height: 36px;
+    width: 36px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 7px;
+}
+.i_screen_name {
+    float: left;
+    height: 50;
+    line-height: 50px;
+    margin-right: 5px;
+}
+.i_followers, .i_following {
+    float: left;
+    height: 25px;
+    line-height: 25px;
+}
+
+
+#update {
+    color: #bbb;
+    font-size: 16px;
+    width: 500px;
+    margin: 0px auto;
+    padding: 7px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    display: none;
+    z-index: 1;
+}
+
+.update_inactive {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.update_active {
+    background-color: rgba(33, 33, 33, 0.8);
+}
+
+.textarea {
+    border-radius: 5px;
+    width: 95%;
+    border: 1px solid #bbb;
+    font: 14px "Trebuchet MS", sans-serif;
+    padding: 6px;
+    resize: none;
+    overflow: hidden;
+}
+
+.ta_inactive {
+    height: 20px;
+    color: #bbb;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.ta_active {
+    height: 80px;
+    color: #333;
+    background-color: #eee;
+}    
+
+#actions {
+    width: 485px;
+    text-align: right;
+    margin: 5px;
+    cursor: default;
+    display: none;
+}
+a.link_button {
+    color: #bbb;
+    text-decoration: none;
+    border: 1px solid;
+    cursor: pointer;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
+    margin: 3px;
+    border-radius: 3px;
+}
+a.link_button:hover {
+    text-decoration: none;
+    color: #fff;
+}
+#actions .spinner {
+    float: left;
+    display: none;
+}
+
+#tabs {
+    width: 100%;
+    display: none;
+}
+
+#tabs li .ui-icon-close { 
+    float: left; 
+    margin: 0.4em 0.2em 0 0; 
+    cursor: pointer; 
+}
+
+#tabs > div {
+    min-height: 1000px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.tl > button, .fs > button {
+    margin-left: 5px;
+    width: 98%;
+    height: 30px;
+}
+.fs ol button {
+    width: 75px;
+    height: 30px;
+}
+
+#tip {
+    text-align: center;
+    margin: 0px auto;
+    width: 100%;
+    position: fixed;
+    z-index: 2;
+    display: none;
+}
+#tip span {
+    background-color: rgba(33, 33, 33, 0.8);
+    font-size: 16px;
+    color: #fff;
+    border-radius: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.tl ol, .fs ol {
+    font: 14px "Trebuchet MS", sans-serif;
+    margin: 0px;
+    padding: 0px;
+}
+
+.profile {
+    margin: 5px;
+    font: 14px "Trebuchet MS", sans-serif;
+    border-bottom: 1px solid #ccc;
+}
+.profile a {
+    text-decoration: none;
+}
+.profile a:hover {
+    text-decoration: underline;
+}
+.p_head {
+    position: absolute;
+    font-size: 12px;
+} 
+.p_head button {
+    display: block;
+    width: 75px;
+    height: 30px;
+}
+.p_head img {
+    margin-top: 6px;
+    margin-bottom: 6px;
+    margin-left: 2px;
+    height: 73px;
+    width: 73px;
+}
+.p_body {
+    display: inline-block;
+    margin-left: 84px;
+    min-height: 120px;
+}
+.p_body > span {
+    margin: 3px;
+    display: block;
+}
+.p_name {
+    font-size: 25px;
+    font-weight: bold;
+    display: block;
+}
+.p_name_location {
+    font-size: 16px;
+}
+
+.u_action {
+    float: right;
+    display: block;
+    margin: 2px;
+    font-size: 12px;
+}
+.u_body {
+    display: block;
+    margin-left: 60px;
+    margin-right: 90px;
+    width: auto;
+    min-height: 60px;
+}
+.u_body > span {
+    display: block;
+}
+
+.t_status {
+    list-style-type: none;
+    border-bottom: 1px dashed #ddd;
+    margin: 5px;
+    padding: 5px;
+}
+.t_status a {
+    text-decoration: none;
+}
+.t_status a:hover {
+    text-decoration: underline;
+}
+.t_status:hover .t_actions {
+    display: block;
+}
+.t_actions {
+    float: right;
+    width: 15px;
+    display: none;
+    cursor: pointer; 
+}
+.t_head {
+    position: absolute;
+    margin: 2px;
+}
+.t_head img {
+    height: 48px;
+    width: 48px;
+    cursor: pointer;
+}
+.t_body {
+    display: block;
+    margin-left: 60px;
+    margin-right: 18px;
+    width: auto;
+    min-height: 70px;
+}
+.t_body > span {
+    display: block;
+}
+.t_info {
+    color: #888;
+}
+.t_info a {
+    font-weight: bold;
+}
+.t_info .t_reply a {
+    font-weight: normal;
+}
+.t_info .t_name {
+    font-size: 12px;
+}
+.t_text {
+    word-wrap: break-word;
+}
+.t_expandedurl {
+    border: 1px dotted #ccc;
+    word-wrap: break-word;
+    margin: 4px;
+    padding-left: 4px;
+    padding-bottom: 2px;
+}
+.t_expandedurl img {
+    vertical-align: middle;
+}
+.t_embed {
+    margin: 4px;
+}
+.t_ref {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+}
+.t_reply_text {
+    display: block;
+    font-size: 12px;
+    border: 1px dotted #ccc;
+    border-radius: 3px 3px;
+    color: #888;
+    margin: 2px;
+    padding: 2px;
+}
+
+.icon {
+    height: 14px;
+    width: 15px;
+    display: inline-block;
+}
+.t_retweet_icon {
+    background: transparent url("../img/sprite-icons.png") no-repeat -177px 0px;
+}
+.t_retweet_icon:hover {
+    background: transparent url("../img/sprite-icons.png") no-repeat -193px 0px;
+}
+.t_retweeted_icon {
+    background: transparent url("../img/sprite-icons.png") no-repeat -256px 0px;
+}
+.t_rt_icon {
+    background: transparent url("../img/sprite-icons.png") no-repeat -304px -16px;
+}
+.t_rt_icon:hover {
+    background: transparent url("../img/sprite-icons.png") no-repeat -336px -16px;
+}
+.t_conversation_icon {
+    background: transparent url("../img/sprite-icons.png") no-repeat -32px -96px;
+}
+.t_reply_icon {
+    background: transparent url("../img/sprite-icons.png") no-repeat 0px 0px;
+}
+.t_reply_icon:hover {
+    background: transparent url("../img/sprite-icons.png") no-repeat -16px 0px;
+}
+.t_fav_icon {
+    background: transparent url("../img/sprite-icons.png") no-repeat -32px 0px;
+}
+.t_fav_icon:hover {
+    background: transparent url("../img/sprite-icons.png") no-repeat -48px 0px;
+}
+.t_faved_icon {
+    background: transparent url("../img/sprite-icons.png") no-repeat -64px 0px;
+}
+.t_del_icon {
+    background: transparent url("../img/sprite-icons.png") no-repeat -112px 0px;
+}
+.t_del_icon:hover {
+    background: transparent url("../img/sprite-icons.png") no-repeat -128px 0px;
+}
+.t_delmsg_icon {
+    background: transparent url("../img/sprite-icons.png") no-repeat -112px 0px;
+}
+.t_delmsg_icon:hover {
+    background: transparent url("../img/sprite-icons.png") no-repeat -128px 0px;
+}
+.t_dm_icon {
+    background: transparent url("../img/sprite-icons.png") no-repeat -32px -32px;
+}
+.t_dm_icon:hover {
+    background: transparent url("../img/sprite-icons.png") no-repeat -48px -32px;
+}
+.t_msgto_icon {
+    background: transparent url("../img/sprite-icons.png") no-repeat -256px -60px;
+}
+.t_protected_icon {
+    background: transparent url("../img/sprite-icons.png") no-repeat -256px -13px;
+}
+
+
+#tabs .loader {
+    width: 32px;
+    margin: 0px auto;
+}

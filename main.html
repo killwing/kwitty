@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+<html>  
+<head>
+<title>kwitty</title>
+<link type="text/css" href="css/base/jquery.ui.all.css" rel="stylesheet" />	
+<link type="text/css" href="css/main.css" rel="stylesheet" />
+
+<script type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="js/jquery.longurl.js"></script>
+<script type="text/javascript" src="js/jquery.embedly.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.8.9.custom.min.js"></script>
+<script type="text/javascript" src="js/OAuthSimple.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/twitter.js"></script>
+<script type="text/javascript" src="js/config.js"></script>
+<script type="text/javascript" src="js/base.js"></script>
+<script type="text/javascript">
+    $(function(){
+        $("#tabs").tabs({
+            tabTemplate: "<li><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close'>Remove Tab</span></li>",
+            add: function(event, ui) {
+                //$('#tabs').tabs('select', '#'+ui.panel.id)
+                //$(ui.panel).append("");
+            },            
+		});
+
+        $("#tabs span.ui-icon-close").live("click", function() {
+            var index = $("li", "#tabs").index($(this).parent());
+            $("#tabs").tabs("remove", index);
+        });
+
+
+        $('#tabs').live('tabsselect', function(event, ui) {
+            var label = $(ui.tab).text()
+            if (label.slice(-1) == '*') {
+                $(ui.tab).text(label.slice(0, label.length-1))
+            }
+        });
+
+        $('#login a').click(function() {
+            $('#login .loader').show()
+            basicLogin($('#username').val(), $('#password').val())
+        })
+        $('#login img').click(function() {
+            $('#login .loader').show()
+            oauthLogin()
+        })
+
+        $('#logout').html(String.fromCharCode(8624));
+
+        config.init()
+        cfgUpdater.bgImgData(config.loadFromLS('bgImgData'))
+        loadValues(config.get().gui.theme, 'gui.theme')
+
+        chrome.windows.getCurrent(function(w) {
+            console.log('window type:', w.type)
+            if ((w.type == 'app' || w.type == 'popup') && config.get().gui.display.compact) {
+                // cuz chrome will remember the window size
+                // don't reset the size if user tune the window a little
+                if (w.width > 500 || w.width < 450) {
+                    chrome.windows.update(w.id, {width: 480})
+                }
+                makeCompact()
+            }
+        })
+
+        autoLogin()
+    })
+</script>
+</head>
+
+<body>
+    <div id="topbar"> 
+        <div id="logout" onclick="return logout()"></div>
+        
+        <div id="profile">
+            <img class="i_head">
+            <a href="#" class="i_screen_name"></a>
+            <a href="#" class="i_following"></a>
+            <a href="#" class="i_followers"></a>
+        </div> 
+            
+        <div id="logo">
+            <a href="https://chrome.google.com/webstore/detail/lhdicadblnoidhgkllhdgkagmflbmbcn?hl=en-US" target="_blank"><img src="img/logo.png"></a>
+        </div>
+
+        <div id="update" class="update_inactive">
+            <textarea class="textarea ta_inactive"></textarea>
+            <div id="actions">
+                <img class="spinner" src="img/spinner.gif">
+                <Strong class="counter">Counter</Strong>
+                <a href="#" class="tweet link_button">Tweet</a>
+                <a href="#" class="cancel link_button">Cancel</a>
+            </div>
+        </div>
+
+        <div id="login">
+            <img src="img/sign-in-with-twitter-l.png">
+            <br>
+            <label><input id="username" type="text" /></label>
+            :
+            <label><input id="password" type="password" /></label>
+            <br>
+            <a href="#" class="link_button">Sign in with API</a>
+            <br>
+            <p class="loader hidden"><img src="img/spinner.gif"> Login...<p>
+        </div>
+    </div>
+
+    <div id="container">
+        <div id="holder"></div>
+
+        <div id="tabs">
+            <ul>
+                <li><a href="#home" id='home_label'>Home</a></li>
+                <li><a href="#mentions" id='mentions_label'>Mentions</a></li>
+                <li><a href="#messages" id='messages_label'>Messages</a></li>
+                <li><a href="#favorites" id='favorites_label'>Favorites</a></li>
+            </ul>
+            <div id="home"></div>
+            <div id="mentions"></div>
+            <div id="messages"></div>
+            <div id="favorites"></div>
+        </div>
+    </div>
+
+    <div id="tip">
+        <span>time out</span>
+    </div>
+
+</body>
+</html>
