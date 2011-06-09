@@ -357,7 +357,7 @@ var requireTwitter = function() {
 
             var requestURL = this.getCurrentAPIBase() + url;
             var req = createRequest(type, requestURL, param, success, function(xmlHttpRequest, textStatus, errorThrown) {
-                console.log('API.send() - error:', xmlHttpRequest, textStatus, errorThrown);
+                console.log('API.send() - error:', xmlHttpRequest, textStatus /*, errorThrown*/);
                 /*
 200 OK: Success!
 304 Not Modified: There was no new data to return.
@@ -497,7 +497,9 @@ var requireTwitter = function() {
     var createStatuses = function(url) {
         var sinceID = null;
         var maxID = null;
+        var maxIDForAll = null;
         var newTweets = [];
+        var allTweets = [];
         var refreshData = {};
         
         var statuses = createAPI(url);
@@ -585,6 +587,48 @@ var requireTwitter = function() {
                 success(data);
 
             }, error);
+        };
+
+        statuses.getAll = function(success, error) {
+            if (!maxIDForAll) {
+                maxIDForAll = sinceID;
+            } 
+            
+            if (!maxIDForAll) {
+                console.warn('Statuses.getAll(): maxIDForAll is null');
+                return;
+            }
+            
+            this.sendRequest({max_id: maxIDForAll, count: 200}, function(data) {
+                console.log('Statuses.getAll.sendRequest() - success');
+
+                if (data.length > 1) {
+                    // update maxIDForAll
+                    maxIDForAll = data[data.length-1].id_str;
+
+                    // the latest is the first (first is duplicated);
+                    if (allTweets.length) {
+                        data = data.slice(1);
+                    }
+
+                    allTweets = allTweets.concat(data);
+                    console.debug('all data len:', allTweets.length);
+
+                    setTimeout(function() {
+                        statuses.getAll(success, error);
+                    }, 2000);
+                } else {
+                   console.debug('length end, len:', allTweets.length, allTweets);
+                }
+
+
+            }, function(errorStatus) {
+                if (errorStatus.retry) {
+                    errorStatus.retry();
+                } else {
+                    console.debug('stop retry for getall');
+                }
+            });
         };
 
         statuses.getNew = function(success, error) {
