@@ -233,7 +233,7 @@ var Render = {
     <span class="p_body">
         <span class="p_name">{2}</span>
         <span class="p_name_location">@<span class="p_screen_name">{1}</span> {4}</span>
-        <span class="p_tweets">{8} tweets since {3}, {10} t/day</span>
+        <span class="p_tweets">{8} tweets since {3}, {10} t/day <a href="#">Export</a><b class="p_progress">0%</b></span>
         {5}
         {9}
         <span class="p_follow"><a href="#">Following: {7}</a> <a href="#">Followers: {6}</a> {12}</span>
@@ -558,6 +558,7 @@ var createUserTab = function(id, tl) {
 
     var userTab = createStatusesTab(id, tl);
     var relationship = null;
+    var user = null;
 
     userTab.onError = function(errorStatus) {
         if (errorStatus.retry) {
@@ -593,7 +594,7 @@ var createUserTab = function(id, tl) {
         console.log('UserTab.loadOnce()');
         var tabID = '#' + id;
 
-        var user = data[0].user;
+        user = data[0].user;
         if (relationship && user.screen_name != twitter.getCurrentUserName()) {
             user.following = relationship.source.following;
             user.followed_by = relationship.source.followed_by;
@@ -603,6 +604,34 @@ var createUserTab = function(id, tl) {
         }
         $(tabID).prepend(Render.profile(user));
         $('button').button();
+    };
+
+    userTab.exportAll = function(success) {
+        console.log('UserTab.showAll()');
+        var processID = '#' + id + ' .p_progress';
+        var exportID = '#' + id + ' .p_tweets a';
+        $(exportID).hide();
+        $(processID).show();
+
+        tl.getAll(function(data) {
+            if ('number' == typeof data) {
+                var max = 3200;
+                if (user && user.statuses_count < max) {
+                    max = user.statuses_count;
+                }
+                var pro = Math.floor(data*100/(max+200)) + '%';
+                $(processID).text(pro);
+            } else {
+                $(exportID).show();
+                $(processID).hide();
+                success(data);
+            }
+        
+        }, function(errorStatus) {
+            $(exportID).show();
+            $(processID).hide();
+            errorHandler('Failed to retrieve', errorStatus);
+        });
     };
 
     return userTab;
@@ -1017,6 +1046,16 @@ var initEvent = function() {
     $('.profile .p_follow a:last').live('click', function() {
         var screenName = $(this).closest('.profile').find('.p_screen_name').text();
         showFollowers(screenName);
+    });
+    $('.profile .p_tweets a').live('click', function() {
+        var screenName = $(this).closest('.profile').find('.p_screen_name').text();
+        if (TabMgr[screenName]) {
+            TabMgr[screenName].exportAll(function(data) {
+                console.debug('export all ok:', data);
+            });
+        } else {
+            console.error('Tab does not exist:', screenName);
+        }
     });
     $('.profile button').live('click', function() {
         var screenName = $(this).closest('.profile').find('.p_screen_name').text();

@@ -357,7 +357,7 @@ var requireTwitter = function() {
 
             var requestURL = this.getCurrentAPIBase() + url;
             var req = createRequest(type, requestURL, param, success, function(xmlHttpRequest, textStatus, errorThrown) {
-                console.log('API.send() - error:', xmlHttpRequest, textStatus /*, errorThrown*/);
+                console.log('API.send() - error:', xmlHttpRequest, textStatus, errorThrown);
                 /*
 200 OK: Success!
 304 Not Modified: There was no new data to return.
@@ -412,6 +412,12 @@ var requireTwitter = function() {
             var api = createAPI('/users/show.json');
             api.sendRequest({screen_name: screenName,
                              include_entities: true}, success, error);
+        },
+
+        rateLimit: function(success, error) {
+            console.log('Twitter.User.rateLimit()');
+            var api = createAPI('/account/rate_limit_status.json');
+            api.sendRequest(null, success, error);
         }
     };
 
@@ -571,6 +577,7 @@ var requireTwitter = function() {
         statuses.getMore = function(success, error) {
             if (!maxID) {
                 console.warn('Statuses.getMore(): max_id is null');
+                return;
             }
 
             this.sendRequest({max_id: maxID}, function(data) {
@@ -598,42 +605,55 @@ var requireTwitter = function() {
                 console.warn('Statuses.getAll(): maxIDForAll is null');
                 return;
             }
-            
-            this.sendRequest({max_id: maxIDForAll, count: 200}, function(data) {
-                console.log('Statuses.getAll.sendRequest() - success');
 
-                if (data.length > 1) {
-                    // update maxIDForAll
-                    maxIDForAll = data[data.length-1].id_str;
+            // first check rate limit
+            User.rateLimit(function(data) {
+                console.log('User.rateLimit() - success', data);
 
-                    // the latest is the first (first is duplicated);
-                    if (allTweets.length) {
-                        data = data.slice(1);
+                // need about 16 hits to get 3200 tweets
+                if (data.remaining_hits < 20) { // a bit more than 16
+                    error({textStatus: 'Too few APIs remain to complete request'});
+                    return;
+                }
+
+                statuses.sendRequest({max_id: maxIDForAll, count: 200}, function(data) {
+                    console.log('Statuses.getAll.sendRequest() - success');
+
+                    if (data.length > 1) {
+                        // update maxIDForAll
+                        maxIDForAll = data[data.length-1].id_str;
+
+                        // the latest is the first (first is duplicated);
+                        if (allTweets.length) {
+                            data = data.slice(1);
+                        }
+
+                        allTweets = allTweets.concat(data);
+                        console.debug('allTweets len:', allTweets.length);
+
+                        success(allTweets.length); // indicate progress
+
+                        setTimeout(function() {
+                            statuses.getAll(success, error);
+                        }, 2000);
+                    } else {
+                        success(allTweets);
                     }
 
-                    allTweets = allTweets.concat(data);
-                    console.debug('all data len:', allTweets.length);
-
-                    setTimeout(function() {
-                        statuses.getAll(success, error);
-                    }, 2000);
-                } else {
-                   console.debug('length end, len:', allTweets.length, allTweets);
-                }
-
-
-            }, function(errorStatus) {
-                if (errorStatus.retry) {
-                    errorStatus.retry();
-                } else {
-                    console.debug('stop retry for getall');
-                }
-            });
+                }, function(errorStatus) {
+                    if (errorStatus.retry) {
+                        errorStatus.retry();
+                    } else {
+                        error(errorStatus);
+                    }
+                });
+            }, error);
         };
 
         statuses.getNew = function(success, error) {
             if (!sinceID) {
                 console.warn('Statuses.getNew(): since_id is null');
+                return;
             }
 
             // should catch new tweets as much as possible
