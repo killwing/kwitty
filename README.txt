@@ -1,7 +1,7 @@
 kwitty is a local, simple and tab based twitter app for chrome.
 
 1.3 New!
-*Export/Backup anyone's timeline (max 3200 tweets limited by Twitter) to html.
+*Export/Backup anyone's timeline (max 3200 tweets limited by Twitter) to html. Then you can save as (all content) a local file.
 
 Features:
 *Timeline theme change.
