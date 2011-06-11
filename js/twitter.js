@@ -839,8 +839,8 @@ var requireTwitter = function() {
         Pat: {
             // except " < > space
             url: function() { return /https?:\/\/([\w\.\_\-]+)(\/?)[\w\-\_\.\~\!\*\'\(\)\;\:\@\&\=\+\$\,\/\?\#\[\]\{\}\|\\\^\`\%]*/g },
-            name: function() { return /@[\w\_]+/g },
-            tag: function() { return /#([\w\_]+)/g },
+            name: function() { return /(^@| @)[\w\_]+/g },
+            tag: function() { return /(^#| #)([\w\_]+)/g },
         },
 
         computeFreq: function(created, count) {
@@ -850,10 +850,10 @@ var requireTwitter = function() {
         buildEntities: function(text) {
             return text.replace(Util.Pat.url(), '<a href="$&" target="_blank">$&</a>')
                        .replace(Util.Pat.name(), '<a href="#" class="t_userlink">$&</a>')
-                       .replace(Util.Pat.tag(), '<a href="https://encrypted.google.com/search?q=%23$1&tbs=mbl:1" target="_blank">$&</a>');
+                       .replace(Util.Pat.tag(), '<a href="https://encrypted.google.com/search?q=%23$2&tbs=mbl:1" target="_blank">$&</a>');
         },
 
-        makeEntities: function(text, entities, expandSuccess) {
+        makeEntities: function(text, entities) {
             if (!entities) {
                 //text = util.escapeHtml(text);
                 return Util.buildEntities(text);
