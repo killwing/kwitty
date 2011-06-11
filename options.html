@@ -17,7 +17,7 @@
         var item = $(elem).attr('id').replace(/-/g, '.')
         config.saveValue(item, val)
         // notify main page
-        chrome.extension.sendRequest({item: item, value: val}, function(response) {
+        chrome.extension.sendRequest({msg: 'update', item: item, value: val}, function(response) {
             console.log('update value ok')
         })
     }

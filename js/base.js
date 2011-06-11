@@ -89,9 +89,11 @@ var loadValues = function(obj, id) {
 };
 
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-    console.log('config update: ', request.item, ':', request.value);
-    loadValue(request.item, request.value);
-    sendResponse({});
+    if (request.msg == 'update') {
+        console.log('config update: ', request.item, ':', request.value);
+        loadValue(request.item, request.value);
+        sendResponse({});
+    }
 });
 
 
@@ -368,6 +370,27 @@ var Render = {
                                    protectedIcon);
         return html;
     },
+
+    exTweet: function(t) {
+        var html = function() {
+/*
+<tr>
+    <td>{0}</td>
+    <td>{1}</td>
+    <td>{2}</td>
+    <td>{3}</td>
+</tr>
+*/
+        };
+
+        var text = twitter.Util.makeEntities(t.text, t.entities);
+        var from = util.addBlankTarget(t.source);
+        var time = twitter.Util.makeTime(t.created_at);
+        var id = util.addBlankTarget((t.id_str).link("https://twitter.com/"+t.user.screen_name+"/status/"+t.id_str));
+
+        html = html.mlstr().format(id, text, time, from);
+        return html;
+    },
 };
 
 
@@ -541,7 +564,7 @@ var createStatusesTab = function(id, tl) {
         this.preload(function() {
             // first get
             tl.get(statusesTab.onNewTweets, function(errorStatus) {
-                statusesTab.onError(errorStatus)  // make overridable
+                statusesTab.onError(errorStatus);  // make overridable
             });
         }, function(errorStatus) {
             // do nothing
@@ -606,32 +629,27 @@ var createUserTab = function(id, tl) {
         $('button').button();
     };
 
-    userTab.exportAll = function(success) {
+    userTab.exportAll = function(success, error) {
         console.log('UserTab.showAll()');
-        var processID = '#' + id + ' .p_progress';
-        var exportID = '#' + id + ' .p_tweets a';
-        $(exportID).hide();
-        $(processID).show();
+        var progressID = '#' + id + ' .p_progress';
 
         tl.getAll(function(data) {
+
             if ('number' == typeof data) {
                 var max = 3200;
                 if (user && user.statuses_count < max) {
                     max = user.statuses_count;
                 }
-                var pro = Math.floor(data*100/(max+200)) + '%';
-                $(processID).text(pro);
+                var pro = Math.ceil(data*100/max);
+                if (pro > 100) {
+                    pro = 100;
+                }
+                $(progressID).text(pro+'%');
             } else {
-                $(exportID).show();
-                $(processID).hide();
                 success(data);
             }
         
-        }, function(errorStatus) {
-            $(exportID).show();
-            $(processID).hide();
-            errorHandler('Failed to retrieve', errorStatus);
-        });
+        }, error);
     };
 
     return userTab;
@@ -1049,12 +1067,52 @@ var initEvent = function() {
     });
     $('.profile .p_tweets a').live('click', function() {
         var screenName = $(this).closest('.profile').find('.p_screen_name').text();
+        var progress = $(this).closest('.profile').find('.p_progress');
+        var exporter = $(this);
+
         if (TabMgr[screenName]) {
-            TabMgr[screenName].exportAll(function(data) {
-                console.debug('export all ok:', data);
+            $(exporter).hide();
+            $(progress).show();
+
+            // first check rate limit
+            twitter.User.rateLimit(function(data) {
+                console.log('got rate limit', data)
+
+                // need about 16 hits to get 3200 tweets
+                if (data.remaining_hits < 20) { // a bit more than 16
+                    errorHandler('Too few APIs remain to complete export');
+                    return;
+                }
+
+                TabMgr[screenName].exportAll(function(data) {
+                    console.debug('exportAll done, length:', data.length);
+                    $(exporter).show();
+                    $(progress).hide();
+
+                    var html = '';
+                    $.each(data, function(i, t) {
+                        html += Render.exTweet(t);
+                    });
+
+                    chrome.tabs.create({url: chrome.extension.getURL("export.html")}, function(tab) {
+                        chrome.extension.sendRequest({msg: 'export', html: html}, function(response) {
+                            console.log('export tweets ok')
+                        })
+                    });
+
+                }, function(errorStatus) {
+                    $(exporter).show();
+                    $(progress).hide();
+                    errorHandler('Failed to export', errorStatus);
+                });
+            }, function(errorStatus) {
+                $(exporter).show();
+                $(progress).hide();
+                errorHandler('Failed to query rate limit', errorStatus);
             });
+           
         } else {
-            console.error('Tab does not exist:', screenName);
+            errorHandler('UserTab does not exist');
         }
     });
     $('.profile button').live('click', function() {

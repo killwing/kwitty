@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>kwitty tweets backup</title>  
+<script type="text/javascript">
+    chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+        if (request.msg == 'export') {
+            console.log('---:', request, sender);
+            document.getElementById("tweets").innerHTML = request.html;
+            sendResponse({});
+        }
+    });
+</script>
+
+<style type="text/css">
+body {
+    font-family: Verdana, sans-serif, Arial;
+    font-weight: normal;
+    font-size: 11px;
+    padding: 0;
+    margin: 0;
+}
+
+table { 
+    text-align: left;
+    background-color: #fafafa;
+    width: 100%;
+    border: 0px;
+    border-collapse: collapse;
+    border-spacing: 0px; 
+    white-space: pre;
+}
+
+table th { 
+    border-bottom: 1px #6699CC solid;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 8px;
+    padding-right: 0px; 
+}
+
+table td { 
+    border-bottom: 1px #6699CC dotted;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 8px;
+    padding-right: 0px; 
+}
+</style>
+</head>
+
+<body>  
+<div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tweet</th>
+                <th>Time</th>
+                <th>From</th>
+            </tr>
+        </thead>
+        <tbody id="tweets"></tbody>
+    </table>
+</div>
+</body>
+</html>
