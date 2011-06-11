@@ -356,7 +356,13 @@ var requireTwitter = function() {
             });
 
             var requestURL = this.getCurrentAPIBase() + url;
-            var req = createRequest(type, requestURL, param, success, function(xmlHttpRequest, textStatus, errorThrown) {
+            var req = createRequest(type, requestURL, param, function(data) {
+                if (data.error) { // handle non-transmission errors
+                    error({textStatus: data.error});
+                    return;
+                }
+                success(data);
+            }, function(xmlHttpRequest, textStatus, errorThrown) {
                 console.log('API.send() - error:', xmlHttpRequest, textStatus/*, errorThrown*/);
                 /*
 200 OK: Success!

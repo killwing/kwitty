@@ -600,11 +600,6 @@ var createUserTab = function(id, tl) {
     // the following info of user object is not correct, use another api instead
     userTab.preload = function(success, error) {
         twitter.Friendship.show(id, function(data) {
-            if (data.error) { // may not found
-                userTab.onError({textStatus: data.error});
-                return;
-            }
-
             relationship = data.relationship;
             success();
         }, function(errorStatus) {
