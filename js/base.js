@@ -235,7 +235,7 @@ var Render = {
     <span class="p_body">
         <span class="p_name">{2}</span>
         <span class="p_name_location">@<span class="p_screen_name">{1}</span> {4}</span>
-        <span class="p_tweets">{8} tweets since {3}, {10} t/day <a href="#">Export</a><b class="p_progress">0%</b></span>
+        <span class="p_tweets">{8} tweets since {3}, {10} t/day <a href="#">Export</a><b class="p_progress"></b></span>
         {5}
         {9}
         <span class="p_follow"><a href="#">Following: {7}</a> <a href="#">Followers: {6}</a> {12}</span>
@@ -384,6 +384,7 @@ var Render = {
         };
 
         var text = twitter.Util.makeEntities(t.text, t.entities);
+        text = text.replace(/<a href="#" class="t_userlink">@([\w\_]+)<\/a>/g, '<a href="https://twitter.com/$1" target="_blank">@$1</a>');  // replace user link
         var from = util.addBlankTarget(t.source);
         var time = twitter.Util.makeTime(t.created_at);
         var id = util.addBlankTarget((t.id_str).link("https://twitter.com/"+t.user.screen_name+"/status/"+t.id_str));
@@ -1067,7 +1068,7 @@ var initEvent = function() {
 
         if (TabMgr[screenName]) {
             $(exporter).hide();
-            $(progress).show();
+            $(progress).text('0%');
 
             // first check rate limit
             twitter.User.rateLimit(function(data) {
@@ -1080,9 +1081,9 @@ var initEvent = function() {
                 }
 
                 TabMgr[screenName].exportAll(function(data) {
-                    console.debug('exportAll done, length:', data.length);
+                    console.log('exportAll done, length:', data.length);
                     $(exporter).show();
-                    $(progress).hide();
+                    $(progress).text('');
 
                     var html = '';
                     $.each(data, function(i, t) {
@@ -1097,12 +1098,12 @@ var initEvent = function() {
 
                 }, function(errorStatus) {
                     $(exporter).show();
-                    $(progress).hide();
+                    $(progress).text('');
                     errorHandler('Failed to export', errorStatus);
                 });
             }, function(errorStatus) {
                 $(exporter).show();
-                $(progress).hide();
+                $(progress).text('');
                 errorHandler('Failed to query rate limit', errorStatus);
             });
            
@@ -1257,6 +1258,11 @@ var errorHandler = function(info, errorStatus) {
     if (reason) {
         info += ': ' + reason;
     }
+
+    showTip(info);
+};
+
+var showTip = function(info)  {
     $('#tip span').text(info);
     $('#tip').css('top', $(window).height()-50);
     $('#tip').fadeIn('slow', function() {
@@ -1264,6 +1270,5 @@ var errorHandler = function(info, errorStatus) {
             $('#tip').fadeOut('slow');
         }, 3000);
     });
-};
-
+}
 

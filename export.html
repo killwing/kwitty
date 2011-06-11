@@ -5,7 +5,6 @@
 <script type="text/javascript">
     chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
         if (request.msg == 'export') {
-            console.log('---:', request, sender);
             document.getElementById("tweets").innerHTML = request.html;
             sendResponse({});
         }
@@ -24,11 +23,13 @@ body {
 table { 
     text-align: left;
     background-color: #fafafa;
-    width: 100%;
     border: 0px;
     border-collapse: collapse;
     border-spacing: 0px; 
     white-space: pre;
+    width: 100%;
+    table-layout: fixed;
+    word-wrap: break-word;
 }
 
 table th { 
@@ -46,6 +47,23 @@ table td {
     padding-left: 8px;
     padding-right: 0px; 
 }
+
+a:link {
+    text-decoration: none;
+    color: #06B
+}	
+a:visited {
+    text-decoration: none;
+    color: #06B
+}
+a:hover {
+    text-decoration: underline;
+    color: #06B
+}
+a:active {
+    text-decoration: none;
+    color: #06B
+}
 </style>
 </head>
 
@@ -54,10 +72,10 @@ table td {
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+                <th width="150">ID</th>
                 <th>Tweet</th>
-                <th>Time</th>
-                <th>From</th>
+                <th width="160">Time</th>
+                <th width="100">From</th>
             </tr>
         </thead>
         <tbody id="tweets"></tbody>

@@ -21,10 +21,14 @@
             add: function(event, ui) {
                 //$('#tabs').tabs('select', '#'+ui.panel.id)
                 //$(ui.panel).append("");
-            },            
+            },
 		});
 
         $("#tabs span.ui-icon-close").live("click", function() {
+            if ($($(this).siblings('a').attr('href')).find('.p_progress').text()) { // check whether export is ongoing
+                showTip('Exporting tweets, please wait.');
+                return;
+            }
             var index = $("li", "#tabs").index($(this).parent());
             $("#tabs").tabs("remove", index);
         });
