@@ -40,7 +40,7 @@ var requireConfig = function() {
                     autoload: false,
                 },
                 api: {
-                    address: 'http://kwittyapp.appspot.com',
+                    address: 'http://kwittyapp.appspot.com/api/1',
                 }
             },
             gui: {

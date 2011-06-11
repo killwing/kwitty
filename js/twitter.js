@@ -134,7 +134,11 @@ var requireTwitter = function() {
                 setAuthorizationHeader('Basic ' + confd.x);
 
                 var req = createRequest('GET', loginURL, {}, function(ret) {
-                    console.log('BAuth.login() - success:', ret);
+                    console.log('BAuth.login() - result:', ret);
+                    if (ret.error) {
+                        error({textStatus: ret.error});
+                        return;
+                    }
 
                     ba.saveConfd();
 
@@ -278,7 +282,7 @@ var requireTwitter = function() {
             } else if (verifier) {
                 console.log('OAuth.login(): already verified');
                 this.access(verifier, function(ret) {                    
-                    console.log('access() - success:', ret);
+                    console.log('access() - result:', ret);
 
                     // update token
                     token = util.getQueryStringParams(ret);
@@ -299,7 +303,7 @@ var requireTwitter = function() {
                 // reset token first
                 token = {}
                 this.requestToken(callbackURL, function(ret) {
-                    console.log('requestToken() - success:', ret);
+                    console.log('requestToken() - result:', ret);
 
                     token = util.getQueryStringParams(ret);
                     oa.saveToken();
