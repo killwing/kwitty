@@ -81,7 +81,7 @@
             reader.readAsDataURL(file)
             reader.onload = function(e){
                 config.saveToLS('bgImgData', this.result)
-                chrome.extension.sendRequest({item: 'bgImgData', value: this.result}, function(response) {
+                chrome.extension.sendRequest({msg: 'update', item: 'bgImgData', value: this.result}, function(response) {
                     console.log('update bgImgData ok')
                 })
             }

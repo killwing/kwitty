@@ -364,8 +364,12 @@ var requireTwitter = function() {
                 if (data.error) { // handle non-transmission errors
                     error({textStatus: data.error});
                     return;
+                } else if (data.errors) {
+                    error({textStatus: data.errors[0].message});
+                    return;
+                } else {
+                    success(data);
                 }
-                success(data);
             }, function(xmlHttpRequest, textStatus, errorThrown) {
                 console.log('API.send() - error:', xmlHttpRequest, textStatus/*, errorThrown*/);
                 /*
