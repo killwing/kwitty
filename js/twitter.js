@@ -885,7 +885,7 @@ var requireTwitter = function() {
             $.each(entities.hashtags, function(i, hashtag) {
                 var twSearch = 'https://twitter.com/search?q=%23' + hashtag.text;
                 var ggSearch = 'https://encrypted.google.com/search?q=%23' + hashtag.text + '&tbs=mbl:1';
-                replaces[text.slice(hashtag.indices[0], hashtag.indices[1])] = '<a href="'+ggSearch+'" target="_blank">#'+hashtag.text+'</a>';
+                replaces[text.slice(hashtag.indices[0], hashtag.indices[1])] = '<a href="'+twSearch+'" target="_blank">#'+hashtag.text+'</a>';
             });
             $.each(entities.user_mentions, function(i, user) {
                 replaces[text.slice(user.indices[0], user.indices[1])] = '<a href="#" class="t_userlink">@'+user.screen_name+'</a>';
