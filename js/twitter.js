@@ -476,7 +476,13 @@ var requireTwitter = function() {
             console.log('Twitter.Tweet.destroyMsg()');
             var api = createAPI('/direct_messages/destroy/'+id+'.json');
             api.sendMessage(null, success, error);
-        }
+        },
+
+        retweetedBy: function(id, success, error) {
+            console.log('Twitter.Tweet.retweetedBy()');
+            var api = createAPI('/statuses/'+id+'/retweeted_by.json');
+            api.sendRequest({include_entities: true}, success, error);
+        },
     };
 
     var Fav = {
@@ -711,6 +717,12 @@ var requireTwitter = function() {
         return mentionsTL;
     };
 
+    var createRetweetsTL = function() {
+        console.log('Twitter.createRetweetsTL()');
+        var retweetsTL = createStatuses('/statuses/retweets_of_me.json');
+        return retweetsTL;
+    };
+
     var createMessagesTL = function() {
         console.log('Twitter.createMessagesTL()');
 
@@ -901,6 +913,7 @@ var requireTwitter = function() {
         createHomeTL: createHomeTL,
         createUserTL: createUserTL,
         createMentionsTL: createMentionsTL,
+        createRetweetsTL: createRetweetsTL,
         createMessagesTL: createMessagesTL,
         createFavoritesTL: createFavoritesTL,
         createFollowers: createFollowers,

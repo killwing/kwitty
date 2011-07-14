@@ -197,8 +197,7 @@ a.link_button:hover {
 }
 
 .tl > button, .fs > button {
-    margin-left: 5px;
-    width: 98%;
+    width: 100%;
     height: 30px;
 }
 .fs ol button {
@@ -372,6 +371,15 @@ a.link_button:hover {
     color: #888;
     margin: 2px;
     padding: 2px;
+}
+.t_retweeted_by {
+    display: none;
+}
+#retweets .t_status .t_retweeted_by {
+    display: inline-block;
+}
+.t_retweeters img{
+    cursor: pointer;
 }
 
 .icon {

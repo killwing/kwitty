@@ -36,6 +36,7 @@ var requireConfig = function() {
                 refresh: {
                     home: '1',
                     mentions: '3',
+                    retweets: '3',
                     messages: '5',
                     autoload: false,
                 },
@@ -55,6 +56,7 @@ var requireConfig = function() {
                     compact: true,
                     expandurl: false,
                     rich: false,
+                    tabwidth: 'Normal',
                 }
             },
         };
@@ -106,6 +108,13 @@ var requireConfig = function() {
         // new in v1.2
         if (!config.gui.theme) {
             config.gui.theme = defConfig().gui.theme;
+        }
+        // new in v1.4
+        if (!config.basics.refresh.retweets) {
+            config.basics.refresh.retweets = defConfig().basics.refresh.retweets;
+        }
+        if (!config.gui.display.tabwidth) {
+            config.gui.display.tabwidth = defConfig().gui.display.tabwidth;
         }
     };
 

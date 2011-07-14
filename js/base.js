@@ -15,6 +15,9 @@ var cfgUpdater = {
             mentions: function(t) {
                 TabMgr.mentions.setRefreshTime(t);
             },
+            retweets: function(t) {
+                TabMgr.retweets.setRefreshTime(t);
+            },
             messages: function(t) {
                 TabMgr.messages.setRefreshTime(t);
             },
@@ -57,6 +60,19 @@ var cfgUpdater = {
             },
             rich: function(v) {
                 config.get().gui.display.rich = v;
+            },
+            tabwidth: function(v) {
+                chrome.windows.getCurrent(function(w) {
+                    if ((w.type != 'app' && w.type != 'popup')) {
+                        if (v == 'Normal') {
+                            $('#container').width(540);
+                        } else if (v == 'Wider') {
+                            $('#container').width(1000);
+                        } else if (v == 'Full') {
+                            $('#container').width('100%');
+                        }
+                    }
+                })
             }
         }
     },
@@ -120,7 +136,7 @@ var Render = {
         </span>
         <span class="t_text">{3}</span>
         <span class="t_ref">
-            <span>{4} {5}</span>
+            <span>{4} {5}{15}</span>
         </span>
     </span>
 </li>
@@ -135,6 +151,9 @@ var Render = {
             rt = '<span class="t_retweeted_icon icon" /> by <span class="t_retweet" id="{1}"><a href="#">{0}</a></span>'.format(t.user.screen_name, t.id_str);
             tweet = t.retweeted_status;
         }
+
+        // retweeted by
+        var rtby = '<span class="t_retweeted_by" id="{0}">, <a href="#">retweeted by</a></span>&nbsp;<img class="spinner invisible" src="../img/spinner.gif">'.format(tweet.id_str);
 
         // reply
         var re = '';
@@ -212,7 +231,8 @@ var Render = {
                                    retweetIcon,
                                    favIcon,
                                    dmIcon,
-                                   delIcon);
+                                   delIcon,
+                                   rtby);
         return html;
     },
 
@@ -224,6 +244,22 @@ var Render = {
         };
 
         html = html.mlstr().format(twitter.Util.makeEntities(t.text, t.entities));
+        return html;
+    },
+
+    retweeters: function(users) {
+        var html = function() {
+/*
+<span class="t_retweeters">{0}</span>
+*/
+        };
+
+        var userslist = '';
+        $.each(users, function(i, u) {
+            userslist += '<img src="{0}" title="{1}"> '.format(u.profile_image_url.replace('_normal.', '_mini.'), u.screen_name);
+        });
+
+        html = html.mlstr().format(userslist);
         return html;
     },
 
@@ -275,7 +311,7 @@ var Render = {
             }
         }
 
-        html = html.mlstr().format(user.profile_image_url.replace("_normal.", "_bigger."), // make bigger image
+        html = html.mlstr().format(user.profile_image_url.replace('_normal.', '_bigger.'), // make bigger image
                                    user.screen_name,
                                    user.name,
                                    since,
@@ -398,6 +434,7 @@ var Render = {
 var TabMgr = {
     home: null,
     mentions: null,
+    retweets: null,
     messages: null,
     favorites: null,
 };
@@ -871,18 +908,37 @@ var showUser = function(screenName) {
 };
 
 var showReply = function(thisElem, id) {
-    var tBody = $(thisElem).closest('.t_body');
-    var reply = $(tBody).find('.t_reply_text');
+    var tInfo = $(thisElem).closest('.t_info');
+    var reply = $(tInfo).siblings('.t_reply_text');
     if (reply.length) { // already loaded
         $(reply).slideToggle();
     } else {
-        $(tBody).find('.spinner').css('visibility', 'visible');
+        $(tInfo).find('.spinner').css('visibility', 'visible');
         twitter.Tweet.show(id, function(data) {
-            $(tBody).find('.spinner').css('visibility', 'hidden');
-            $(tBody).find('.t_info').after(Render.reply(data));
+            $(tInfo).find('.spinner').css('visibility', 'hidden');
+            $(tInfo).after(Render.reply(data));
         }, function(errorStatus) {
-            $(tBody).find('.spinner').css('visibility', 'hidden');
+            $(tInfo).find('.spinner').css('visibility', 'hidden');
             errorHandler('Failed to load reply', errorStatus);
+        });
+    }
+
+    return false;
+};
+
+var showRetweetedBy = function(thisElem, id) {
+    var tRef = $(thisElem).closest('.t_ref');
+    var rters = $(tRef).siblings('.t_retweeters');
+    if (rters.length) { // already loaded
+        $(rters).slideToggle();
+    } else {
+        $(tRef).find('.spinner').css('visibility', 'visible');
+        twitter.Tweet.retweetedBy(id, function(data) {
+            $(tRef).find('.spinner').css('visibility', 'hidden');
+            $(tRef).after(Render.retweeters(data));
+        }, function(errorStatus) {
+            $(tRef).find('.spinner').css('visibility', 'hidden');
+            errorHandler('Failed to load retweeters', errorStatus);
         });
     }
 
@@ -1046,10 +1102,20 @@ var initEvent = function() {
         var screenName = $(this).text();
         showUser(screenName);
     });
+    $('.t_status .t_retweeters img').live('click', function() {
+        var screenName = $(this).attr('title');
+        showUser(screenName);
+    });
 
     $('.t_status .t_reply').live('click', function() {
         var id = $(this).attr('id');
         showReply(this, id);
+        return false; // do not go to top
+    });
+
+    $('.t_status .t_retweeted_by').live('click', function() {
+        var id = $(this).attr('id');
+        showRetweetedBy(this, id);
         return false; // do not go to top
     });
 
@@ -1126,6 +1192,7 @@ var onLoginSuccess = function(screenName) {
     // create instances
     TabMgr.home = createStatusesTab('home', twitter.createHomeTL()).init();
     TabMgr.mentions = createStatusesTab('mentions', twitter.createMentionsTL()).init();
+    TabMgr.retweets = createStatusesTab('retweets', twitter.createRetweetsTL()).init();
     TabMgr.messages = createStatusesTab('messages', twitter.createMessagesTL()).init();
     TabMgr.favorites = createStatusesTab('favorites', twitter.createFavoritesTL()).init();
     tweetBox = createTweetBox('update');
