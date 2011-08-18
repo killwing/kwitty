@@ -309,8 +309,8 @@ var requireTwitter = function() {
                     oa.saveToken();
 
                     // redirect
-                    oa.authorize();
-                    //oa.authenticate()  // there's a bug of API that it can not redirect to 'chrome-extension://*' when it is set to the callbackURL
+                    oa.authorize(); // use the original(previous) URL for the callbackURL
+                    //oa.authenticate()  // there's a bug of API that it can not redirect to 'chrome-extension://*' when it is set to the twitter app's callbackURL
 
                 }, function(xmlHttpRequest, textStatus, errorThrown) {
                     error({
@@ -880,7 +880,8 @@ var requireTwitter = function() {
             }
             var replaces = {}
             $.each(entities.urls, function(i, url) {
-                replaces[text.slice(url.indices[0], url.indices[1])] = '<a href="'+url.url+'" target="_blank">'+url.url+'</a>';
+                var realurl = url.expanded_url ? url.expanded_url : url.url;
+                replaces[text.slice(url.indices[0], url.indices[1])] = '<a href="'+realurl+'" target="_blank">'+url.url+'</a>';
             });
             $.each(entities.hashtags, function(i, hashtag) {
                 var twSearch = 'https://twitter.com/search?q=%23' + hashtag.text;
@@ -890,6 +891,13 @@ var requireTwitter = function() {
             $.each(entities.user_mentions, function(i, user) {
                 replaces[text.slice(user.indices[0], user.indices[1])] = '<a href="#" class="t_userlink">@'+user.screen_name+'</a>';
             });
+
+            if (entities.media) {
+                $.each(entities.media, function(i, md) {
+                    var realurl = md.expanded_url ? md.expanded_url : md.url;
+                    replaces[text.slice(md.indices[0], md.indices[1])] = '<a href="'+realurl+'" target="_blank">'+md.url+'</a>';
+                });
+            }
 
             // escape first 
             text = util.escapeHtml(text);

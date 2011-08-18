@@ -192,7 +192,7 @@ var Render = {
             }
 
         } else { // normal tweet
-            from = 'from {0}'.format(util.addBlankTarget(tweet.source));
+            from = 'via {0}'.format(util.addBlankTarget(tweet.source));
             ref = util.addBlankTarget(twitter.Util.makeTime(tweet.created_at).link("https://twitter.com/"+tweet.user.screen_name+"/status/"+tweet.id_str));
 
             // hide retweet if it is your own tweet or retweeted
