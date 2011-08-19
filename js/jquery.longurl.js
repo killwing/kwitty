@@ -6,7 +6,7 @@ $.fn.extend({
 
     longurl: function() {
         var urlRe = /https?:\/\/([\w\.\_\-]+)(\/?)[\w\-\_\.\~\!\*\'\(\)\;\:\@\&\=\+\$\,\/\?\#\[\]\{\}\|\\\^\`\%]*/
-        var tcoRe = /http:\/\/t\.co\/\w+/
+        var tcoRe = /https?:\/\/t\.co\/\w+/
 
         var items = [];
         this.each(function() {
@@ -38,7 +38,6 @@ $.fn.extend({
             };
 
             if (tcoRe.test(v.node.text()) && v.url.length > 30) { // already official expanded
-                console.debug('=======', v.url)
                 showEx({'long-url': v.url});
             } else if (v.url.length <= 30) {
                 $.getJSON('http://api.longurl.org/v2/expand?callback=?', {url: encodeURI(v.url), format: 'json'}, showEx);
