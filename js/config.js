@@ -128,6 +128,7 @@ var requireConfig = function() {
         }   
     };
 
+    // exports
     return {
         set: set,
         saveValue: saveValue,

@@ -85,7 +85,7 @@ var requireUtil = function() {
         return a.replace(/^<a /, '<a target="_blank" ');
     };
 
-    // export
+    // exports
     return {
         getQueryStringParams: getQueryStringParams,
         addURLParam: addURLParam,

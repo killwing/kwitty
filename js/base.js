@@ -709,8 +709,8 @@ var createFriendshipTab = function(id, fs) {
         console.log('FriendshipTab.onMoreUsers()');
 
         $(loaderID).hide();
-        if (data.users.length) {
-            fsTab.append(data.users);
+        if (data.length) {
+            fsTab.append(data);
             $(moreBtnID).show();
         } else {
             errorHandler('No more users');
@@ -745,10 +745,12 @@ var createTweetBox = function(id) {
     var cancelID = '#' + id + ' .cancel';
     var tweetID = '#' + id + ' .tweet';
     var spinnerID = '#' + id + ' .spinner';
+    var uploadID = '#' + id + ' .t_upmedia_icon';
     var homeTLID = '#home .tl ol';
 
     var content = null;
     var toStatus = null;
+    var upfile = null;
 
     var tweetBox = {};
     tweetBox.begin = function() {
@@ -763,8 +765,8 @@ var createTweetBox = function(id) {
         content = $(taID).val();
         var total = 140;
 
-        var dm = /^d (\w|_)+ /i.exec(content);
-        var find = /^f (\w|_)+/i.exec(content);
+        var dm = /^d \w+ /i.exec(content);
+        var find = /^f \w+/i.test(content);
         if (dm) {
             total += dm[0].length;
             $(tweetID).text('Send');
@@ -794,6 +796,8 @@ var createTweetBox = function(id) {
         $(counterID).text(140);
         content = null;
         toStatus = null;
+        upfile = null;
+        $('#upMediaName').text('');
         return false;
     };
 
@@ -834,6 +838,7 @@ var createTweetBox = function(id) {
 
     tweetBox.dm = function(screenName) {
         toStatus = null;
+
         this.begin();
         content = 'd ' + screenName + ' ';
         $(taID).focus();
@@ -845,15 +850,16 @@ var createTweetBox = function(id) {
         if (content) {
             if ($(tweetID).text() == 'Tweet') {
                 $(spinnerID).show();
-                if (toStatus) {
-                    twitter.Tweet.reply(content, toStatus, tweetBox.onSuccess, tweetBox.onError);
+                if (upfile) {
+                    twitter.Tweet.updateMedia(content, toStatus, upfile, tweetBox.onSuccess, tweetBox.onError);
                 } else {
-                    twitter.Tweet.update(content, tweetBox.onSuccess, tweetBox.onError);
+                    twitter.Tweet.update(content, toStatus, tweetBox.onSuccess, tweetBox.onError);
                 }
+
             } else if ($(tweetID).text() == 'Send') {  // dm
                 $(spinnerID).show();
-                var dm = /^d ((\w|_)+) (.+)/i.exec(content);
-                twitter.Tweet.directMsg(dm[1], dm[3], function(data) {
+                var dm = /^d (\w+) (.+)/i.exec(content);
+                twitter.Tweet.directMsg(dm[1], dm[2], function(data) {
                     $(spinnerID).hide();
                     tweetBox.reset();
 
@@ -863,12 +869,16 @@ var createTweetBox = function(id) {
                     $('#tabs').tabs('select', 2);
                 }, tweetBox.onError);
             } else if ($(tweetID).text() == 'Find') {
-                var dm = /^f ((\w|_)+)/i.exec(content);
-                showUser(dm[1]);
+                var f = /^f (\w+)/i.exec(content);
+                showUser(f[1]);
                 tweetBox.reset();
             }
         }
         return false;
+    };
+
+    tweetBox.upload = function() {
+        $('#upMediaData').click();
     };
 
     // local init
@@ -877,6 +887,21 @@ var createTweetBox = function(id) {
         $(taID).keyup(tweetBox.change);
         $(cancelID).click(tweetBox.reset);
         $(tweetID).click(tweetBox.update);
+        $(uploadID).click(tweetBox.upload);
+
+        $('#upMediaData').change(function() {
+            var file = this.files[0];
+            if (!file) {
+                return;
+            }
+            if(!/image\/\w+/.test(file.type)){
+                alert('Not image file!');
+                return;
+            }
+
+            $('#upMediaName').text(file.fileName);
+            upfile = file;
+        });
 
         tweetBox.reset();
     })();

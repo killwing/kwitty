@@ -16,6 +16,14 @@
 <script type="text/javascript" src="js/base.js"></script>
 <script type="text/javascript">
     $(function(){
+        $('#topbar').click(function() {
+            $("body").animate({scrollTop:0});
+        });
+
+        $('#update').click(function() {
+            return false;
+        });
+
         $("#tabs").tabs({
             tabTemplate: "<li><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close'>Remove Tab</span></li>",
             add: function(event, ui) {
@@ -92,6 +100,8 @@
             <textarea class="textarea ta_inactive"></textarea>
             <div id="actions">
                 <img class="spinner" src="img/spinner.gif">
+                <span class="t_upmedia_icon"></span>
+                <span id="upMediaName"></span>
                 <Strong class="counter">Counter</Strong>
                 <a href="#" class="tweet link_button">Tweet</a>
                 <a href="#" class="cancel link_button">Cancel</a>
@@ -110,6 +120,7 @@
             <p class="loader hidden"><img src="img/spinner.gif"> Login...<p>
         </div>
     </div>
+    <input id='upMediaData' type="file" />
 
     <div id="container">
         <div id="holder"></div>

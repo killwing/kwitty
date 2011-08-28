@@ -179,6 +179,23 @@ a.link_button:hover {
     display: none;
 }
 
+#actions .t_upmedia_icon {
+    float: left;
+    cursor: pointer;
+    display: block;
+    margin-left: 25px;
+}
+
+#upMediaData {
+    visibility: hidden;
+    position: absolute;
+    z-index: -1;
+}
+#upMediaName {
+    float: left;
+    margin-left: 5px;
+}
+
 #tabs {
     width: 100%;
     display: none;
@@ -443,6 +460,17 @@ a.link_button:hover {
 }
 .t_protected_icon {
     background: transparent url("../img/sprite-icons.png") no-repeat -256px -13px;
+}
+
+.t_upmedia_icon {
+    background: transparent url("../img/sprite-icons.png") no-repeat -160px -126px;
+    height: 16px;
+    width: 18px;
+}
+.t_upmedia_icon:hover  {
+    background: transparent url("../img/sprite-icons.png") no-repeat -128px -126px;
+    height: 16px;
+    width: 18px;
 }
 
 

@@ -96,7 +96,7 @@ if (OAuthSimple === undefined)
             self._secrets['shared_secret'] = shared_secret; 
             }
         self._default_signature_method= "HMAC-SHA1";
-        self._action = "GET";
+        self._action = undefined;
         self._nonce_chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         self._parameters={};
 
@@ -136,7 +136,7 @@ if (OAuthSimple === undefined)
                 this._getAccessToken();
                 }
             if(this._parameters['oauth_version'] === undefined) {
-                this._parameters['oauth_version']=='1.0';
+                this._parameters['oauth_version']='1.0';
                 }
 
             return this;
@@ -155,9 +155,9 @@ if (OAuthSimple === undefined)
          * @param path {string} the fully qualified URI (excluding query arguments) (e.g "http://example.org/foo")
          */
         self.setURL = function (path) {
-            if (path == '') {
-                throw ('No path specified for OAuthSimple.setURL');
-                }
+            if (!path) {
+                return;
+            }
             this._path = path;
             return this;
         };
@@ -175,9 +175,9 @@ if (OAuthSimple === undefined)
          * @param action {string} HTTP Action word.
          */
         self.setAction = function(action) {
-            if (action === undefined) {
-                action="GET";
-                }
+            if (!action) {
+                return;
+            }
             action = action.toUpperCase();
             if (action.match('[^A-Z]')) {
                 throw ('Invalid action specified for OAuthSimple.setAction');
@@ -257,13 +257,13 @@ if (OAuthSimple === undefined)
             // Set any given parameters
             if(args['action'] !== undefined) {
                 this.setAction(args['action']);
-                }
+            }
             if (args['path'] !== undefined) {
                 this.setPath(args['path']);
-                }
+            }
             if (args['method'] !== undefined) {
                 this.setSignatureMethod(args['method']);
-                }
+            }
             this.signatures(args['signatures']);
             this.setParameters(args['parameters']);
             // check the parameters
@@ -293,21 +293,25 @@ if (OAuthSimple === undefined)
             var j,pName,pLength,result = 'OAuth ';
             for (pName in this._parameters)
             {
-                if (pName.match(/^oauth/) === undefined) {
+                if (!/^oauth/.test(pName)) {
                     continue;
-                    }
+                }
                 if ((this._parameters[pName]) instanceof Array)
                 {
                     pLength = this._parameters[pName].length;
                     for (j=0;j<pLength;j++)
                     {
-                        result += pName +'="'+this._oauthEscape(this._parameters[pName][j])+'" ';
+                        result += pName +'="'+this._oauthEscape(this._parameters[pName][j])+'",';
                     }
                 }
                 else
                 {
-                    result += pName + '="'+this._oauthEscape(this._parameters[pName])+'" ';
+                    result += pName + '="'+this._oauthEscape(this._parameters[pName])+'",';
                 }
+            }
+
+            if (/,$/.test(result)) {
+                result = result.slice(0, -1);
             }
             return result;
         };
@@ -456,7 +460,12 @@ if (OAuthSimple === undefined)
             }
             if (this._parameters['oauth_signature_method'] == 'HMAC-SHA1')
             {
-                var sigString = this._oauthEscape(this._action)+'&'+this._oauthEscape(this._path)+'&'+this._oauthEscape(this._normalizedParameters());
+                var sigString = '';
+                if (this._action && this._path) {
+                    sigString = this._oauthEscape(this._action)+'&'+this._oauthEscape(this._path)+'&'+this._oauthEscape(this._normalizedParameters());
+                } else {
+                    sigString = this._oauthEscape(this._normalizedParameters());
+                }
                 return this.b64_hmac_sha1(secretKey,sigString);
             }
             return null;
