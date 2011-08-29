@@ -775,6 +775,9 @@ var createTweetBox = function(id) {
             $(tweetID).text('Find');
         } else {
             $(tweetID).text('Tweet');
+            if (upfile) {
+                total -= 20; // media url (t.co) takes 20 chars    
+            }
         }
 
         var charleft = total - content.length;
@@ -792,7 +795,7 @@ var createTweetBox = function(id) {
         $(taID).siblings().hide();
         $(tweetID).text('Tweet');
         $(tweetID).hide();
-        $(spinnerID).hide();
+        $(spinnerID).css('visibility', 'hidden');
         $(counterID).text(140);
         content = null;
         toStatus = null;
@@ -802,12 +805,12 @@ var createTweetBox = function(id) {
     };
 
     tweetBox.onError = function(errorStatus) {
-        $(spinnerID).hide();
+        $(spinnerID).css('visibility', 'hidden');
         errorHandler('Failed to update status', errorStatus);
     };
 
     tweetBox.onSuccess = function(data) {
-        $(spinnerID).hide();
+        $(spinnerID).css('visibility', 'hidden');
         tweetBox.reset();
 
         // show in home TL
@@ -847,9 +850,9 @@ var createTweetBox = function(id) {
     };
 
     tweetBox.update = function() {
-        if (content) {
+        if (content || upfile) {
             if ($(tweetID).text() == 'Tweet') {
-                $(spinnerID).show();
+                $(spinnerID).css('visibility', 'visible');
                 if (upfile) {
                     twitter.Tweet.updateMedia(content, toStatus, upfile, tweetBox.onSuccess, tweetBox.onError);
                 } else {
@@ -857,10 +860,10 @@ var createTweetBox = function(id) {
                 }
 
             } else if ($(tweetID).text() == 'Send') {  // dm
-                $(spinnerID).show();
+                $(spinnerID).css('visibility', 'visible');
                 var dm = /^d (\w+) (.+)/i.exec(content);
                 twitter.Tweet.directMsg(dm[1], dm[2], function(data) {
-                    $(spinnerID).hide();
+                    $(spinnerID).css('visibility', 'hidden');
                     tweetBox.reset();
 
                     // show in messages TL
@@ -901,6 +904,7 @@ var createTweetBox = function(id) {
 
             $('#upMediaName').text(file.fileName);
             upfile = file;
+            tweetBox.change();
         });
 
         tweetBox.reset();

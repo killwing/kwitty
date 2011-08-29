@@ -27,7 +27,7 @@ var requireTwitter = function() {
                 if (rest.domain == 'search') {
                     base = 'https://search.twitter.com';
                 } else if (rest.domain == 'upload') {
-                    base = 'http://upload.twitter.com/1';
+                    base = 'https://upload.twitter.com/1';
                 } else if (rest.domain == 'oauth') {
                     base = api.oauthBase;
                 } else {
@@ -324,12 +324,10 @@ var requireTwitter = function() {
                 // compute hash of all base string
                 var hash = null;
                 if (rest.domain == 'upload') { // not sign params
-                    hash = oauth.sign();
+                    hash = oauth.sign(rest.method, url);
                 } else {
                     hash = oauth.sign(rest.method, url, data);
                 }
-                console.log('===hash', hash)
-
 
                 // filter non-oauth data out
                 var nonOAuthData = {}
@@ -362,10 +360,9 @@ var requireTwitter = function() {
             };
 
             if (rest.domain == 'upload') { // media upload
-                options.contentType = 'multipart/form-data';
+                options.contentType = false; // should set false while not 'multipart/form-data' (missing boundary)
                 options.processData = false;
                 options.data = data.formData; // only include form data
-                console.debug('=====uploading', options)
             }
 
             $.ajax(options);
@@ -716,7 +713,9 @@ var requireTwitter = function() {
 
             // build form data
             var formData = new FormData();
-            formData.append('status', msg);
+            if (msg) { // msg could be null
+                formData.append('status', msg);
+            }
             //formData.append('include_entities', true);
             if (to) {
                 formData.append('in_reply_to_status_id', to);

@@ -176,14 +176,14 @@ a.link_button:hover {
 }
 #actions .spinner {
     float: left;
-    display: none;
+    visibility: hidden;
 }
 
 #actions .t_upmedia_icon {
     float: left;
     cursor: pointer;
     display: block;
-    margin-left: 25px;
+    margin-left: 5px;
 }
 
 #upMediaData {

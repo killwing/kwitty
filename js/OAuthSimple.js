@@ -460,12 +460,7 @@ if (OAuthSimple === undefined)
             }
             if (this._parameters['oauth_signature_method'] == 'HMAC-SHA1')
             {
-                var sigString = '';
-                if (this._action && this._path) {
-                    sigString = this._oauthEscape(this._action)+'&'+this._oauthEscape(this._path)+'&'+this._oauthEscape(this._normalizedParameters());
-                } else {
-                    sigString = this._oauthEscape(this._normalizedParameters());
-                }
+                var sigString = this._oauthEscape(this._action)+'&'+this._oauthEscape(this._path)+'&'+this._oauthEscape(this._normalizedParameters());
                 return this.b64_hmac_sha1(secretKey,sigString);
             }
             return null;
