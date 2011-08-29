@@ -10,14 +10,14 @@ $.fn.extend({
 
         var items = [];
         this.each(function() {
-            if (typeof $(this).attr('href') != "undefined") {
-                if (urlRe.test($(this).attr('href'))) {
-                    items.push({url: $(this).attr('href'), node: $(this)});
+            if (typeof $(this).prop('href') != "undefined") {
+                if (urlRe.test($(this).prop('href'))) {
+                    items.push({url: $(this).prop('href'), node: $(this)});
                 }
             } else {
                 $(this).find('a').each(function() {
-                    if (typeof $(this).attr('href') != "undefined" && urlRe.test($(this).attr('href'))) {
-                        items.push({url: $(this).attr('href'), node: $(this)});
+                    if (typeof $(this).prop('href') != "undefined" && urlRe.test($(this).prop('href'))) {
+                        items.push({url: $(this).prop('href'), node: $(this)});
                     }
                 });
             }

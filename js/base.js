@@ -1016,7 +1016,7 @@ var showFriends = function(name) {
 var updateProfile = function(id, data) {
     console.log('updateProfile():', data);
 
-    $('#'+id+' .i_head').attr('src', data.profile_image_url).click(function() { showUser(data.screen_name) });
+    $('#'+id+' .i_head').prop('src', data.profile_image_url).click(function() { showUser(data.screen_name) });
     $('#'+id+' .i_screen_name').html(data.screen_name.bold()).click(function() { showUser(data.screen_name) });
     $('#'+id+' .i_followers').html(String.fromCharCode(8678)+data.followers_count).click(function() { showFollowers(data.screen_name) });
     $('#'+id+' .i_following').html(String.fromCharCode(8680)+data.friends_count).click(function() { showFriends(data.screen_name) });
@@ -1025,7 +1025,7 @@ var updateProfile = function(id, data) {
 var initEvent = function() {
     $('.t_status .t_actions .t_reply_icon').live('click', function() {
         var screenName = $(this).closest('.t_status').find('.t_screen_name').text();
-        var statusID = $(this).closest('.t_status').attr('id');
+        var statusID = $(this).closest('.t_status').prop('id');
         console.log('click reply:', screenName, statusID);
         tweetBox.reply(screenName, statusID);
     });
@@ -1044,7 +1044,7 @@ var initEvent = function() {
     });
 
     $('.t_status .t_actions .t_retweet_icon').live('click', function() {
-        var statusID = $(this).closest('.t_status').attr('id');
+        var statusID = $(this).closest('.t_status').prop('id');
 
         var thisElem = this;
         twitter.Tweet.retweet(statusID, function(data) {
@@ -1058,7 +1058,7 @@ var initEvent = function() {
     });
 
     $('.t_status .t_actions .t_fav_icon').live('click', function() {
-        var statusID = $(this).closest('.t_status').attr('id');
+        var statusID = $(this).closest('.t_status').prop('id');
         console.log('click fav:', statusID);
 
         var thisElem = this;
@@ -1070,7 +1070,7 @@ var initEvent = function() {
     });
 
     $('.t_status .t_actions .t_faved_icon').live('click', function() {
-        var statusID = $(this).closest('.t_status').attr('id');
+        var statusID = $(this).closest('.t_status').prop('id');
         console.log('click faved:', statusID);
 
         var thisElem = this;
@@ -1082,10 +1082,10 @@ var initEvent = function() {
     });
 
     $('.t_status .t_actions .t_del_icon').live('click', function() {
-        var statusID = $(this).closest('.t_status').attr('id');
+        var statusID = $(this).closest('.t_status').prop('id');
         var retweet = $(this).closest('.t_status').find('.t_retweet');
         if (retweet.length) { // it's a retweet by you
-            statusID = $(retweet).attr('id');
+            statusID = $(retweet).prop('id');
         }
 
         var thisElem = this;
@@ -1097,7 +1097,7 @@ var initEvent = function() {
     });
 
     $('.t_status .t_actions .t_delmsg_icon').live('click', function() {
-        var statusID = $(this).closest('.t_status').attr('id');
+        var statusID = $(this).closest('.t_status').prop('id');
 
         var thisElem = this;
         twitter.Tweet.destroyMsg(statusID, function(data) {
@@ -1128,18 +1128,18 @@ var initEvent = function() {
         showUser(screenName);
     });
     $('.t_status .t_retweeters img').live('click', function() {
-        var screenName = $(this).attr('title');
+        var screenName = $(this).prop('title');
         showUser(screenName);
     });
 
     $('.t_status .t_reply').live('click', function() {
-        var id = $(this).attr('id');
+        var id = $(this).prop('id');
         showReply(this, id);
         return false; // do not go to top
     });
 
     $('.t_status .t_retweeted_by').live('click', function() {
-        var id = $(this).attr('id');
+        var id = $(this).prop('id');
         showRetweetedBy(this, id);
         return false; // do not go to top
     });

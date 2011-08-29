@@ -4,7 +4,7 @@
 <title>kwitty options</title>
 <link type="text/css" href="css/options.css" rel="stylesheet" />
 
-<script type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
 <script type="text/javascript" src="js/config.js"></script>
 <script type="text/javascript">
     var config = requireConfig();
@@ -14,7 +14,7 @@
             val = $(elem).val();
         }
         console.debug('v:', val, $(elem).val(), 't:', $(elem).text());
-        var item = $(elem).attr('id').replace(/-/g, '.');
+        var item = $(elem).prop('id').replace(/-/g, '.');
         config.saveValue(item, val);
         // notify main page
         chrome.extension.sendRequest({msg: 'update', item: item, value: val}, function(response) {
@@ -29,7 +29,7 @@
                 loadValues(v, subid) 
             } else {
                 if (typeof(v) == 'boolean') { // checkbox
-                    $('#'+id+k).attr('checked', v)
+                    $('#'+id+k).prop('checked', v)
                 } else if (k == 'imageFileName') {
                     $('#'+id+k).text(v)
                 } else { // others
@@ -44,7 +44,7 @@
         $('#navbar li').click(function() {
             $(this).addClass('navbar-item-selected');
             $(this).siblings().removeClass('navbar-item-selected');
-            var pageID = '#' + $(this).attr('id').replace('Nav', '');
+            var pageID = '#' + $(this).prop('id').replace('Nav', '');
             $(pageID).siblings().hide();
             $(pageID).fadeIn();
         });
@@ -93,7 +93,7 @@
 
         // checkbox
         $('#basics-refresh-autoload, #gui-display-compact, #gui-display-expandurl, #gui-display-rich').change(function() {
-            saveValue(this, $(this).attr('checked'))
+            saveValue(this, $(this).prop('checked'))
         });
 
         config.init();

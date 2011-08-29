@@ -5,7 +5,7 @@
 <link type="text/css" href="css/base/jquery.ui.all.css" rel="stylesheet" />	
 <link type="text/css" href="css/main.css" rel="stylesheet" />
 
-<script type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
 <script type="text/javascript" src="js/jquery.longurl.js"></script>
 <script type="text/javascript" src="js/jquery.embedly.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.9.custom.min.js"></script>
@@ -33,7 +33,7 @@
 		});
 
         $("#tabs span.ui-icon-close").live("click", function() {
-            if ($($(this).siblings('a').attr('href')).find('.p_progress').text()) { // check whether export is ongoing
+            if ($($(this).siblings('a').prop('href')).find('.p_progress').text()) { // check whether export is ongoing
                 showTip('Exporting tweets, please wait.');
                 return;
             }
