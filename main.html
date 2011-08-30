@@ -33,7 +33,8 @@
 		});
 
         $("#tabs span.ui-icon-close").live("click", function() {
-            if ($($(this).siblings('a').prop('href')).find('.p_progress').text()) { // check whether export is ongoing
+             // check whether export is ongoing
+            if ($($(this).siblings('a').attr('href')).find('.p_progress').text()) { // for here, should use "attr" while not "prop"
                 showTip('Exporting tweets, please wait.');
                 return;
             }
