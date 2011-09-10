@@ -15,7 +15,7 @@ var requireTwitter = function() {
         buildUrl: function(rest) {
             var base = '';
             if (authMode == 'Basic' && bauth) {
-                base = api.bauthBase.replace(/(https?:\/\/[\w\.\_\-]+)\/?.*/, $1);
+                base = api.bauthBase.replace(/(https?:\/\/[\w\.\_\-]+)\/?.*/, '$1');
                 if (rest.domain == 'search') {
                     base += '/search';
                 } else if (rest.domain == 'upload') {
@@ -1183,7 +1183,8 @@ var requireTwitter = function() {
         makeEntities: function(text, entities) {
             if (!entities) {
                 //text = util.escapeHtml(text);
-                return Util.buildEntities(text);
+                //return Util.buildEntities(text);
+                return twttr.txt.autoLink(text, {target: '_blank', usernameClass: 't_userlink', usernameUrlBase: '#'});
             }
             var replaces = {}
             $.each(entities.urls, function(i, url) {

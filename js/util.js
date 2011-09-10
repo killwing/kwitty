@@ -74,12 +74,21 @@ var requireUtil = function() {
         return url + sep + toRfc3986(key) + '=' + toRfc3986(value);
     };
 
-    // escape HTML chars
-    var escapeHtml = function(html) {
-        return html.replace('>', '&gt;')
-                   .replace('<', '&lt;')
-                   .replace(' ', '&nbsp;');
-    }
+    var HTML_ENTITIES = {
+        '&': '&amp;',
+        '>': '&gt;',
+        '<': '&lt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        ' ': '&nbsp;'
+    };
+
+    // HTML escaping
+    var escapeHtml = function(text) {
+        return text && text.replace(/[&"'><]/g, function(character) {
+            return HTML_ENTITIES[character];
+        });
+    };
 
     var addBlankTarget = function(a) {
         return a.replace(/^<a /, '<a target="_blank" ');

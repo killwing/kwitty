@@ -178,11 +178,19 @@ a.link_button:hover {
     float: left;
     visibility: hidden;
 }
-
 #actions .t_upmedia_icon {
     float: left;
     cursor: pointer;
     display: block;
+    margin-left: 5px;
+}
+#actions .file_name {
+    float: left;
+    margin-left: 5px;
+}
+#actions .link {
+    display: none;
+    float: left;
     margin-left: 5px;
 }
 
@@ -190,10 +198,6 @@ a.link_button:hover {
     visibility: hidden;
     position: absolute;
     z-index: -1;
-}
-#upMediaName {
-    float: left;
-    margin-left: 5px;
 }
 
 #tabs {

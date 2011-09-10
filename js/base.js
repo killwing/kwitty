@@ -746,6 +746,8 @@ var createTweetBox = function(id) {
     var tweetID = '#' + id + ' .tweet';
     var spinnerID = '#' + id + ' .spinner';
     var uploadID = '#' + id + ' .t_upmedia_icon';
+    var fileNameID = '#' + id + ' .file_name';
+    var linkID = '#' + id + ' .link';
     var homeTLID = '#home .tl ol';
 
     var content = null;
@@ -778,6 +780,17 @@ var createTweetBox = function(id) {
             if (upfile) {
                 total -= 20; // media url (t.co) takes 20 chars    
             }
+
+            var urls = twttr.txt.extractUrls(content);
+            if (urls.length > 0) {
+                $(linkID).show();
+            } else {
+                $(linkID).hide();
+            }
+            urls.forEach(function(item, index) {
+                total += item.length;
+                total -= 20;
+            });
         }
 
         var charleft = total - content.length;
@@ -800,7 +813,8 @@ var createTweetBox = function(id) {
         content = null;
         toStatus = null;
         upfile = null;
-        $('#upMediaName').text('');
+        $(fileNameID).text('');
+        $(linkID).hide();
         return false;
     };
 
@@ -902,7 +916,7 @@ var createTweetBox = function(id) {
                 return;
             }
 
-            $('#upMediaName').text(file.fileName);
+            $(fileNameID).text('['+file.fileName+']');
             upfile = file;
             tweetBox.change();
         });
@@ -1124,7 +1138,10 @@ var initEvent = function() {
         showUser(screenName);
     });
     $('.t_status .t_userlink').live('click', function() {
-        var screenName = $(this).text().slice(1) // remove @
+        var screenName = $(this).text();
+        if (screenName[0] == '@') {
+            screenName = screenName.slice(1);
+        }
         showUser(screenName);
     });
     $('.t_status .t_msgto a').live('click', function() {
