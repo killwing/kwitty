@@ -453,7 +453,7 @@
         } else if (authMode == 'OAuth' && oauth) {
             return oauth.getScreenName();
         } else {
-            console.error('API.getCurrentUserName(): Not login.');
+            console.error('getCurrentUserName(): Not login.');
         }
     };
 
@@ -673,14 +673,14 @@
 
     kt.user = {
         show: function(screenName, success, error) {
-            console.log('Twitter.User.show()');
+            console.log('User.show()');
             var s = createAPI(api.users.show);
             s.sendRequest({screen_name: screenName,
                              include_entities: true}, success, error);
         },
 
         rateLimit: function(success, error) {
-            console.log('Twitter.User.rateLimit()');
+            console.log('User.rateLimit()');
             var rls = createAPI(api.account.rate_limit_status);
             rls.sendRequest(null, success, error);
         }
@@ -688,7 +688,7 @@
 
     kt.tweet = {
         show: function(id, success, error) {
-            console.log('Twitter.Tweet.show()');
+            console.log('Tweet.show()');
             var rest = api.statuses.show;
             rest.id = id;
             var s = createAPI(rest);
@@ -696,7 +696,7 @@
         },
 
         update: function(msg, to, success, error) {
-            console.log('Twitter.Tweet.update()');
+            console.log('Tweet.update()');
             var u = createAPI(api.statuses.update);
             var params = {status: msg, include_entities: true};
             if (to) {
@@ -706,7 +706,7 @@
         },
 
         updateMedia: function(msg, to, file, success, error) {
-            console.log('Twitter.Tweet.update()');
+            console.log('Tweet.updateMedia()');
             var u = createAPI(api.statuses.update_with_media);
 
             // build form data
@@ -724,7 +724,7 @@
         },
 
         retweet: function(id, success, error) {
-            console.log('Twitter.Tweet.retweet()');
+            console.log('Tweet.retweet()');
             var rest = api.statuses.retweet;
             rest.id = id;
             var r = createAPI(rest);
@@ -732,7 +732,7 @@
         },
 
         destroy: function(id, success, error) {
-            console.log('Twitter.Tweet.destroy()');
+            console.log('Tweet.destroy()');
             var rest = api.statuses.destroy;
             rest.id = id;
             var d = createAPI(rest);
@@ -740,13 +740,13 @@
         },
 
         directMsg: function(screenName, msg, success, error) {
-            console.log('Twitter.Tweet.directMsg()');
+            console.log('Tweet.directMsg()');
             var n = createAPI(api.direct_messages.new);
             n.sendRequest({screen_name: screenName, text: msg, include_entities: true}, success, error);
         },
 
         destroyMsg: function(id, success, error) {
-            console.log('Twitter.Tweet.destroyMsg()');
+            console.log('Tweet.destroyMsg()');
             var rest = api.direct_messages.destroy;
             rest.id = id;
             var d = createAPI(rest);
@@ -754,7 +754,7 @@
         },
 
         retweetedBy: function(id, success, error) {
-            console.log('Twitter.Tweet.retweetedBy()');
+            console.log('Tweet.retweetedBy()');
             var rest = api.statuses.retweeted_by;
             rest.id = id;
             var rb = createAPI(rest);
@@ -764,7 +764,7 @@
 
     kt.fav = {
         create: function(id, success, error) {
-            console.log('Twitter.Fav.create()');
+            console.log('Fav.create()');
             var rest = api.favorites.create;
             rest.id = id;
             var c = createAPI(rest);
@@ -772,7 +772,7 @@
         },
 
         destroy: function(id, success, error) {
-            console.log('Twitter.Fav.destroy()');
+            console.log('Fav.destroy()');
             var rest = api.favorites.destroy;
             rest.id = id;
             var d = createAPI(rest);
@@ -783,19 +783,19 @@
 
     kt.friendship = {
         show: function(target, success, error) {
-            console.log('Twitter.Friendship.show()');
+            console.log('Friendship.show()');
             var s = createAPI(api.friendships.show);
             s.sendRequest({target_screen_name: target}, success, error);
         },
 
         create: function(target, success, error) {
-            console.log('Twitter.Friendship.create()');
+            console.log('Friendship.create()');
             var c = createAPI(api.friendships.create);
             c.sendRequest({screen_name: target}, success, error);
         },
 
         destroy: function(target, success, error) {
-            console.log('Twitter.Friendship.destroy()');
+            console.log('Friendship.destroy()');
             var d = createAPI(api.friendships.destroy);
             d.sendRequest({screen_name: target}, success, error);
         }
@@ -974,13 +974,13 @@
     }
 
     kt.createHomeTL = function() {
-        console.log('Twitter.createHomeTL()');
+        console.log('createHomeTL()');
         var homeTL = createStatuses(api.statuses.home_timeline);
         return homeTL;
     };
 
     kt.createUserTL = function(screenName) {
-        console.log('Twitter.createUserTL()');
+        console.log('createUserTL()');
         var userTL = createStatuses(api.statuses.user_timeline);
         if (screenName) {
             userTL.addDefaultParam({
@@ -993,19 +993,19 @@
     };
 
     kt.createMentionsTL = function() {
-        console.log('Twitter.createMentionsTL()');
+        console.log('createMentionsTL()');
         var mentionsTL = createStatuses(api.statuses.mentions);
         return mentionsTL;
     };
 
     kt.createRetweetsTL = function() {
-        console.log('Twitter.createRetweetsTL()');
+        console.log('createRetweetsTL()');
         var retweetsTL = createStatuses(api.statuses.retweets_of_me);
         return retweetsTL;
     };
 
     kt.createMessagesTL = function() {
-        console.log('Twitter.createMessagesTL()');
+        console.log('createMessagesTL()');
 
         var messagesTL = {};
         var receivedTL = createStatuses(api.direct_messages.direct_messages);
@@ -1081,7 +1081,7 @@
     };
     
     kt.createFavoritesTL = function() {
-        console.log('Twitter.createFavoritesTL()');
+        console.log('createFavoritesTL()');
         var favoritesTL = createStatuses(api.favorites.favorites);
         return favoritesTL;
     };
@@ -1138,7 +1138,7 @@
     };
 
     kt.createFollowers = function(screenName) {
-        console.log('Twitter.createFollowers()');
+        console.log('createFollowers()');
         var followers = createFriendship(api.friendships.followers);
         if (screenName) {
             followers.addDefaultParam({
@@ -1149,7 +1149,7 @@
     };
 
     kt.createFriends = function(screenName) {
-        console.log('Twitter.createFriends()');
+        console.log('createFriends()');
         var friends = createFriendship(api.friendships.friends);
         if (screenName) {
             friends.addDefaultParam({
