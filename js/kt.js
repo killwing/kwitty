@@ -1,7 +1,4 @@
-var util = requireUtil();
-
-// module of Twitter
-var requireTwitter = function() {
+(function() {
 
     var oauth = null;
     var bauth = null;
@@ -445,11 +442,12 @@ var requireTwitter = function() {
         });
     };
 
-    var getAuthMode = function() {
+    var kt = {};
+    kt.getAuthMode = function() {
         return authMode;
     };
 
-    var getCurrentUserName = function() {
+    kt.getCurrentUserName = function() {
         if (authMode == 'Basic' && bauth) {
             return bauth.getScreenName();
         } else if (authMode == 'OAuth' && oauth) {
@@ -459,7 +457,7 @@ var requireTwitter = function() {
         }
     };
 
-    var getBAuth = function() {
+    kt.getBAuth = function() {
         if (bauth) {
             return bauth;
         }
@@ -541,7 +539,7 @@ var requireTwitter = function() {
         return ba;
     };
 
-    var getOAuth = function() {
+    kt.getOAuth = function() {
         if (oauth) {
             return oauth;
         }
@@ -571,12 +569,12 @@ var requireTwitter = function() {
 
         oa.authorize = function() {
             console.log('OAuth.authorize()', token);
-            window.location = util.addURLParam(api.oauthBase+api.oauth.authorize.url, 'oauth_token', token.oauth_token);
+            window.location = ut.addURLParam(api.oauthBase+api.oauth.authorize.url, 'oauth_token', token.oauth_token);
         };
 
         oa.authenticate = function() {
             console.log('OAuth.authenticate()', token);
-            window.location = util.addURLParam(api.oauthBase+api.oauth.authenticate.url, 'oauth_token', token.oauth_token);
+            window.location = ut.addURLParam(api.oauthBase+api.oauth.authenticate.url, 'oauth_token', token.oauth_token);
         };
 
         oa.access = function(verifier, success, error) {
@@ -637,7 +635,7 @@ var requireTwitter = function() {
                     console.log('access() - result:', ret);
 
                     // update token
-                    token = util.getQueryStringParams(ret);
+                    token = ut.getQueryStringParams(ret);
                     oa.saveToken();
 
                     success(token.screen_name);
@@ -651,7 +649,7 @@ var requireTwitter = function() {
                 this.requestToken(callbackURL, function(ret) {
                     console.log('requestToken() - result:', ret);
 
-                    token = util.getQueryStringParams(ret);
+                    token = ut.getQueryStringParams(ret);
                     oa.saveToken();
 
                     // redirect
@@ -673,7 +671,7 @@ var requireTwitter = function() {
     };
 
 
-    var User = {
+    kt.user = {
         show: function(screenName, success, error) {
             console.log('Twitter.User.show()');
             var s = createAPI(api.users.show);
@@ -688,7 +686,7 @@ var requireTwitter = function() {
         }
     };
 
-    var Tweet = {
+    kt.tweet = {
         show: function(id, success, error) {
             console.log('Twitter.Tweet.show()');
             var rest = api.statuses.show;
@@ -764,7 +762,7 @@ var requireTwitter = function() {
         },
     };
 
-    var Fav = {
+    kt.fav = {
         create: function(id, success, error) {
             console.log('Twitter.Fav.create()');
             var rest = api.favorites.create;
@@ -783,7 +781,7 @@ var requireTwitter = function() {
 
     };
 
-    var Friendship = {
+    kt.friendship = {
         show: function(target, success, error) {
             console.log('Twitter.Friendship.show()');
             var s = createAPI(api.friendships.show);
@@ -975,13 +973,13 @@ var requireTwitter = function() {
         return statuses;
     }
 
-    var createHomeTL = function() {
+    kt.createHomeTL = function() {
         console.log('Twitter.createHomeTL()');
         var homeTL = createStatuses(api.statuses.home_timeline);
         return homeTL;
     };
 
-    var createUserTL = function(screenName) {
+    kt.createUserTL = function(screenName) {
         console.log('Twitter.createUserTL()');
         var userTL = createStatuses(api.statuses.user_timeline);
         if (screenName) {
@@ -994,19 +992,19 @@ var requireTwitter = function() {
         return userTL;
     };
 
-    var createMentionsTL = function() {
+    kt.createMentionsTL = function() {
         console.log('Twitter.createMentionsTL()');
         var mentionsTL = createStatuses(api.statuses.mentions);
         return mentionsTL;
     };
 
-    var createRetweetsTL = function() {
+    kt.createRetweetsTL = function() {
         console.log('Twitter.createRetweetsTL()');
         var retweetsTL = createStatuses(api.statuses.retweets_of_me);
         return retweetsTL;
     };
 
-    var createMessagesTL = function() {
+    kt.createMessagesTL = function() {
         console.log('Twitter.createMessagesTL()');
 
         var messagesTL = {};
@@ -1082,7 +1080,7 @@ var requireTwitter = function() {
         return messagesTL;
     };
     
-    var createFavoritesTL = function() {
+    kt.createFavoritesTL = function() {
         console.log('Twitter.createFavoritesTL()');
         var favoritesTL = createStatuses(api.favorites.favorites);
         return favoritesTL;
@@ -1139,7 +1137,7 @@ var requireTwitter = function() {
         return friendship;
     };
 
-    var createFollowers = function(screenName) {
+    kt.createFollowers = function(screenName) {
         console.log('Twitter.createFollowers()');
         var followers = createFriendship(api.friendships.followers);
         if (screenName) {
@@ -1150,7 +1148,7 @@ var requireTwitter = function() {
         return followers;
     };
 
-    var createFriends = function(screenName) {
+    kt.createFriends = function(screenName) {
         console.log('Twitter.createFriends()');
         var friends = createFriendship(api.friendships.friends);
         if (screenName) {
@@ -1161,9 +1159,9 @@ var requireTwitter = function() {
         return friends;
     };
 
-    var Util = {
+    kt.util = {
         // should return a new regexp every time
-        Pat: {
+        pat: {
             // except " < > space
             url: function() { return /https?:\/\/([\w\.\_\-]+)(\/?)[\w\-\_\.\~\!\*\'\(\)\;\:\@\&\=\+\$\,\/\?\#\[\]\{\}\|\\\^\`\%]*/g },
             name: function() { return /(^@| @)[\w\_]+/g },
@@ -1175,15 +1173,15 @@ var requireTwitter = function() {
         },
 
         buildEntities: function(text) {
-            return text.replace(Util.Pat.url(), '<a href="$&" target="_blank">$&</a>')
-                       .replace(Util.Pat.name(), '<a href="#" class="t_userlink">$&</a>')
-                       .replace(Util.Pat.tag(), '<a href="https://encrypted.google.com/search?q=%23$2&tbs=mbl:1" target="_blank">$&</a>');
+            return text.replace(kt.util.pat.url(), '<a href="$&" target="_blank">$&</a>')
+                       .replace(kt.util.pat.name(), '<a href="#" class="t_userlink">$&</a>')
+                       .replace(kt.util.pat.tag(), '<a href="https://encrypted.google.com/search?q=%23$2&tbs=mbl:1" target="_blank">$&</a>');
         },
 
         makeEntities: function(text, entities) {
             if (!entities) {
-                //text = util.escapeHtml(text);
-                //return Util.buildEntities(text);
+                //text = ut.escapeHtml(text);
+                //return kt.util.buildEntities(text);
                 return twttr.txt.autoLink(text, {target: '_blank', usernameClass: 't_userlink', usernameUrlBase: '#'});
             }
             var replaces = {}
@@ -1192,8 +1190,8 @@ var requireTwitter = function() {
                 replaces[text.slice(url.indices[0], url.indices[1])] = '<a href="'+realurl+'" target="_blank">'+url.url+'</a>';
             });
             $.each(entities.hashtags, function(i, hashtag) {
-                var twSearch = 'https://twitter.com/search?q=%23' + hashtag.text;
-                var ggSearch = 'https://encrypted.google.com/search?q=%23' + hashtag.text + '&tbs=mbl:1';
+                var twSearch = 'https://twitter.com/search?q=' + hashtag.text;
+                var ggSearch = 'https://encrypted.google.com/search?q=' + hashtag.text + '&tbs=mbl:1';
                 replaces[text.slice(hashtag.indices[0], hashtag.indices[1])] = '<a href="'+twSearch+'" target="_blank">#'+hashtag.text+'</a>';
             });
             $.each(entities.user_mentions, function(i, user) {
@@ -1208,10 +1206,10 @@ var requireTwitter = function() {
             }
 
             // escape first 
-            text = util.escapeHtml(text);
+            text = ut.escapeHtml(text);
 
             $.each(replaces, function(k, v) {
-                text = text.replace(new RegExp(k.escapeRe(), 'g'), v);
+                text = text.replace(new RegExp(ut.escapeRegex(k), 'g'), v);
             });
 
             return text;
@@ -1223,31 +1221,14 @@ var requireTwitter = function() {
         },
     };
 
+
     // exports
-    return {
-        // factories
-        createHomeTL: createHomeTL,
-        createUserTL: createUserTL,
-        createMentionsTL: createMentionsTL,
-        createRetweetsTL: createRetweetsTL,
-        createMessagesTL: createMessagesTL,
-        createFavoritesTL: createFavoritesTL,
-        createFollowers: createFollowers,
-        createFriends: createFriends,
+    var root = this;
+    if (typeof module !== 'undefined'  && module.exports) {
+        module.exports = kt;
+    } else if (!root.kt) {
+        root.kt = kt;
+    }
 
-        // singletons
-        getOAuth: getOAuth,
-        getBAuth: getBAuth,
+})();
 
-        // globals
-        getAuthMode: getAuthMode,
-        getCurrentUserName: getCurrentUserName,
-
-        // statics
-        User: User,
-        Tweet: Tweet,
-        Fav: Fav,
-        Friendship: Friendship,
-        Util: Util,
-    };
-};

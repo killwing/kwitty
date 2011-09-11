@@ -1,6 +1,3 @@
-var twitter = requireTwitter();
-var config = requireConfig();
-
 // app keys
 var consumerKey = 'Nqs01pigEQdfrDH0Qrt3w';
 var consumerSec = 'CUzPVKvD33nkyLKR9zgdnO3pgONztA8vi42PdFSx90';
@@ -27,7 +24,7 @@ var cfgUpdater = {
         },
         api: {
             address: function(url) {
-                twitter.getBAuth().setAPIBase(url);
+                kt.getBAuth().setAPIBase(url);
             },
         }
     },
@@ -164,7 +161,7 @@ var Render = {
         // DM addition
         var ref = '';
         var from = '';
-        var me = twitter.getCurrentUserName();
+        var me = kt.getCurrentUserName();
 
         var replyIcon = '<span class="t_reply_icon icon" />';
         var rtIcon = '<span class="t_rt_icon icon" />';
@@ -174,7 +171,7 @@ var Render = {
         var delIcon = '<span class="t_del_icon icon" />';
         if (tweet.sender) { // DM tweet
             tweet.user = tweet.sender;
-            ref = twitter.Util.makeTime(tweet.created_at);
+            ref = kt.util.makeTime(tweet.created_at);
 
             replyIcon = '';
             rtIcon = '';
@@ -192,8 +189,8 @@ var Render = {
             }
 
         } else { // normal tweet
-            from = 'via {0}'.format(util.addBlankTarget(tweet.source));
-            ref = util.addBlankTarget(twitter.Util.makeTime(tweet.created_at).link("https://twitter.com/"+tweet.user.screen_name+"/status/"+tweet.id_str));
+            from = 'via {0}'.format(ut.addBlankTarget(tweet.source));
+            ref = ut.addBlankTarget(kt.util.makeTime(tweet.created_at).link("https://twitter.com/"+tweet.user.screen_name+"/status/"+tweet.id_str));
 
             // hide retweet if it is your own tweet or retweeted
             if (tweet.user.screen_name == me || t.user.screen_name == me) {
@@ -214,7 +211,7 @@ var Render = {
         }
 
 
-        var text = twitter.Util.makeEntities(tweet.text, tweet.entities);
+        var text = kt.util.makeEntities(tweet.text, tweet.entities);
 
  
         html = html.mlstr().format(tweet.user.profile_image_url,
@@ -243,7 +240,7 @@ var Render = {
 */
         };
 
-        html = html.mlstr().format(twitter.Util.makeEntities(t.text, t.entities));
+        html = html.mlstr().format(kt.util.makeEntities(t.text, t.entities));
         return html;
     },
 
@@ -281,7 +278,7 @@ var Render = {
 */
         };
 
-        var freq = twitter.Util.computeFreq(user.created_at, user.statuses_count);
+        var freq = kt.util.computeFreq(user.created_at, user.statuses_count);
         var created = new Date(user.created_at);
         var since = (created.getMonth()+1) + "-" + created.getDate() + ", " + created.getFullYear();
 
@@ -395,7 +392,7 @@ var Render = {
             protectedIcon = '<span class="t_protected_icon icon" />';
         }
 
-        var freq = twitter.Util.computeFreq(u.created_at, u.statuses_count);
+        var freq = kt.util.computeFreq(u.created_at, u.statuses_count);
 
         html = html.mlstr().format(u.profile_image_url,
                                    u.screen_name,
@@ -419,11 +416,11 @@ var Render = {
 */
         };
 
-        var text = twitter.Util.makeEntities(t.text, t.entities);
+        var text = kt.util.makeEntities(t.text, t.entities);
         text = text.replace(/<a href="#" class="t_userlink">@([\w\_]+)<\/a>/g, '<a href="https://twitter.com/$1" target="_blank">@$1</a>');  // replace user link
-        var from = util.addBlankTarget(t.source);
-        var time = twitter.Util.makeTime(t.created_at);
-        var id = util.addBlankTarget((t.id_str).link("https://twitter.com/"+t.user.screen_name+"/status/"+t.id_str));
+        var from = ut.addBlankTarget(t.source);
+        var time = kt.util.makeTime(t.created_at);
+        var id = ut.addBlankTarget((t.id_str).link("https://twitter.com/"+t.user.screen_name+"/status/"+t.id_str));
 
         html = html.mlstr().format(id, text, time, from);
         return html;
@@ -637,7 +634,7 @@ var createUserTab = function(id, tl) {
 
     // the following info of user object is not correct, use another api instead
     userTab.preload = function(success, error) {
-        twitter.Friendship.show(id, function(data) {
+        kt.friendship.show(id, function(data) {
             relationship = data.relationship;
             success();
         }, function(errorStatus) {
@@ -651,7 +648,7 @@ var createUserTab = function(id, tl) {
         var tabID = '#' + id;
 
         user = data[0].user;
-        if (relationship && user.screen_name != twitter.getCurrentUserName()) {
+        if (relationship && user.screen_name != kt.getCurrentUserName()) {
             user.following = relationship.source.following;
             user.followed_by = relationship.source.followed_by;
         } else {
@@ -868,15 +865,15 @@ var createTweetBox = function(id) {
             if ($(tweetID).text() == 'Tweet') {
                 $(spinnerID).css('visibility', 'visible');
                 if (upfile) {
-                    twitter.Tweet.updateMedia(content, toStatus, upfile, tweetBox.onSuccess, tweetBox.onError);
+                    kt.tweet.updateMedia(content, toStatus, upfile, tweetBox.onSuccess, tweetBox.onError);
                 } else {
-                    twitter.Tweet.update(content, toStatus, tweetBox.onSuccess, tweetBox.onError);
+                    kt.tweet.update(content, toStatus, tweetBox.onSuccess, tweetBox.onError);
                 }
 
             } else if ($(tweetID).text() == 'Send') {  // dm
                 $(spinnerID).css('visibility', 'visible');
                 var dm = /^d (\w+) (.+)/i.exec(content);
-                twitter.Tweet.directMsg(dm[1], dm[2], function(data) {
+                kt.tweet.directMsg(dm[1], dm[2], function(data) {
                     $(spinnerID).css('visibility', 'hidden');
                     tweetBox.reset();
 
@@ -940,7 +937,7 @@ var showUser = function(screenName) {
     var index = $('#tabs > div').index($(id));
     if (index == -1) {
         $('#tabs').tabs('add', id, '@'+screenName);
-        TabMgr[screenName] = createUserTab(screenName, twitter.createUserTL(screenName)).init();
+        TabMgr[screenName] = createUserTab(screenName, kt.createUserTL(screenName)).init();
 
         // update
         index = $('#tabs > div').index($(id));
@@ -957,7 +954,7 @@ var showReply = function(thisElem, id) {
         $(reply).slideToggle();
     } else {
         $(tInfo).find('.spinner').css('visibility', 'visible');
-        twitter.Tweet.show(id, function(data) {
+        kt.tweet.show(id, function(data) {
             $(tInfo).find('.spinner').css('visibility', 'hidden');
             $(tInfo).after(Render.reply(data));
         }, function(errorStatus) {
@@ -976,7 +973,7 @@ var showRetweetedBy = function(thisElem, id) {
         $(rters).slideToggle();
     } else {
         $(tRef).find('.spinner').css('visibility', 'visible');
-        twitter.Tweet.retweetedBy(id, function(data) {
+        kt.tweet.retweetedBy(id, function(data) {
             $(tRef).find('.spinner').css('visibility', 'hidden');
             $(tRef).after(Render.retweeters(data));
         }, function(errorStatus) {
@@ -991,13 +988,13 @@ var showRetweetedBy = function(thisElem, id) {
 var makeFriendship = function(thisElem, screenName) {
     var fo = $(thisElem).text();
     if (fo == 'Follow') {
-        twitter.Friendship.create(screenName, function(data) {
+        kt.friendship.create(screenName, function(data) {
             $(thisElem).text('Unfollow');
         }, function(errorStatus) {
             errorHandler('Failed to follow', errorStatus);
         });
     } else if (fo == 'Unfollow') {
-        twitter.Friendship.destroy(screenName, function(data) {
+        kt.friendship.destroy(screenName, function(data) {
             $(thisElem).text('Follow');
         }, function(errorStatus) {
             errorHandler('Failed to unfollow', errorStatus);
@@ -1010,7 +1007,7 @@ var showFollowers = function(name) {
     var index = $("#tabs > div").index($(id));
     if (index == -1) {
         $("#tabs").tabs("add", id, name+String.fromCharCode(8678));
-        TabMgr['fo_'+name] = createFriendshipTab('fo_'+name, twitter.createFollowers(name)).init();
+        TabMgr['fo_'+name] = createFriendshipTab('fo_'+name, kt.createFollowers(name)).init();
 
         // update
         index = $("#tabs > div").index($(id));
@@ -1023,7 +1020,7 @@ var showFriends = function(name) {
     var index = $("#tabs > div").index($(id));
     if (index == -1) {
         $("#tabs").tabs("add", id, name+String.fromCharCode(8680));
-        TabMgr['fr_'+name] = createFriendshipTab('fr_'+name, twitter.createFriends(name)).init();
+        TabMgr['fr_'+name] = createFriendshipTab('fr_'+name, kt.createFriends(name)).init();
 
         // update
         index = $("#tabs > div").index($(id));
@@ -1065,7 +1062,7 @@ var initEvent = function() {
         var statusID = $(this).closest('.t_status').prop('id');
 
         var thisElem = this;
-        twitter.Tweet.retweet(statusID, function(data) {
+        kt.tweet.retweet(statusID, function(data) {
             // show in home TL
             TabMgr.home.showNew();
             $('#home .tl ol').prepend(Render.tweet(data));
@@ -1080,7 +1077,7 @@ var initEvent = function() {
         console.log('click fav:', statusID);
 
         var thisElem = this;
-        twitter.Fav.create(statusID, function(data) {
+        kt.fav.create(statusID, function(data) {
             $(thisElem).removeClass('t_fav_icon').addClass('t_faved_icon');
         }, function(errorStatus) {
             errorHandler('Failed to add favorite', errorStatus);
@@ -1092,7 +1089,7 @@ var initEvent = function() {
         console.log('click faved:', statusID);
 
         var thisElem = this;
-        twitter.Fav.destroy(statusID, function(data) {
+        kt.fav.destroy(statusID, function(data) {
             $(thisElem).removeClass('t_faved_icon').addClass('t_fav_icon');
         }, function(errorStatus) {
             errorHandler('Failed to delete favorite', errorStatus);
@@ -1107,7 +1104,7 @@ var initEvent = function() {
         }
 
         var thisElem = this;
-        twitter.Tweet.destroy(statusID, function(data) {
+        kt.tweet.destroy(statusID, function(data) {
             $(thisElem).closest('.t_status').slideUp();
         }, function(errorStatus) {
             errorHandler('Failed to delete tweet', errorStatus);
@@ -1118,7 +1115,7 @@ var initEvent = function() {
         var statusID = $(this).closest('.t_status').prop('id');
 
         var thisElem = this;
-        twitter.Tweet.destroyMsg(statusID, function(data) {
+        kt.tweet.destroyMsg(statusID, function(data) {
             $(thisElem).closest('.t_status').slideUp();
         }, function(errorStatus) {
             errorHandler('Failed to delete message', errorStatus);
@@ -1183,7 +1180,7 @@ var initEvent = function() {
             $(progress).text('0%');
 
             // first check rate limit
-            twitter.User.rateLimit(function(data) {
+            kt.user.rateLimit(function(data) {
                 console.log('got rate limit', data)
 
                 // need about 16 hits to get 3200 tweets
@@ -1236,15 +1233,15 @@ var initEvent = function() {
 
 var onLoginSuccess = function(screenName) {
     // create instances
-    TabMgr.home = createStatusesTab('home', twitter.createHomeTL()).init();
-    TabMgr.mentions = createStatusesTab('mentions', twitter.createMentionsTL()).init();
-    TabMgr.retweets = createStatusesTab('retweets', twitter.createRetweetsTL()).init();
-    TabMgr.messages = createStatusesTab('messages', twitter.createMessagesTL()).init();
-    TabMgr.favorites = createStatusesTab('favorites', twitter.createFavoritesTL()).init();
+    TabMgr.home = createStatusesTab('home', kt.createHomeTL()).init();
+    TabMgr.mentions = createStatusesTab('mentions', kt.createMentionsTL()).init();
+    TabMgr.retweets = createStatusesTab('retweets', kt.createRetweetsTL()).init();
+    TabMgr.messages = createStatusesTab('messages', kt.createMessagesTL()).init();
+    TabMgr.favorites = createStatusesTab('favorites', kt.createFavoritesTL()).init();
     tweetBox = createTweetBox('update');
 
     // update profile
-    twitter.User.show(screenName, function(data) {
+    kt.user.show(screenName, function(data) {
         updateProfile('profile', data);
         $('#profile').fadeIn('slow');
     }, function(errorStatus) {
@@ -1292,20 +1289,20 @@ var onLoginError = function(errorStatus) {
 };
 
 var basicLogin = function(user, pass) {
-    var bauth = twitter.getBAuth();
+    var bauth = kt.getBAuth();
     bauth.login(user, pass, onLoginSuccess, onLoginError);
 };
 
 var oauthLogin = function(verifier) {
-    var oauth = twitter.getOAuth();
+    var oauth = kt.getOAuth();
     oauth.login(chrome.extension.getURL('main.html'), verifier, onLoginSuccess, onLoginError);
 };
 
 var autoLogin = function() {
     // init
-    var bauth = twitter.getBAuth();
+    var bauth = kt.getBAuth();
     bauth.setAPIBase(config.get().basics.api.address);
-    var oauth = twitter.getOAuth();
+    var oauth = kt.getOAuth();
     oauth.setConsumerToken(consumerKey, consumerSec);
 
     // try basic auth first
@@ -1315,7 +1312,7 @@ var autoLogin = function() {
     }
 
     // continue oauth login
-    var params = util.getQueryStringParams(window.location.href);
+    var params = ut.getQueryStringParams(window.location.href);
     if (params.oauth_verifier) {
         $('#login .loader').show();
         oauthLogin(params.oauth_verifier);
@@ -1330,10 +1327,10 @@ var autoLogin = function() {
 };
 
 var logout = function() {
-    if ('Basic' == twitter.getAuthMode()) {
-        twitter.getBAuth().logout();
-    } else if ('OAuth' == twitter.getAuthMode()) {
-        twitter.getOAuth().logout();
+    if ('Basic' == kt.getAuthMode()) {
+        kt.getBAuth().logout();
+    } else if ('OAuth' == kt.getAuthMode()) {
+        kt.getOAuth().logout();
     } else {
         console.error('logout(): invalid auth mode');
     }
