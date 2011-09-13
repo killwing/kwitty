@@ -37,9 +37,9 @@ ut.formDecode = function(encoded) {
 ut.getQueryStringParams = function(s) {
     var urlparts = s.split('?');
     if (urlparts.length == 2) {
-        return formDecode(urlparts[1]);
+        return ut.formDecode(urlparts[1]);
     } else {
-        return formDecode(s);
+        return ut.formDecode(s);
     }
 };
 
