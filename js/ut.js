@@ -25,8 +25,8 @@ ut.formDecode = function(encoded) {
     for (var i = 0, param; param = params[i]; i++) {
         var keyval = param.split('=');
         if (keyval.length == 2) {
-            var key = fromRfc3986(keyval[0]);
-            var val = fromRfc3986(keyval[1]);
+            var key = ut.fromRfc3986(keyval[0]);
+            var val = ut.fromRfc3986(keyval[1]);
             decoded[key] = val;
         }
     }
@@ -66,7 +66,7 @@ ut.fromRfc3986 = function(val) {
 // Adds a key/value parameter to the supplied URL.
 ut.addURLParam = function(url, key, value) {
     var sep = (url.indexOf('?') >= 0) ? '&' : '?';
-    return url + sep + toRfc3986(key) + '=' + toRfc3986(value);
+    return url + sep + ut.toRfc3986(key) + '=' + ut.toRfc3986(value);
 };
 
 // HTML escaping
