@@ -1265,6 +1265,10 @@ var onLoginSuccess = function(screenName) {
     $('#logout').fadeIn('slow');
     $('#update').fadeIn('slow');
     $('#tabs').fadeIn('slow');
+
+    if ('Basic' == kt.getAuthMode()) {
+        $('#actions .t_upmedia_icon').hide();
+    }
 };
 
 var makeCompact = function() {

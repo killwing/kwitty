@@ -72,8 +72,8 @@ ut.addURLParam = function(url, key, value) {
 // HTML escaping
 ut.escapeHtml = function(text) {
     return text.replace(/>/g, '&gt;')
-               .replace(/</g, '&lt;')
-               .replace(/ /g, '&nbsp;');
+               .replace(/</g, '&lt;');
+               //.replace(/ /g, '&nbsp;');
 };
 
 // Regex escaping
