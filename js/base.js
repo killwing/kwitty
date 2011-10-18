@@ -2,6 +2,8 @@
 var consumerKey = 'Nqs01pigEQdfrDH0Qrt3w';
 var consumerSec = 'CUzPVKvD33nkyLKR9zgdnO3pgONztA8vi42PdFSx90';
 
+var autoloadCfg;
+
 // handle config
 var cfgUpdater = {
     basics: {
@@ -20,6 +22,13 @@ var cfgUpdater = {
             },
             autoload: function(v) {
                 config.get().basics.refresh.autoload = v;
+                autoloadCfg = v;
+            },
+            disreadingload: function(v) {
+                config.get().basics.refresh.disreadingload = v;
+                if (!v) { // reset autoload
+                    autoloadCfg = config.get().basics.refresh.autoload;
+                }
             },
         },
         api: {
@@ -523,6 +532,13 @@ var createStatusesTab = function(id, tl) {
         }
     };
 
+    statusesTab.hideNewBtn = function() {
+        var count = tl.getCachedTweets().length;
+        if (count == 0) {
+            $(newBtnID).hide();
+        }
+    };
+
     statusesTab.showNew = function() {
         console.log('StatusesTab.showNew()');
 
@@ -531,7 +547,7 @@ var createStatusesTab = function(id, tl) {
         $(newBtnID).slideUp();
 
         var newTweets = tl.getCachedTweets();
-        statusesTab.prepend(newTweets, config.get().basics.refresh.autoload);
+        statusesTab.prepend(newTweets, autoloadCfg);
         // clear
         tl.clearCachedTweets();
     };
@@ -569,7 +585,12 @@ var createStatusesTab = function(id, tl) {
                 $(labelID).text(label+'*');
             }
 
-            if (config.get().basics.refresh.autoload) {
+            if (config.get().basics.refresh.autoload && config.get().basics.refresh.disreadingload) {
+                $('body').scrollTop() < 50 ?
+                    autoloadCfg = config.get().basics.refresh.autoload : autoloadCfg = false;
+            }
+
+            if (autoloadCfg) {
                 statusesTab.showNew();
             } else {
                 $(newBtnID).text(count+' new').slideDown();

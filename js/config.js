@@ -37,7 +37,8 @@
                     mentions: '3',
                     retweets: '3',
                     messages: '5',
-                    autoload: false,
+                    autoload: true,
+                    disreadingload: true,
                 },
                 api: {
                     address: 'http://kwittyapp.appspot.com/api/1',
@@ -114,6 +115,9 @@
         }
         if (!config.gui.display.tabwidth) {
             config.gui.display.tabwidth = defConfig().gui.display.tabwidth;
+        }
+        if (!config.basics.refresh.disreadingload) {
+            config.basics.refresh.disreadingload = defConfig().basics.refresh.disreadingload;
         }
     };
 

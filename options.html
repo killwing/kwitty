@@ -91,8 +91,8 @@
         });
 
         // checkbox
-        $('#basics-refresh-autoload, #gui-display-compact, #gui-display-expandurl, #gui-display-rich').change(function() {
-            saveValue(this, $(this).prop('checked'))
+        $('#basics-refresh-autoload, #basics-refresh-disreadingload, #gui-display-compact, #gui-display-expandurl, #gui-display-rich').change(function() {
+            saveValue(this, $(this).prop('checked'));
         });
 
         config.init();
@@ -182,6 +182,13 @@
                             <label class="checkbox">
                                 <input id="basics-refresh-autoload" type="checkbox">
                                 <span>Auto load new tweets</span>
+                            </label>
+                        </div>
+
+                        <div class="section-group">
+                            <label class="checkbox">
+                                <input id="basics-refresh-disreadingload" type="checkbox">
+                                <span>Disable new tweets auto loading when reading (not at top)</span>
                             </label>
                         </div>
 

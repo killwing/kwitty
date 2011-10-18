@@ -46,40 +46,45 @@
 
 
         $('#tabs').live('tabsselect', function(event, ui) {
-            var label = $(ui.tab).text()
+            var label = $(ui.tab).text();
             if (label.slice(-1) == '*') {
-                $(ui.tab).text(label.slice(0, label.length-1))
+                var name = label.slice(0, label.length-1);
+                $(ui.tab).text(name);
+                // the 'new' button slideUp may not take effect when tab is hidden, so check it again
+                TabMgr[name.toLowerCase()].hideNewBtn();
             }
         });
 
         $('#login a').click(function() {
-            $('#login .loader').show()
-            basicLogin($('#username').val(), $('#password').val())
+            $('#login .loader').show();
+            basicLogin($('#username').val(), $('#password').val());
         })
         $('#login img').click(function() {
-            $('#login .loader').show()
-            oauthLogin()
+            $('#login .loader').show();
+            oauthLogin();
         })
 
         $('#logout').html(String.fromCharCode(8624));
 
-        config.init()
-        cfgUpdater.bgImgData(config.loadFromLS('bgImgData'))
-        loadValues(config.get().gui.theme, 'gui.theme')
+        config.init();
+        // set background image independently
+        cfgUpdater.bgImgData(config.loadFromLS('bgImgData'));
+        // update theme
+        loadValues(config.get().gui.theme, 'gui.theme');
 
         chrome.windows.getCurrent(function(w) {
-            console.log('window type:', w.type)
+            console.log('window type:', w.type);
             if ((w.type == 'app' || w.type == 'popup') && config.get().gui.display.compact) {
                 // cuz chrome will remember the window size
                 // don't reset the size if user tune the window a little
                 if (w.width > 500 || w.width < 450) {
-                    chrome.windows.update(w.id, {width: 480})
+                    chrome.windows.update(w.id, {width: 480});
                 }
-                makeCompact()
+                makeCompact();
             }
         })
 
-        autoLogin()
+        autoLogin();
     })
 </script>
 </head>
