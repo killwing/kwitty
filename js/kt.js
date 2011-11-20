@@ -1262,6 +1262,9 @@
                     retStr += text.slice(last, v.indices[0]);
                     if (v.url) { // url or media
                         var realurl = v.expanded_url ? v.expanded_url : v.url;
+                        if (!/^https?:\/\//.test(realurl)) {
+                            realurl = 'http://' + realurl;
+                        }
                         retStr += '<a href="'+realurl+'" target="_blank">'+v.url+'</a>';
                     } else if (v.text) { // hashtag
                         //var ggSearch = 'https://encrypted.google.com/search?q=' + hashtag.text + '&tbs=mbl:1';
