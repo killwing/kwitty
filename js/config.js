@@ -37,6 +37,7 @@
                     mentions: '3',
                     retweets: '3',
                     messages: '5',
+                    search: '3',
                     autoload: true,
                     disreadingload: true,
                 },
@@ -118,6 +119,10 @@
         }
         if (!config.basics.refresh.disreadingload) {
             config.basics.refresh.disreadingload = defConfig().basics.refresh.disreadingload;
+        }
+        // new in 1.4.4
+        if (!config.basics.refresh.search) {
+            config.basics.refresh.search = defConfig().basics.refresh.search;
         }
     };
 

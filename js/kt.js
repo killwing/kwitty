@@ -78,7 +78,7 @@
 
         search: {
             // Returns tweets that match a specified query. To best learn how to use Twitter Search effectively, consult our guide to Using the Twitter Search API Notice: As of April 1st 2010, the Search API provides an option to retrieve "popular tweets" in addition to real-time search results. In an upcoming...
-            //search: {method: 'GET', url: '/search.json', domain: 'search'},
+            search: {method: 'GET', url: '/search.json', domain: 'search'},
         },
 
         direct_messages: {
@@ -808,18 +808,24 @@
         var newTweets = [];
         var allTweets = [];
         var refreshData = {};
-        
+        var exportTimer = null;
+
+        var isSearch = function() {
+            return api.search.search == rest;
+        }
+
         var statuses = createAPI(rest);
         statuses.addDefaultParam({
             include_entities: true,
         });
 
-        statuses.setRefreshTime = function(s) { // in min
+        statuses.setRefreshTime = function(s) { // in min, set 0 to stop
             var interval = s*60*1000;
             if (refreshData.interval == interval) {
                 console.warn('Statuses.setRefreshTime(): ignore time interval');
                 return;
             }
+            console.log('Statuses.setRefreshTime(): ', s);
             refreshData.interval = interval;
 
             if (refreshData.id) {
@@ -850,6 +856,10 @@
                 if (data.error) { // return error immediately
                     error({textStatus: data.error});
                     return;
+                }
+
+                if (isSearch()) {
+                    data = data.results;
                 }
 
                 if (data.length) {
@@ -884,6 +894,10 @@
             this.sendRequest({max_id: maxID}, function(data) {
                 console.log('Statuses.getMore.sendRequest() - success');
 
+                if (isSearch()) {
+                    data = data.results;
+                }
+
                 if (data.length) {
                     // update maxID
                     maxID = data[data.length-1].id_str;
@@ -907,6 +921,11 @@
                 return;
             }
 
+            if (isSearch()) {
+                console.warn('Statuses.getAll(): not support search');
+                return;
+            }
+
             statuses.sendRequest({max_id: maxIDForAll, count: 200}, function(data) {
                 console.log('Statuses.getAll.sendRequest() - success');
 
@@ -924,7 +943,7 @@
 
                     success(allTweets.length); // indicate progress
 
-                    setTimeout(function() {
+                    exportTimer = setTimeout(function() {
                         statuses.getAll(success, error);
                     }, 5000);
                 } else {
@@ -947,8 +966,18 @@
             }
 
             // should catch new tweets as much as possible
-            this.sendRequest({since_id: sinceID, count: 200}, function(data){
+            var param = {since_id: sinceID};
+            if (isSearch()) {
+                param.rpp = 100;
+            } else {
+                param.count = 200;
+            }
+            this.sendRequest(param, function(data){
                 console.log('Statuses.getNew.sendRequest() - success');
+
+                if (isSearch()) {
+                    data = data.results;
+                }
 
                 if (data.length) {
                     // update sinceID
@@ -968,6 +997,18 @@
                 }
                 error(errorStatus);
             });
+        };
+
+        statuses.destroy = function() {
+            console.log('Statuses.destroy()');
+
+            if (refreshData.id) {
+                clearInterval(refreshData.id);
+            }
+
+            if (exportTimer) {
+                clearTimeout(exportTimer);
+            }
         };
 
         return statuses;
@@ -1159,6 +1200,16 @@
         return friends;
     };
 
+    kt.createSearchTL = function(q) {
+        console.log('createSearchTL()');
+        var searchTL = createStatuses(api.search.search);
+        searchTL.addDefaultParam({
+            q: q,
+            //show_user: true,
+        });
+        return searchTL;
+    };
+
     kt.util = {
         // should return a new regexp every time
         pat: {
@@ -1178,41 +1229,61 @@
                        .replace(kt.util.pat.tag(), '<a href="https://encrypted.google.com/search?q=%23$2&tbs=mbl:1" target="_blank">$&</a>');
         },
 
-        makeEntities: function(text, entities) {
+        makeEntities: function(text, entities, ex) {
+            // NOTE: text is already HTML escaped by Twitter
+
             if (!entities) {
-                //text = ut.escapeHtml(text);
-                //return kt.util.buildEntities(text);
                 return twttr.txt.autoLink(text, {target: '_blank', usernameClass: 't_userlink', usernameUrlBase: '#'});
             }
-            var replaces = {}
-            $.each(entities.urls, function(i, url) {
-                var realurl = url.expanded_url ? url.expanded_url : url.url;
-                replaces[text.slice(url.indices[0], url.indices[1])] = '<a href="'+realurl+'" target="_blank">'+url.url+'</a>';
-            });
-            $.each(entities.hashtags, function(i, hashtag) {
-                var twSearch = 'https://twitter.com/search?q=' + hashtag.text;
-                var ggSearch = 'https://encrypted.google.com/search?q=' + hashtag.text + '&tbs=mbl:1';
-                replaces[text.slice(hashtag.indices[0], hashtag.indices[1])] = '<a href="'+twSearch+'" target="_blank">#'+hashtag.text+'</a>';
-            });
-            $.each(entities.user_mentions, function(i, user) {
-                replaces[text.slice(user.indices[0], user.indices[1])] = '<a href="#" class="t_userlink">@'+user.screen_name+'</a>';
+
+            var all = [];
+            if (entities.urls) {
+                all = all.concat(entities.urls);
+            }
+            if (entities.hashtags) {
+                all = all.concat(entities.hashtags);
+            }
+            if (entities.user_mentions) {
+                all = all.concat(entities.user_mentions);
+            }
+            if (entities.media) {
+                all = all.concat(entities.media);
+            }
+            all.sort(function(x, y) {
+                return x.indices[0] - y.indices[0];
             });
 
-            if (entities.media) {
-                $.each(entities.media, function(i, md) {
-                    var realurl = md.expanded_url ? md.expanded_url : md.url;
-                    replaces[text.slice(md.indices[0], md.indices[1])] = '<a href="'+realurl+'" target="_blank">'+md.url+'</a>';
+            var retStr = '';
+            if (all.length == 0) {
+                retStr = text;
+            } else {
+                var last = 0;
+                $.each(all, function(k, v) {
+                    retStr += text.slice(last, v.indices[0]);
+                    if (v.url) { // url or media
+                        var realurl = v.expanded_url ? v.expanded_url : v.url;
+                        retStr += '<a href="'+realurl+'" target="_blank">'+v.url+'</a>';
+                    } else if (v.text) { // hashtag
+                        //var ggSearch = 'https://encrypted.google.com/search?q=' + hashtag.text + '&tbs=mbl:1';
+                        if (ex) {
+                            retStr += '<a href="https://twitter.com/search/%23'+v.text+'" target="_blank">#'+v.text+'</a>';
+                        } else {
+                            retStr += '<a href="#" class="t_hashtag">#'+v.text+'</a>';
+                        }
+                    } else if (v.screen_name) { // user_mention
+                        if (ex) {
+                            retStr += '<a href="https://twitter.com/'+v.screen_name+'" target="_blank">@'+v.screen_name+'</a>';
+                        } else {
+                            retStr += '<a href="#" class="t_userlink">@'+v.screen_name+'</a>';
+                        }
+                    }
+
+                    last = v.indices[1];
                 });
+                retStr += text.slice(last);
             }
 
-            // escape first 
-            text = ut.escapeHtml(text);
-
-            $.each(replaces, function(k, v) {
-                text = text.replace(new RegExp(ut.escapeRegex(k), 'g'), v);
-            });
-
-            return text;
+            return retStr;
         },
 
         makeTime: function(time) {

@@ -69,10 +69,32 @@ ut.addURLParam = function(url, key, value) {
     return url + sep + ut.toRfc3986(key) + '=' + ut.toRfc3986(value);
 };
 
+var HTML_ENTITIES = {
+    '&': '&amp;',
+    '>': '&gt;',
+    '<': '&lt;',
+    '"': '&quot;',
+    "'": '&#39;'
+};
+
 // HTML escaping
 ut.escapeHtml = function(text) {
-    return text.replace(/>/g, '&gt;')
-               .replace(/</g, '&lt;');
+    return text && text.replace(/[&"'><]/g, function(character) {
+        return HTML_ENTITIES[character];
+    });
+};
+
+// HTML escaping
+//ut.escapeHtml = function(text) {
+//    return text.replace(/>/g, '&gt;')
+//               .replace(/</g, '&lt;');
+//               //.replace(/ /g, '&nbsp;');
+//};
+
+ut.unescapeHtml = function(text) {
+    return text.replace(/&gt;/g, '>')
+               .replace(/&lt;/g, '<')
+               .replace(/&quot;/g, '"');
                //.replace(/ /g, '&nbsp;');
 };
 

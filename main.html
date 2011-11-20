@@ -35,15 +35,16 @@
 		});
 
         $("#tabs span.ui-icon-close").live("click", function() {
-             // check whether export is ongoing
-            if ($($(this).siblings('a').attr('href')).find('.p_progress').text()) { // for here, should use "attr" while not "prop"
-                showTip('Exporting tweets, please wait.');
-                return;
-            }
             var index = $("li", "#tabs").index($(this).parent());
             $("#tabs").tabs("remove", index);
         });
 
+        $('#tabs').live('tabsremove', function(event, ui) {
+            var tabId = ui.tab.hash.slice(1);
+            TabMgr[tabId].destroy();
+            delete TabMgr[tabId];
+            $('#tabs').tabs('select', 0);
+        });
 
         $('#tabs').live('tabsselect', function(event, ui) {
             var label = $(ui.tab).text();
@@ -51,7 +52,7 @@
                 var name = label.slice(0, label.length-1);
                 $(ui.tab).text(name);
                 // the 'new' button slideUp may not take effect when tab is hidden, so check it again
-                TabMgr[name.toLowerCase()].hideNewBtn();
+                TabMgr[ui.tab.hash.slice(1)].hideNewBtn();
             }
         });
 
@@ -136,11 +137,11 @@
 
         <div id="tabs">
             <ul>
-                <li><a href="#home" id='home_label'>Home</a></li>
-                <li><a href="#mentions" id='mentions_label'>Mentions</a></li>
-                <li><a href="#retweets" id='retweets_label'>Retweets</a></li>
-                <li><a href="#messages" id='messages_label'>Messages</a></li>
-                <li><a href="#favorites" id='favorites_label'>Favorites</a></li>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#mentions">Mentions</a></li>
+                <li><a href="#retweets">Retweets</a></li>
+                <li><a href="#messages">Messages</a></li>
+                <li><a href="#favorites">Favorites</a></li>
             </ul>
             <div id="home"></div>
             <div id="mentions"></div>

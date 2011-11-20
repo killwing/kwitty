@@ -20,6 +20,14 @@ var cfgUpdater = {
             messages: function(t) {
                 TabMgr.messages.setRefreshTime(t);
             },
+            search: function(t) {
+                config.get().basics.refresh.search = t;
+                $.each(TabMgr, function(k, v) {
+                    if (/^s_/.test(k)) {
+                        v.setRefreshTime(t);
+                    }
+                });
+            },
             autoload: function(v) {
                 config.get().basics.refresh.autoload = v;
                 autoloadCfg = v;
@@ -166,6 +174,14 @@ var Render = {
         if (tweet.in_reply_to_screen_name && tweet.in_reply_to_status_id_str) {
             re = '<span class="t_conversation_icon icon" /><span class="t_reply" id="{1}"><a href="#">to {0}</a></span>&nbsp;<img class="spinner invisible" src="../img/spinner.gif">'.format(tweet.in_reply_to_screen_name, tweet.in_reply_to_status_id_str);
         }
+        
+        // search tweet
+        if (t.from_user_name) { 
+            t.user = {};
+            t.user.profile_image_url = t.profile_image_url;
+            t.user.screen_name = t.from_user;
+            t.user.name = t.from_user_name;
+        }
 
         // DM addition
         var ref = '';
@@ -198,7 +214,7 @@ var Render = {
             }
 
         } else { // normal tweet
-            from = 'via {0}'.format(ut.addBlankTarget(tweet.source));
+            from = 'via {0}'.format(ut.addBlankTarget(ut.unescapeHtml(tweet.source)));
             ref = ut.addBlankTarget(kt.util.makeTime(tweet.created_at).link("https://twitter.com/"+tweet.user.screen_name+"/status/"+tweet.id_str));
 
             // hide retweet if it is your own tweet or retweeted
@@ -425,8 +441,7 @@ var Render = {
 */
         };
 
-        var text = kt.util.makeEntities(t.text, t.entities);
-        text = text.replace(/<a href="#" class="t_userlink">@([\w\_]+)<\/a>/g, '<a href="https://twitter.com/$1" target="_blank">@$1</a>');  // replace user link
+        var text = kt.util.makeEntities(t.text, t.entities, true);
         var from = ut.addBlankTarget(t.source);
         var time = kt.util.makeTime(t.created_at);
         var id = ut.addBlankTarget((t.id_str).link("https://twitter.com/"+t.user.screen_name+"/status/"+t.id_str));
@@ -467,7 +482,6 @@ var createStatusesTab = function(id, tl) {
     var newBtnID = '#' + id + ' .new';
     var moreBtnID = '#' + id + ' .more';
     var loaderID = '#' + id + ' .loader';
-    var labelID = '#' + id + '_label';
     var newTextID = '#' + id +' .newTweet .t_text';
     var embedparams = {
         maxWidth: 390,
@@ -476,6 +490,7 @@ var createStatusesTab = function(id, tl) {
         wmode: 'transparent',
         method: 'afterParent'
     };
+    var inited = false;
 
     var statusesTab = createTab();
     // [override] called after fist get successfully, no callback
@@ -577,10 +592,15 @@ var createStatusesTab = function(id, tl) {
 
         var count = tl.getCachedTweets().length;
         if (count) {
-            document.title = 'kwitty/'+id+' - '+count+' new'  // blink title
             var index = $('#tabs > div').index($('#'+id));
+            var labelID = '#tabs > ul li:eq('+index+') a';
             var selected = $('#tabs').tabs('option', 'selected');
             var label = $(labelID).text();
+            var labeltt = label;
+            if (label.slice(-1) == '*') {
+                labeltt = label.slice(0, label.length-1);
+            }
+            document.title = 'kwitty | '+labeltt+' - '+count+' new'  // blink title
             if (index != selected && label.slice(-1) != '*') {
                 $(labelID).text(label+'*');
             }
@@ -598,19 +618,37 @@ var createStatusesTab = function(id, tl) {
         } else {
             $(loaderID).hide();
 
-            if (data && data.length) {  // first get
-                statusesTab.prepend(data);
-                statusesTab.loadOnce(data);
-                $(moreBtnID).show();
-            } else { // no tweets when first get or getNew
-                console.log('statusesTab.onNewTweets(): No tweet yet.');
-                //statusesTab.onError({textStatus: 'No tweet yet.'});
+            if (!inited) {
+                if (data && data.length) {  // first get
+                    statusesTab.prepend(data);
+                    statusesTab.loadOnce(data);
+                    $(moreBtnID).show();
+                } else { // no tweets when first get
+                    // close this tab
+                    var index = $('#tabs > div').index($('#'+id));
+                    if (index != -1) {
+                        $('#tabs').tabs('remove', index);
+                    }
+                    statusesTab.onError({textStatus: 'No tweet found.'});
+                }
+
+                inited = true;
+            } else {
+                if (data && data.length) {
+                    console.warn('statusesTab.onNewTweets(): data available but could not get cached tweets.');
+                } else {
+                    console.log('statusesTab.onNewTweets(): No tweet yet.');
+                }
             }
         }
     };
 
     statusesTab.setRefreshTime = function(t) {
         tl.setRefreshTime(t);
+    };
+
+    statusesTab.destroy = function() {
+        tl.destroy();
     };
 
     statusesTab.init = function() {
@@ -647,7 +685,6 @@ var createUserTab = function(id, tl) {
             var index = $('#tabs > div').index($('#'+id));
             if (index != -1) {
                 $('#tabs').tabs('remove', index);
-                $('#tabs').tabs('select', 0);
             }
             errorHandler('Failed to show user', errorStatus);
         }
@@ -787,12 +824,16 @@ var createTweetBox = function(id) {
 
         var dm = /^d \w+ /i.exec(content);
         var find = /^f \w+/i.test(content);
+        var search = /^s .+/i.test(content);
         if (dm) {
             total += dm[0].length;
             $(tweetID).text('Send');
         } else if (find) {
             total = 22 // 20 letters for screen name
             $(tweetID).text('Find');
+        } else if (search) {
+            total = 22
+            $(tweetID).text('Search');
         } else {
             $(tweetID).text('Tweet');
             if (upfile) {
@@ -907,6 +948,10 @@ var createTweetBox = function(id) {
                 var f = /^f (\w+)/i.exec(content);
                 showUser(f[1]);
                 tweetBox.reset();
+            } else if ($(tweetID).text() == 'Search') {
+                var f = /^s (.+)/i.exec(content);
+                showSearch(f[1].trim());
+                tweetBox.reset();
             }
         }
         return false;
@@ -959,6 +1004,24 @@ var showUser = function(screenName) {
     if (index == -1) {
         $('#tabs').tabs('add', id, '@'+screenName);
         TabMgr[screenName] = createUserTab(screenName, kt.createUserTL(screenName)).init();
+
+        // update
+        index = $('#tabs > div').index($(id));
+    }
+
+    $('#tabs').tabs('select', index);
+    $(window).scrollTop(0);
+};
+
+var showSearch = function(q) {
+    var idStr = 's_' + q.replace(/#/, '_tag_'); 
+    var id = '#' + idStr;
+
+    var index = $('#tabs > div').index($(id));
+    if (index == -1) {
+        $('#tabs').tabs('add', id, '/'+q+'/');
+        TabMgr[idStr] = createStatusesTab(idStr, kt.createSearchTL(q)).init();
+        TabMgr[idStr].setRefreshTime(config.get().basics.refresh.search);
 
         // update
         index = $('#tabs > div').index($(id));
@@ -1161,6 +1224,10 @@ var initEvent = function() {
             screenName = screenName.slice(1);
         }
         showUser(screenName);
+    });
+    $('.t_status .t_hashtag').live('click', function() {
+        var tag = $(this).text();
+        showSearch(tag);
     });
     $('.t_status .t_msgto a').live('click', function() {
         var screenName = $(this).text();
