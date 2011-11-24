@@ -307,6 +307,11 @@
             tos: {method: 'GET', url: '/legal/tos.json'},
         },
         */
+
+        // ex
+        urls: {
+            resolve: {method: 'GET', url: '/urls/resolve.json'},
+        },
     };
     
     var createRequest = function(rest, data, success, error) {
@@ -779,6 +784,15 @@
             d.sendRequest(null, success, error);
         },
 
+    };
+
+    kt.urls = {
+        resolve: function(urls, success, error) {
+            console.log('Url.resolve()');
+            var rest = api.urls.resolve;
+            var r = createAPI(rest);
+            r.sendRequest(urls, success, error);
+        }
     };
 
     kt.friendship = {

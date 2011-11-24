@@ -1,7 +1,7 @@
 {
     "name": "kwitty",
     "description": "A chrome application of twitter",
-    "version": "1.4.4",
+    "version": "1.4.5",
     "app": {
         "launch": {
             "local_path": "main.html"
