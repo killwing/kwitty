@@ -400,7 +400,7 @@
                     success(data);
                 }
             }, function(xmlHttpRequest, textStatus, errorThrown) {
-                console.log('API.sendRequest() - error:', xmlHttpRequest, textStatus/*, errorThrown*/);
+                console.log('API.sendRequest() - error'/*, xmlHttpRequest, textStatus, errorThrown*/);
                 /*
 200 OK: Success!
 304 Not Modified: There was no new data to return.
@@ -414,7 +414,7 @@
 502 Bad Gateway: Twitter is down or being upgraded.
 503 Service Unavailable: The Twitter servers are up, but overloaded with requests. Try again later.
                 */
-             
+
                 var errorStatus = {
                     xmlHttpRequest: xmlHttpRequest,
                     textStatus: textStatus,
@@ -866,11 +866,6 @@
         statuses.get = function(success, error) {
             this.sendRequest(null, function(data) {
                 console.log('Statuses.get.sendRequest() - success');
-
-                if (data.error) { // return error immediately
-                    error({textStatus: data.error});
-                    return;
-                }
 
                 if (isSearch()) {
                     data = data.results;

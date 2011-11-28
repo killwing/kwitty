@@ -1446,12 +1446,22 @@ var errorHandler = function(info, errorStatus) {
     if (errorStatus) {
         reason = errorStatus.textStatus;
         if (errorStatus.xmlHttpRequest && errorStatus.xmlHttpRequest.responseText) {
-            var resp = JSON.parse(errorStatus.xmlHttpRequest.responseText);
-            reason = resp.error;
+            try {
+                var resp = JSON.parse(errorStatus.xmlHttpRequest.responseText);
+                reason = resp.error;
 
-            // find reason in errors
-            if (!reason) {
-                reason = resp.errors[0].message;
+                // find reason in errors
+                if (!reason) {
+                    reason = resp.errors[0].message;
+                }
+            } catch (e) {
+                if (errorStatus.xmlHttpRequest.responseText) {
+                    var resp = xmlHttpRequest.responseText.match(/"en":\s*{\n\s*"title":\s*"(.+)",/m);
+                    console.debug('errorHandler() responseText:', resp);
+                    if (resp) {
+                        reason = resp[1];
+                    }
+                }
             }
         }
     }
