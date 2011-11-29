@@ -8,6 +8,12 @@ String.prototype.format = function() {
     });
 };
 
+// paramilized string using {word}
+String.prototype.template = function(t) {
+    return this.replace(/{(\w+)}/g, function(s, w) {
+        return t[w];
+    });
+}
 
 // multi-line string using function definition + comment
 Function.prototype.mlstr = function() {  

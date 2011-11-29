@@ -780,6 +780,11 @@ var createFriendshipTab = function(id, fs) {
         fs.get(this.onMoreUsers, this.onError);
     };
 
+    fsTab.destroy = function() {
+        console.log('FriendshipTab.destroy()');
+        //fs.destroy();
+    };
+
     fsTab.init = function() {
         console.log('FriendshipTab.init()');
         $('#'+id).html(Render.friendship(id));
