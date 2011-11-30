@@ -24,6 +24,19 @@ Function.prototype.mlstr = function() {
 
 var ut = {};
 
+// class inherit
+ut.inherits = function(ctor, superCtor) {
+    ctor.super_ = superCtor;
+    ctor.prototype = Object.create(superCtor.prototype, {
+        constructor: {
+            value: ctor,
+            enumerable: false,
+            writable: true,
+            configurable: true
+        }
+    });
+};
+
 // Decodes a URL-encoded string into key/value pairs.
 ut.formDecode = function(encoded) {
     var params = encoded.split('&');
@@ -90,13 +103,6 @@ ut.escapeHtml = function(text) {
     });
 };
 
-// HTML escaping
-//ut.escapeHtml = function(text) {
-//    return text.replace(/>/g, '&gt;')
-//               .replace(/</g, '&lt;');
-//               //.replace(/ /g, '&nbsp;');
-//};
-
 ut.unescapeHtml = function(text) {
     return text.replace(/&gt;/g, '>')
                .replace(/&lt;/g, '<')
@@ -116,7 +122,7 @@ ut.addBlankTarget = function(a) {
 
 // exports
 var root = this;
-if (typeof module !== 'undefined'  && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
     module.exports = ut;
 } else if (!root.ut) {
     root.ut = ut;
