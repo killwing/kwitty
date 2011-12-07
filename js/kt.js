@@ -1071,13 +1071,14 @@
         messagesTL.sortByDate = function(data) {
             data.sort(function(a, b) {
                 //return (new Date(a.created_at)) > (new Date(b.created_at));
-                return a.id_str > b.id_str;
+                return Number(a.id_str) > Number(b.id_str);
             });
         };
 
         messagesTL.getCachedTweets = function() {
             var cached = receivedTL.getCachedTweets();
             cached = cached.concat(sentTL.getCachedTweets());
+     
             messagesTL.sortByDate(cached);
             return cached;
         };
@@ -1092,7 +1093,6 @@
                 success();
             } else if (initalSent.length != 0 && initalRecved.length != 0) {
                 var initialTweets = initalRecved.concat(initalSent) 
-
                 messagesTL.sortByDate(initialTweets);
                 success(initialTweets);
                 initalRecved = null;
