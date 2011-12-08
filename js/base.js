@@ -79,7 +79,7 @@ var cfgUpdater = {
             },
             tabwidth: function(v) {
                 chrome.windows.getCurrent(function(w) {
-                    if ((w.type != 'app' && w.type != 'popup')) {
+                    if (!((w.type == 'app' || w.type == 'popup') && config.get().gui.display.compact)) {
                         if (v == 'Normal') {
                             $('#container').width(540);
                         } else if (v == 'Wider') {
