@@ -72,6 +72,8 @@
         cfgUpdater.bgImgData(config.loadFromLS('bgImgData'));
         // update theme
         loadValues(config.get().gui.theme, 'gui.theme');
+        // update tabwidth
+        loadValues(config.get().gui.display.tabwidth, 'gui.display.tabwidth');
 
         chrome.windows.getCurrent(function(w) {
             console.log('window type:', w.type);

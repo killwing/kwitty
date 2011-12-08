@@ -68,7 +68,9 @@ var cfgUpdater = {
             }
         },
         display: {
-            compact: function() {},
+            compact: function() { 
+                // do not update compact mode during runtime
+            },
             expandurl: function(v) {
                 config.get().gui.display.expandurl = v;
             },
@@ -108,14 +110,18 @@ var loadValue = function(item, val) {
 };
 
 var loadValues = function(obj, id) {
-    $.each(obj, function(k, v) {
-        if (typeof(v) == 'object') {
-            var subid = id+'.'+k;
-            loadValues(v, subid);
-        } else {
-            loadValue(id+'.'+k, v);
-        }
-    });
+    if (typeof(obj) == 'object') {
+        $.each(obj, function(k, v) {
+            if (typeof(v) == 'object') {
+                var subid = id+'.'+k;
+                loadValues(v, subid);
+            } else {
+                loadValue(id+'.'+k, v);
+            }
+        });
+    } else {
+        loadValue(id, obj);
+    }
 };
 
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
