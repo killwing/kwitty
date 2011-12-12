@@ -85,19 +85,19 @@ if (!window.twttr) {
   var INVALID_CHARS = [
     fromCode(0xFFFE),
     fromCode(0xFEFF), // BOM
-    fromCode(0xFFFF), // Special
+    fromCode(0xFFFF) // Special
   ];
   addCharsToCharClass(INVALID_CHARS, 0x202A, 0x202E); // Directional change
 
   twttr.txt.regexen.spaces_group = regexSupplant(UNICODE_SPACES.join(""));
   twttr.txt.regexen.spaces = regexSupplant("[" + UNICODE_SPACES.join("") + "]");
   twttr.txt.regexen.invalid_chars_group = regexSupplant(INVALID_CHARS.join(""));
-  twttr.txt.regexen.punct = /\!'#%&'\(\)*\+,\\\-\.\/:;<=>\?@\[\]\^_{|}~/;
-  twttr.txt.regexen.atSigns = /[@＠]/;
-  twttr.txt.regexen.extractMentions = regexSupplant(/(^|[^a-zA-Z0-9_])(#{atSigns})([a-zA-Z0-9_]{1,20})(?=(.|$))/g);
+  twttr.txt.regexen.punct = /\!'#%&'\(\)*\+,\\\-\.\/:;<=>\?@\[\]\^_{|}~\$/;
+  twttr.txt.regexen.atSigns = /[@]/;
+  twttr.txt.regexen.extractMentions = regexSupplant(/(^|[^a-zA-Z0-9_])(#{atSigns})([a-zA-Z0-9_]{1,20})/g);
   twttr.txt.regexen.extractReply = regexSupplant(/^(?:#{spaces})*#{atSigns}([a-zA-Z0-9_]{1,20})/);
   twttr.txt.regexen.listName = /[a-zA-Z][a-zA-Z0-9_\-\u0080-\u00ff]{0,24}/;
-  twttr.txt.regexen.extractMentionsOrLists = regexSupplant(/(^|[^a-zA-Z0-9_])(#{atSigns})([a-zA-Z0-9_]{1,20})(\/[a-zA-Z][a-zA-Z0-9_\-]{0,24})?(?=(.|$))/g);
+  twttr.txt.regexen.extractMentionsOrLists = regexSupplant(/(^|[^a-zA-Z0-9_])(#{atSigns})([a-zA-Z0-9_]{1,20})(\/[a-zA-Z][a-zA-Z0-9_\-]{0,24})?/g);
 
   var nonLatinHashtagChars = [];
   // Cyrillic
@@ -139,26 +139,27 @@ if (!window.twttr) {
   twttr.txt.regexen.endScreenNameMatch = regexSupplant(/^(?:#{atSigns}|[#{latinAccentChars}]|:\/\/)/);
 
   // A hashtag must contain characters, numbers and underscores, but not all numbers.
-  twttr.txt.regexen.hashtagBoundary = regexSupplant(/(?:^|$|#{spaces}|[「」。、.,!！?？:;"'])/);
   twttr.txt.regexen.hashtagAlpha = regexSupplant(/[a-z_#{latinAccentChars}#{nonLatinHashtagChars}]/i);
   twttr.txt.regexen.hashtagAlphaNumeric = regexSupplant(/[a-z0-9_#{latinAccentChars}#{nonLatinHashtagChars}]/i);
+  twttr.txt.regexen.endHashtagMatch = /^(?:[#]|:\/\/)/;
+  twttr.txt.regexen.hashtagBoundary = regexSupplant(/(?:^|$|[^&\/a-z0-9_#{latinAccentChars}#{nonLatinHashtagChars}])/);
   twttr.txt.regexen.autoLinkHashtags = regexSupplant(/(#{hashtagBoundary})(#|＃)(#{hashtagAlphaNumeric}*#{hashtagAlpha}#{hashtagAlphaNumeric}*)/gi);
   twttr.txt.regexen.autoLinkUsernamesOrLists = /(^|[^a-zA-Z0-9_]|RT:?)([@＠]+)([a-zA-Z0-9_]{1,20})(\/[a-zA-Z][a-zA-Z0-9_\-]{0,24})?/g;
   twttr.txt.regexen.autoLinkEmoticon = /(8\-\#|8\-E|\+\-\(|\`\@|\`O|\&lt;\|:~\(|\}:o\{|:\-\[|\&gt;o\&lt;|X\-\/|\[:-\]\-I\-|\/\/\/\/Ö\\\\\\\\|\(\|:\|\/\)|∑:\*\)|\( \| \))/g;
 
   // URL related hash regex collection
-  twttr.txt.regexen.validPrecedingChars = regexSupplant(/(?:[^-\/"'!=A-Za-z0-9_@＠\.#{invalid_chars_group}]|^)/);
+  twttr.txt.regexen.validPrecedingChars = regexSupplant(/(?:[^-\/"'!=A-Za-z0-9_@＠$#＃\.#{invalid_chars_group}]|^)/);
 
   twttr.txt.regexen.invalidDomainChars = stringSupplant("#{punct}#{spaces_group}#{invalid_chars_group}", twttr.txt.regexen);
   twttr.txt.regexen.validDomainChars = regexSupplant(/[^#{invalidDomainChars}]/);
   twttr.txt.regexen.validSubdomain = regexSupplant(/(?:(?:#{validDomainChars}(?:[_-]|#{validDomainChars})*)?#{validDomainChars}\.)/);
   twttr.txt.regexen.validDomainName = regexSupplant(/(?:(?:#{validDomainChars}(?:-|#{validDomainChars})*)?#{validDomainChars}\.)/);
-  twttr.txt.regexen.validGTLD = regexSupplant(/(?:(?:aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel)(?=[^a-zA-Z]|$))/);
+  twttr.txt.regexen.validGTLD = regexSupplant(/(?:(?:aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|xxx)(?=[^a-zA-Z]|$))/);
   twttr.txt.regexen.validCCTLD = regexSupplant(/(?:(?:ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|za|zm|zw)(?=[^a-zA-Z]|$))/);
   twttr.txt.regexen.validPunycode = regexSupplant(/(?:xn--[0-9a-z]+)/);
   twttr.txt.regexen.validDomain = regexSupplant(/(?:#{validSubdomain}*#{validDomainName}(?:#{validGTLD}|#{validCCTLD}|#{validPunycode}))/);
-  twttr.txt.regexen.validAsciiDomain = regexSupplant(/(?:(?:[a-z0-9#{latinAccentChars}]+)\.)+(?:#{validGTLD}|#{validCCTLD}|#{validPunycode})/i);
-  twttr.txt.regexen.validShortDomain = regexSupplant(/^#{validDomainName}#{validCCTLD}$/);
+  twttr.txt.regexen.validAsciiDomain = regexSupplant(/(?:(?:[a-z0-9#{latinAccentChars}]+)\.)+(?:#{validGTLD}|#{validCCTLD}|#{validPunycode})/gi);
+  twttr.txt.regexen.invalidShortDomain = regexSupplant(/^#{validDomainName}#{validCCTLD}$/);
 
   twttr.txt.regexen.validPortNumber = regexSupplant(/[0-9]+/);
 
@@ -179,7 +180,7 @@ if (!window.twttr) {
       ')|(?:@#{validGeneralUrlPathChars}+\/)'+
     ')', 'i');
 
-  twttr.txt.regexen.validUrlQueryChars = /[a-z0-9!\*'\(\);:&=\+\$\/%#\[\]\-_\.,~|]/i;
+  twttr.txt.regexen.validUrlQueryChars = /[a-z0-9!?\*'\(\);:&=\+\$\/%#\[\]\-_\.,~|]/i;
   twttr.txt.regexen.validUrlQueryEndingChars = /[a-z0-9_&=#\/]/i;
   twttr.txt.regexen.extractUrl = regexSupplant(
     '('                                                            + // $1 total match
@@ -193,6 +194,8 @@ if (!window.twttr) {
       ')'                                                          +
     ')'
   , 'gi');
+
+  twttr.txt.regexen.validTcoUrl = /^https?:\/\/t\.co\/[a-z0-9]+/i;
 
   // These URL validation pattern strings are based on the ABNF from RFC 3986
   twttr.txt.regexen.validateUrlUnreserved = /[a-z0-9\-._~]/i;
@@ -391,7 +394,11 @@ if (!window.twttr) {
       var extraHtml = HTML_ATTR_NO_FOLLOW;
     }
 
-    return text.replace(twttr.txt.regexen.autoLinkHashtags, function(match, before, hash, text) {
+    return text.replace(twttr.txt.regexen.autoLinkHashtags, function(match, before, hash, text, offset, chunk) {
+      var after = chunk.slice(offset + match.length);
+      if (after.match(twttr.txt.regexen.endHashtagMatch))
+        return match;
+
       var d = {
         before: before,
         hash: twttr.txt.htmlEscape(hash),
@@ -443,14 +450,22 @@ if (!window.twttr) {
 
       if (protocol) {
         var htmlAttrs = "";
+        var after = "";
         for (var k in options) {
           htmlAttrs += stringSupplant(" #{k}=\"#{v}\" ", {k: k, v: options[k].toString().replace(/"/, "&quot;").replace(/</, "&lt;").replace(/>/, "&gt;")});
+        }
+
+        // In the case of t.co URLs, don't allow additional path characters.
+        if (url.match(twttr.txt.regexen.validTcoUrl)) {
+          url = RegExp.lastMatch;
+          after = RegExp.rightContext;
         }
 
         var d = {
           before: before,
           htmlAttrs: htmlAttrs,
-          url: twttr.txt.htmlEscape(url)
+          url: twttr.txt.htmlEscape(url),
+          after: after
         };
         if (urlEntities && urlEntities[url] && urlEntities[url].display_url) {
           d.displayUrl = twttr.txt.htmlEscape(urlEntities[url].display_url);
@@ -458,7 +473,7 @@ if (!window.twttr) {
           d.displayUrl = d.url;
         }
 
-        return stringSupplant("#{before}<a href=\"#{url}\"#{htmlAttrs}>#{displayUrl}</a>", d);
+        return stringSupplant("#{before}<a href=\"#{url}\"#{htmlAttrs}>#{displayUrl}</a>#{after}", d);
       } else {
         return all;
       }
@@ -485,7 +500,8 @@ if (!window.twttr) {
     var possibleScreenNames = [],
         position = 0;
 
-    text.replace(twttr.txt.regexen.extractMentions, function(match, before, atSign, screenName, after) {
+    text.replace(twttr.txt.regexen.extractMentions, function(match, before, atSign, screenName, offset, chunk) {
+      var after = chunk.slice(offset + match.length);
       if (!after.match(twttr.txt.regexen.endScreenNameMatch)) {
         var startPosition = text.indexOf(atSign + screenName, position);
         position = startPosition + screenName.length + 1;
@@ -511,7 +527,8 @@ if (!window.twttr) {
     var possibleNames = [],
         position = 0;
 
-    text.replace(twttr.txt.regexen.extractMentionsOrLists, function(match, before, atSign, screenName, slashListname, after) {
+    text.replace(twttr.txt.regexen.extractMentionsOrLists, function(match, before, atSign, screenName, slashListname, offset, chunk) {
+      var after = chunk.slice(offset + match.length);
       if (!after.match(twttr.txt.regexen.endScreenNameMatch)) {
         slashListname = slashListname || '';
         var startPosition = text.indexOf(atSign + screenName + slashListname, position);
@@ -534,7 +551,8 @@ if (!window.twttr) {
     }
 
     var possibleScreenName = text.match(twttr.txt.regexen.extractReply);
-    if (!possibleScreenName) {
+    if (!possibleScreenName ||
+        RegExp.rightContext.match(twttr.txt.regexen.endScreenNameMatch)) {
       return null;
     }
 
@@ -561,28 +579,52 @@ if (!window.twttr) {
         position = 0;
 
     text.replace(twttr.txt.regexen.extractUrl, function(match, all, before, url, protocol, domain, port, path, query) {
-      // If protocol is missing, check against validAsciiDomain
-      if (!protocol) {
-          ascii_domain = domain.match(twttr.txt.regexen.validAsciiDomain);
-          if (!ascii_domain) {
-            return;
-          }
-          url = url.replace(domain, ascii_domain[0]);
-          domain = ascii_domain[0];
-      }
-      // Regex in JavaScript doesn't support lookbehind, so we need to manually filter out
-      // the short URLs without protocol and slash, i.e., [domain].[ccTLD]
-      if (!protocol && !path && domain.match(twttr.txt.regexen.validShortDomain)) {
-        return;
-      }
-
       var startPosition = text.indexOf(url, position),
-          position = startPosition + url.length;
+          endPosition = startPosition + url.length;
 
-      urls.push({
-        url: url,
-        indices: [startPosition, position]
-      });
+      // if protocol is missing and domain contains non-ASCII characters,
+      // extract ASCII-only domains.
+      if (!protocol) {
+        var lastUrl = null,
+            lastUrlInvalidMatch = false,
+            asciiEndPosition = 0;
+        domain.replace(twttr.txt.regexen.validAsciiDomain, function(asciiDomain) {
+          var asciiStartPosition = domain.indexOf(asciiDomain, asciiEndPosition);
+          asciiEndPosition = asciiStartPosition + asciiDomain.length
+          lastUrl = {
+            url: asciiDomain,
+            indices: [startPosition + asciiStartPosition, startPosition + asciiEndPosition]
+          }
+          lastUrlInvalidMatch = asciiDomain.match(twttr.txt.regexen.invalidShortDomain);
+          if (!lastUrlInvalidMatch) {
+            urls.push(lastUrl);
+          }
+        });
+
+        // no ASCII-only domain found. Skip the entire URL.
+        if (lastUrl == null) {
+          return;
+        }
+
+        // lastUrl only contains domain. Need to add path and query if they exist.
+        if (path) {
+          if (lastUrlInvalidMatch) {
+            urls.push(lastUrl);
+          }
+          lastUrl.url = url.replace(domain, lastUrl.url);
+          lastUrl.indices[1] = endPosition;
+        }
+      } else {
+        // In the case of t.co URLs, don't allow additional path characters.
+        if (url.match(twttr.txt.regexen.validTcoUrl)) {
+          url = RegExp.lastMatch;
+          endPosition = startPosition + url.length;
+        }
+        urls.push({
+          url: url,
+          indices: [startPosition, endPosition]
+        });
+      }
     });
 
     return urls;
@@ -607,7 +649,10 @@ if (!window.twttr) {
     var tags = [],
         position = 0;
 
-    text.replace(twttr.txt.regexen.autoLinkHashtags, function(match, before, hash, hashText) {
+    text.replace(twttr.txt.regexen.autoLinkHashtags, function(match, before, hash, hashText, offset, chunk) {
+      var after = chunk.slice(offset + match.length);
+      if (after.match(twttr.txt.regexen.endHashtagMatch))
+        return;
       var startPosition = text.indexOf(hash + hashText, position);
       position = startPosition + hashText.length + 1;
       tags.push({
