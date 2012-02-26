@@ -482,3 +482,18 @@ a.link_button:hover {
     width: 32px;
     margin: 0px auto;
 }
+
+#tabs .trends {
+    font-size: 12px;
+    border: 1px dotted #ccc;
+    word-wrap: break-word;
+    margin: 4px;
+    margin-top: 0px;
+    padding: 4px;
+}
+#tabs .trends a {
+    text-decoration: none;
+}
+#tabs .trends a:hover {
+    text-decoration: underline;
+}

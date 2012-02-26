@@ -455,6 +455,15 @@ var Render = {
         html = html.mlstr().format(id, text, time, from);
         return html;
     },
+
+    trends: function(t) {
+        var all = '';
+        $.each(t.trends, function(k, v) {
+            all += '<a href="#" class="trend">' + v.name + '</a>&nbsp;~&nbsp;';
+        }); 
+
+        return all;
+    }
 };
 
 
@@ -1025,7 +1034,7 @@ var showUser = function(screenName) {
 };
 
 var showSearch = function(q) {
-    var idStr = 's_' + q.replace(/[@#&"'>< ]/g, '-'); 
+    var idStr = 's_' + q.replace(/[@#&"'><. ]/g, '-'); 
     var id = '#' + idStr;
 
     var index = $('#tabs > div').index($(id));
@@ -1122,6 +1131,20 @@ var showFriends = function(name) {
     }
     $('#tabs').tabs('select', index);
 };
+
+var showTrends = function(woeid) {
+    kt.trends.trends(woeid, function(data) {
+        var t = Render.trends(data[0]);
+        $('#home').prepend('<div class="trends"></a>');
+        $('#home .trends').html(t);
+    }, function(errorStatus) {
+        if (errorStatus.retry) {
+            errorStatus.retry();
+        } else {
+            errorHandler('Failed to get trends', errorStatus);
+        }
+    });
+}
 
 var updateProfile = function(id, data) {
     console.log('updateProfile():', data);
@@ -1328,6 +1351,11 @@ var initEvent = function() {
         var screenName = $(this).closest('.t_status').find('.t_screen_name').text();
         makeFriendship(this, screenName);
     });
+
+    $('.trends a').live('click', function() {
+        var tag = $(this).text();
+        showSearch(tag);
+    });
 };
 
 var onLoginSuccess = function(screenName) {
@@ -1357,6 +1385,9 @@ var onLoginSuccess = function(screenName) {
 
     // init event
     initEvent();
+
+    // show trends
+    showTrends(1);
 
     // GUI change
     $('#login').hide();

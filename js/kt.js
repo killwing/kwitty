@@ -247,22 +247,20 @@
             // Creates a new place object at the given latitude and longitude. Before creating a place you need to query GET geo/similar_places with the latitude, longitude and name of the place you wish to create. The query will return an array of places which are similar to the one you wish to create, and a...
             place: {method: 'POST', url: '/geo/place.json'},
         },
+        */
 
         trends: {
             // Returns the top 10 trending topics for a specific WOEID, if trending information is available for it. The response is an array of "trend" objects that encode the name of the trending topic, the query parameter that can be used to search for the topic on Twitter Search, and the Twitter Search URL....
-            {method: 'GET', url: '/trends/:woeid.json'},
+            trends: {method: 'GET', url: '/trends/{0}.json', id: 0},
             // Returns the locations that Twitter has trending topic information for. The response is an array of "locations" that encode the location's WOEID and some other human-readable information such as a canonical name and country the location belongs in. A WOEID is a Yahoo! Where On Earth ID.
-            available: {method: 'GET', url: '/trends/available.json'},
-            // Returns the top ten topics that are currently trending on Twitter. The response includes the time of the request, the name of each trend, and the url to the Twitter Search results page for that topic.
-            trends: {method: 'GET', url: '/trends.json'},
-            // Returns the current top 10 trending topics on Twitter. The response includes the time of the request, the name of each trending topic, and query used on Twitter Search results page for that topic. It is recommended to use authentication with this method.
-            current: {method: 'GET', url: '/trends/current.json'},
+            //available: {method: 'GET', url: '/trends/available.json'},
             // Returns the top 20 trending topics for each hour in a given day.
-            daily: {method: 'GET', url: '/trends/daily.json'},
+            //daily: {method: 'GET', url: '/trends/daily.json'},
             // Returns the top 30 trending topics for each day in a given week.
-            weekly: {method: 'GET', url: '/trends/weekly.json'},
+            //weekly: {method: 'GET', url: '/trends/weekly.json'},
         },
 
+        /*
         blocks: {
             // Returns an array of user objects that the authenticating user is blocking. Consider using GET blocks/blocking/ids with GET users/lookup instead of this method.
             blocking: {method: 'GET', url: '/blocks/blocking.json'},
@@ -792,6 +790,16 @@
             var rest = api.urls.resolve;
             var r = createAPI(rest);
             r.sendRequest(urls, success, error);
+        }
+    };
+
+    kt.trends = {
+        trends: function(id, success, error) {
+            console.log('Trends.trends()');
+            var rest = api.trends.trends;
+            rest.id = id;
+            var t = createAPI(rest);
+            t.sendRequest(null, success, error);
         }
     };
 
