@@ -1497,12 +1497,10 @@ var errorHandler = function(info, errorStatus) {
                     reason = resp.errors[0].message;
                 }
             } catch (e) {
-                if (errorStatus.xmlHttpRequest.responseText) {
-                    var resp = xmlHttpRequest.responseText.match(/"en":\s*{\n\s*"title":\s*"(.+)",/m);
-                    console.debug('errorHandler() responseText:', resp);
-                    if (resp) {
-                        reason = resp[1];
-                    }
+                var resp = errorStatus.xmlHttpRequest.responseText.match(/"en":\s*{\n\s*"title":\s*"(.+)",/m);
+                console.debug('errorHandler() responseText:', resp);
+                if (resp) {
+                    reason = resp[1];
                 }
             }
         }
