@@ -456,13 +456,43 @@ var Render = {
         return html;
     },
 
-    trends: function(t) {
-        var all = '';
-        $.each(t.trends, function(k, v) {
-            all += '<a href="#" class="trend">' + v.name + '</a>&nbsp;~&nbsp;';
-        }); 
 
-        return all;
+    trends: function() {
+        var html = function() {
+/*
+<div class="tr">
+    <ol></ol>
+    <div class="loader"><img src="../img/loader.gif"></div>
+</div>
+*/
+        };
+
+        html = html.mlstr().format();
+        return html;
+    },
+
+    trend: function(t) {
+        var html = function() {
+/*
+<li class="t_status">
+    <span class="t_trend">
+    <span class="ui-icon {0}"></span> <span class="t_trname">{1}</span>
+    </span>
+</li>
+*/
+        };
+
+        var state = "ui-icon-plus"; // new
+        if (t.state == "up") {
+            state = "ui-icon-arrowthick-1-n";
+        } else if (t.state == "down") {
+            state = "ui-icon-arrowthick-1-s";
+        } else if (t.state == "level") {
+            state = "ui-icon-arrowthick-1-e";
+        }
+    
+        html = html.mlstr().format(state, t.name);
+        return html;
     }
 };
 
@@ -756,7 +786,7 @@ var createUserTab = function(id, tl) {
     };
 
     return userTab;
-}
+};
 
 var createFriendshipTab = function(id, fs) {
     console.log('createFriendshipTab():', id);
@@ -810,7 +840,44 @@ var createFriendshipTab = function(id, fs) {
     };
 
     return fsTab;
-}
+};
+
+var createTrendsTab = function(id, tr) {
+    console.log('createFriendshipTab():', id);
+    var trID = '#' + id + ' .tr ol';
+    var loaderID = '#' + id + ' .loader';
+
+    var trTab = createTab();
+    trTab.onTrends = function(data) {
+        console.log('TrendsTab.onTrends()');
+
+        $(loaderID).hide();
+        $(trID).html('');
+        if (data.length) {
+            $.each(data, function(i, t) {
+                $(trID).append(Render.trend(t));
+            });
+        } else {
+            errorHandler('No trends');
+        }
+    };
+
+    trTab.setRefreshTime = function(t) {
+        tr.setRefreshTime(t);
+    };
+
+    trTab.destroy = function() {
+        tr.destroy();
+    };
+
+    trTab.init = function() {
+        console.log('TrendsTab.init()');
+        $('#'+id).html(Render.trends(id));
+        tr.get(this.onTrends, this.onError);
+        return this;
+    };
+    return trTab;
+};
 
 var createTweetBox = function(id) {
     console.log('createTweetBox():', id);
@@ -1132,27 +1199,47 @@ var showFriends = function(name) {
     $('#tabs').tabs('select', index);
 };
 
-var showTrends = function(woeid) {
-    kt.trends.trends(woeid, function(data) {
-        var t = Render.trends(data[0]);
-        $('#home').prepend('<div class="trends"></a>');
-        $('#home .trends').html(t);
-    }, function(errorStatus) {
-        if (errorStatus.retry) {
-            errorStatus.retry();
-        } else {
-            errorHandler('Failed to get trends', errorStatus);
-        }
-    });
+var showFavorites = function() {
+    var id = "#favorites";
+    var index = $("#tabs > div").index($(id));
+    if (index == -1) {
+        $("#tabs").tabs("add", id, 'Favorites');
+        TabMgr.favorites = createStatusesTab('favorites', kt.createFavoritesTL()).init();
+
+        // update
+        index = $("#tabs > div").index($(id));
+    }
+    $('#tabs').tabs('select', index);
+};
+
+
+var showTrends = function() {
+    var id = "#trends";
+    var index = $("#tabs > div").index($(id));
+    if (index == -1) {
+        $("#tabs").tabs("add", id, 'Trends');
+        TabMgr.trends = createTrendsTab('trends', kt.createTrends(1)).init();
+        //TabMgr.trends.setRefreshTime(config.get().basics.refresh.trends);
+        TabMgr.trends.setRefreshTime(1);
+
+        // update
+        index = $("#tabs > div").index($(id));
+    }
+    $('#tabs').tabs('select', index);
 }
 
 var updateProfile = function(id, data) {
     console.log('updateProfile():', data);
 
-    $('#'+id+' .i_head').prop('src', data.profile_image_url).click(function() { showUser(data.screen_name) });
+    $('#'+id+' .i_head').prop('src', data.profile_image_url).click(function() {
+        $('#'+id+' .i_favorites').animate({opacity: 'toggle'});
+        $('#'+id+' .i_trends').animate({opacity: 'toggle'});
+    });
     $('#'+id+' .i_screen_name').html(data.screen_name.bold()).click(function() { showUser(data.screen_name) });
     $('#'+id+' .i_followers').html(String.fromCharCode(8678)+data.followers_count).click(function() { showFollowers(data.screen_name) });
     $('#'+id+' .i_following').html(String.fromCharCode(8680)+data.friends_count).click(function() { showFriends(data.screen_name) });
+    $('#'+id+' .i_favorites').html(String.fromCharCode(9734).bold()).click(function() { showFavorites(); }).hide();
+    $('#'+id+' .i_trends').html(String.fromCharCode(65085).bold()).click(function() { showTrends(); }).hide();
 };
 
 var initEvent = function() {
@@ -1284,6 +1371,11 @@ var initEvent = function() {
         return false; // do not go to top
     });
 
+    $('.t_status .t_trend .t_trname').live('click', function() {
+        var tag = $(this).text();
+        showSearch(tag);
+    });
+
     $('.profile .p_follow a:first').live('click', function() {
         var screenName = $(this).closest('.profile').find('.p_screen_name').text();
         showFriends(screenName);
@@ -1352,19 +1444,14 @@ var initEvent = function() {
         makeFriendship(this, screenName);
     });
 
-    $('.trends a').live('click', function() {
-        var tag = $(this).text();
-        showSearch(tag);
-    });
 };
 
 var onLoginSuccess = function(screenName) {
     // create instances
-    TabMgr.home = createStatusesTab('home', kt.createHomeTL()).init();
-    TabMgr.mentions = createStatusesTab('mentions', kt.createMentionsTL()).init();
-    TabMgr.retweets = createStatusesTab('retweets', kt.createRetweetsTL()).init();
-    TabMgr.messages = createStatusesTab('messages', kt.createMessagesTL()).init();
-    TabMgr.favorites = createStatusesTab('favorites', kt.createFavoritesTL()).init();
+    //TabMgr.home = createStatusesTab('home', kt.createHomeTL()).init();
+    //TabMgr.mentions = createStatusesTab('mentions', kt.createMentionsTL()).init();
+    //TabMgr.retweets = createStatusesTab('retweets', kt.createRetweetsTL()).init();
+    //TabMgr.messages = createStatusesTab('messages', kt.createMessagesTL()).init();
     tweetBox = createTweetBox('update');
 
     // update profile
@@ -1381,13 +1468,10 @@ var onLoginSuccess = function(screenName) {
 
 
     // init refresh time
-    loadValues(config.get().basics.refresh, 'basics.refresh');
+    //loadValues(config.get().basics.refresh, 'basics.refresh');
 
     // init event
     initEvent();
-
-    // show trends
-    showTrends(1);
 
     // GUI change
     $('#login').hide();

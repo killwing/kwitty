@@ -793,15 +793,6 @@
         }
     };
 
-    kt.trends = {
-        trends: function(id, success, error) {
-            console.log('Trends.trends()');
-            var rest = api.trends.trends;
-            rest.id = id;
-            var t = createAPI(rest);
-            t.sendRequest(null, success, error);
-        }
-    };
 
     kt.friendship = {
         show: function(target, success, error) {
@@ -1225,6 +1216,93 @@
             //show_user: true,
         });
         return searchTL;
+    };
+
+    kt.createTrends = function(woeid) {
+        console.log('createTrends()');
+        var cache = [];
+        var refreshData = {};
+
+        var rest = api.trends.trends;
+        rest.id = woeid;
+        var trends = createAPI(rest);
+
+        trends.setRefreshTime = function(s) { // in min, set 0 to stop
+            var interval = s*60*1000;
+            if (refreshData.interval == interval) {
+                console.warn('Trends.setRefreshTime(): ignore time interval');
+                return;
+            }
+            console.log('Trends.setRefreshTime(): ', s);
+            refreshData.interval = interval;
+
+            if (refreshData.id) {
+                clearInterval(refreshData.id);
+            }
+
+            if (refreshData.interval && refreshData.success && refreshData.error) {
+                refreshData.id = setInterval(function() {
+                    trends.get(refreshData.success, refreshData.error);
+                }, refreshData.interval);
+            } else {
+                console.warn('Trends.setRefreshTime(): stop or invalid handlers');
+            }
+        };
+
+        trends.get = function(success, error) {
+            trends.sendRequest(null, function(data) {
+                console.debug('new trends', data[0].trends);
+                $.each(data[0].trends, function(i, t) {
+                    var found =  -1;
+                    for (var j = 0; j != cache.length; ++j) {
+                        if (cache[j].name == t.name) {
+                            found = j;
+                            break;
+                        }
+                    }
+
+                    if (found == -1) {
+                        t.state = 'new';
+                        console.debug(t.name, 'n')
+                    } else {
+                        if (found < i) {
+                            t.state = 'down';
+                            console.debug(t.name, 'd')
+                        } else if (found > i) {
+                            t.state = 'up';
+                            console.debug(t.name, 'u')
+                        } else {
+                            t.state = 'level';
+                            console.debug(t.name, 'l')
+                        }
+                        //cache.splice(found, 1); // remove in cache
+                    }
+                });
+                // insert top of cache
+                cache = data[0].trends.concat(cache);
+
+                // start refresh interval if not started already
+                if (refreshData.interval && !refreshData.id) {
+                    refreshData.id = setInterval(function() {
+                        trends.get(success, error);
+                    }, refreshData.interval);
+                }
+                refreshData.success = success;
+                refreshData.error = error;
+
+                success(data[0].trends);
+            }, error);
+        };
+
+        
+        trends.destroy = function() {
+            console.log('Trends.destroy()');
+            if (refreshData.id) {
+                clearInterval(refreshData.id);
+            }
+        };
+
+        return trends;
     };
 
     kt.util = {

@@ -84,28 +84,26 @@ body {
     margin: 0px;
     padding: 0px;
     height: 50px;
-    width: 170px;
     display: none;
 }
 
 .i_head {
-    float: left;
     height: 36px;
     width: 36px;
     border-radius: 5px;
     cursor: pointer;
     margin: 7px;
+    vertical-align: middle;
 }
-.i_screen_name {
-    float: left;
-    height: 50;
-    line-height: 50px;
-    margin-right: 5px;
+.i_screen_name, .i_favorites, .i_trends {
+    vertical-align: middle;
+}
+.i_stat {
+    display: inline-block;
+    vertical-align: middle;
 }
 .i_followers, .i_following {
-    float: left;
-    height: 25px;
-    line-height: 25px;
+    display: block;
 }
 
 
@@ -243,7 +241,7 @@ a.link_button:hover {
     padding-right: 10px;
 }
 
-.tl ol, .fs ol {
+.tl ol, .fs ol, .tr ol {
     font: 14px "Trebuchet MS", sans-serif;
     margin: 0px;
     padding: 0px;
@@ -477,23 +475,23 @@ a.link_button:hover {
     width: 18px;
 }
 
+.t_trend {
+    display: block;
+    height: 60px;
+    line-height: 60px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-left: 20px;
+}
+.t_trend span {
+    display: inline-block;
+}
+.t_trend .t_trname {
+    cursor: pointer;
+}
 
 #tabs .loader {
     width: 32px;
     margin: 0px auto;
 }
 
-#tabs .trends {
-    font-size: 12px;
-    border: 1px dotted #ccc;
-    word-wrap: break-word;
-    margin: 4px;
-    margin-top: 0px;
-    padding: 4px;
-}
-#tabs .trends a {
-    text-decoration: none;
-}
-#tabs .trends a:hover {
-    text-decoration: underline;
-}
