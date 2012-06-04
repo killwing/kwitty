@@ -43,6 +43,10 @@
                 },
                 api: {
                     address: 'http://kwittyapp.appspot.com/api/1',
+                },
+                trends: {
+                    country: '1',
+                    town: '0',
                 }
             },
             gui: {
@@ -120,9 +124,13 @@
         if (!config.basics.refresh.disreadingload) {
             config.basics.refresh.disreadingload = defConfig().basics.refresh.disreadingload;
         }
-        // new in 1.4.4
+        // new in v1.4.4
         if (!config.basics.refresh.search) {
             config.basics.refresh.search = defConfig().basics.refresh.search;
+        }
+        // new in v1.4.5
+        if (!config.basics.trends) {
+            config.basics.trends = defConfig().basics.trends;
         }
     };
 

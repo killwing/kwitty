@@ -1066,7 +1066,7 @@ var createTweetBox = function(id) {
                 return;
             }
 
-            $(fileNameID).text('['+file.fileName+']');
+            $(fileNameID).text('['+file.name+']');
             upfile = file;
             tweetBox.change();
         });

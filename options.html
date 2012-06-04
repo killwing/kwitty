@@ -6,6 +6,7 @@
 
 <script type="text/javascript" src="js/jquery-1.7.min.js"></script>
 <script type="text/javascript" src="js/config.js"></script>
+<script type="text/javascript" src="js/def-woeid.js"></script>
 <script type="text/javascript">
 
     var saveValue = function(elem, val) {
@@ -21,23 +22,25 @@
         });
     };
 
+    var loadValue = function(v, id) {
+        if (typeof(v) == 'boolean') { // checkbox
+            $('#'+id).prop('checked', v)
+        } else if (/-imageFileName$/.test(id)) {
+            $('#'+id).text(v)
+        } else { // others
+            $('#'+id).val(v)
+        }
+    };
+
     var loadValues = function(obj, id) {
         $.each(obj, function(k, v) {
             if (typeof(v) == 'object') {
-                var subid = id + k + '-'
-                loadValues(v, subid) 
+                loadValues(v, id+k+'-') 
             } else {
-                if (typeof(v) == 'boolean') { // checkbox
-                    $('#'+id+k).prop('checked', v)
-                } else if (k == 'imageFileName') {
-                    $('#'+id+k).text(v)
-                } else { // others
-                    $('#'+id+k).val(v)
-                }
+                loadValue(v, id+k);
             } 
         })
-    }
-
+    };
 
     $(function() {
         $('#navbar li').click(function() {
@@ -48,8 +51,54 @@
             $(pageID).fadeIn();
         });
 
+        // hardcoded trends woeid
+        var countries = woeid.filter(function(item, i) {
+            return item.placeType.code == 12;
+        });
+        var towns = woeid.filter(function(item, i) {
+            return item.placeType.code == 7;
+        });
+        countries.sort(function(a, b) {
+            if (a.name > b.name) {
+                return 1;
+            } else if (a.name < b.name) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+        towns.sort(function(a, b) {
+            if (a.name > b.name) {
+                return 1;
+            } else if (a.name < b.name) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
+        countries.forEach(function(item, i) {
+            $('#basics-trends-country').append('<option value="'+item.woeid+'">'+item.name+'</option>');
+        });
+
+        // change towns
+        $('#basics-trends-country').change(function() {
+            $('#basics-trends-town').html('<option value="0">--</option>');
+            var id = this.value;
+            if (id == 1) { // worldwide
+                return;
+            }
+
+            towns.forEach(function(item, i) {
+                if (Number(item.parentid) == id) {
+                    $('#basics-trends-town').append('<option value="'+item.woeid+'">'+item.name+'</option>');
+                }
+            });
+        });
+
+
         // select
-        $('#refreshSection select, #themeSection select, #displaySection select').change(function() {
+        $('#refreshSection select, #themeSection select, #displaySection select, #trendsSection select').change(function() {
             saveValue(this);
         });
 
@@ -73,8 +122,8 @@
                 return;
             }
 
-            $('#gui-background-imageFileName').text(file.fileName);
-            saveValue('#gui-background-imageFileName', file.fileName);
+            $('#gui-background-imageFileName').text(file.name);
+            saveValue('#gui-background-imageFileName', file.name);
 
             var reader = new FileReader();
             reader.readAsDataURL(file);
@@ -97,6 +146,10 @@
 
         config.init();
         loadValues(config.get(), '');
+
+        // after load
+        $('#basics-trends-country').change();
+        loadValue(config.get().basics.trends.town, 'basics-trends-town');
     });
 </script>
 </head>
@@ -216,6 +269,22 @@
                         <div class="section-group">
                             <span>API Address:</span>
                             <input id="basics-api-address" type="url" />
+                        </div>
+                    </div>
+                </section>
+
+                <section id="trendsSection">
+                    <h3>Trends:</h3>
+                    <div>
+                        <div class="section-group">
+                            <span>Country:</span>
+                            <select id="basics-trends-country">
+                                <option value="1">Worldwide</option>
+                            </select>
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <span>Town:</span>
+                            <select id="basics-trends-town">
+                            </select>
                         </div>
                     </div>
                 </section>
