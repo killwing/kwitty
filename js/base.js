@@ -43,6 +43,30 @@ var cfgUpdater = {
             address: function(url) {
                 kt.getBAuth().setAPIBase(url);
             },
+        },
+        trends: {
+            country: function(id) {
+                if (id != config.get().basics.trends.country) {
+                    config.get().basics.trends.country = id;
+                    config.get().basics.trends.town = '0'; // reset town
+
+                    var index = $('#tabs > div').index($('#trends'));
+                    if (index != -1) {
+                        $('#tabs').tabs('remove', index);
+                        showTrends();
+                    }
+                }
+            },
+            town: function(id) {
+                if (id != config.get().basics.trends.town) {
+                    config.get().basics.trends.town = id;
+                    var index = $('#tabs > div').index($('#trends'));
+                    if (index != -1) {
+                        $('#tabs').tabs('remove', index);
+                        showTrends();
+                    }
+                }
+            }
         }
     },
     gui: {
@@ -128,7 +152,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     if (request.msg == 'update') {
         console.log('config update: ', request.item, ':', request.value);
         loadValue(request.item, request.value);
-        sendResponse({});
+        sendResponse(true);
     }
 });
 
@@ -1216,9 +1240,12 @@ var showFavorites = function() {
 var showTrends = function() {
     var id = "#trends";
     var index = $("#tabs > div").index($(id));
+    var country = config.get().basics.trends.country;
+    var town = config.get().basics.trends.town;
+    var woeid = (town == '0' ? country : town);
     if (index == -1) {
         $("#tabs").tabs("add", id, 'Trends');
-        TabMgr.trends = createTrendsTab('trends', kt.createTrends(1)).init();
+        TabMgr.trends = createTrendsTab('trends', kt.createTrends(woeid)).init();
         //TabMgr.trends.setRefreshTime(config.get().basics.refresh.trends);
         TabMgr.trends.setRefreshTime(1);
 

@@ -1251,7 +1251,6 @@
 
         trends.get = function(success, error) {
             trends.sendRequest(null, function(data) {
-                console.debug('new trends', data[0].trends);
                 $.each(data[0].trends, function(i, t) {
                     var found =  -1;
                     for (var j = 0; j != cache.length; ++j) {
@@ -1263,17 +1262,13 @@
 
                     if (found == -1) {
                         t.state = 'new';
-                        console.debug(t.name, 'n')
                     } else {
                         if (found < i) {
                             t.state = 'down';
-                            console.debug(t.name, 'd')
                         } else if (found > i) {
                             t.state = 'up';
-                            console.debug(t.name, 'u')
                         } else {
                             t.state = 'level';
-                            console.debug(t.name, 'l')
                         }
                         //cache.splice(found, 1); // remove in cache
                     }

@@ -18,7 +18,9 @@
         config.saveValue(item, val);
         // notify main page
         chrome.extension.sendRequest({msg: 'update', item: item, value: val}, function(response) {
-            console.log('update value ok');
+            if (response) {
+                console.log('update value ok');
+            }
         });
     };
 
@@ -81,10 +83,11 @@
             $('#basics-trends-country').append('<option value="'+item.woeid+'">'+item.name+'</option>');
         });
 
-        // change towns
-        $('#basics-trends-country').change(function() {
+        var insertTownsByCountry = function(id, save) {
             $('#basics-trends-town').html('<option value="0">--</option>');
-            var id = this.value;
+            if (save) {
+                $('#basics-trends-town').change();
+            }
             if (id == 1) { // worldwide
                 return;
             }
@@ -94,12 +97,16 @@
                     $('#basics-trends-town').append('<option value="'+item.woeid+'">'+item.name+'</option>');
                 }
             });
-        });
-
-
+        }
+     
         // select
         $('#refreshSection select, #themeSection select, #displaySection select, #trendsSection select').change(function() {
             saveValue(this);
+        });
+
+        // change towns and should be saved/notified after country
+        $('#basics-trends-country').change(function() {
+            insertTownsByCountry(this.value, true);
         });
 
         // input
@@ -148,7 +155,7 @@
         loadValues(config.get(), '');
 
         // after load
-        $('#basics-trends-country').change();
+        insertTownsByCountry(config.get().basics.trends.country, false);
         loadValue(config.get().basics.trends.town, 'basics-trends-town');
     });
 </script>
