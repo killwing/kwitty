@@ -6,7 +6,7 @@
 
 <script type="text/javascript" src="js/jquery-1.7.min.js"></script>
 <script type="text/javascript" src="js/config.js"></script>
-<script type="text/javascript" src="js/def-woeid.js"></script>
+<script type="text/javascript" src="js/woeid.js"></script>
 <script type="text/javascript">
 
     var saveValue = function(elem, val) {
@@ -53,33 +53,7 @@
             $(pageID).fadeIn();
         });
 
-        // hardcoded trends woeid
-        var countries = woeid.filter(function(item, i) {
-            return item.placeType.code == 12;
-        });
-        var towns = woeid.filter(function(item, i) {
-            return item.placeType.code == 7;
-        });
-        countries.sort(function(a, b) {
-            if (a.name > b.name) {
-                return 1;
-            } else if (a.name < b.name) {
-                return -1;
-            } else {
-                return 0;
-            }
-        });
-        towns.sort(function(a, b) {
-            if (a.name > b.name) {
-                return 1;
-            } else if (a.name < b.name) {
-                return -1;
-            } else {
-                return 0;
-            }
-        });
-
-        countries.forEach(function(item, i) {
+        woeid.countries.forEach(function(item, i) {
             $('#basics-trends-country').append('<option value="'+item.woeid+'">'+item.name+'</option>');
         });
 
@@ -88,11 +62,11 @@
             if (save) {
                 $('#basics-trends-town').change();
             }
-            if (id == 1) { // worldwide
+            if (id == '1') { // worldwide
                 return;
             }
 
-            towns.forEach(function(item, i) {
+            woeid.towns.forEach(function(item, i) {
                 if (Number(item.parentid) == id) {
                     $('#basics-trends-town').append('<option value="'+item.woeid+'">'+item.name+'</option>');
                 }
@@ -242,6 +216,21 @@
                             <label class="web-content-select-label">
                                 <span>Search:</span>
                                 <select id="basics-refresh-search">
+                                    <option value="1">1 min</option>
+                                    <option value="2">2 min</option>
+                                    <option value="3">3 min</option>
+                                    <option value="5">5 min</option>
+                                    <option value="10">10 min</option>
+                                    <option value="20">20 min</option>
+                                    <option value="30">30 min</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="section-group">
+                            <label class="web-content-select-label">
+                                <span>Others:</span>
+                                <select id="basics-refresh-others">
                                     <option value="1">1 min</option>
                                     <option value="2">2 min</option>
                                     <option value="3">3 min</option>

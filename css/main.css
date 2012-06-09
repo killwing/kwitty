@@ -475,6 +475,10 @@ a.link_button:hover {
     width: 18px;
 }
 
+#trends h2 {
+    margin-left: 50px;
+}
+
 .t_trend {
     display: block;
     height: 60px;

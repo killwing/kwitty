@@ -38,6 +38,7 @@
                     retweets: '3',
                     messages: '5',
                     search: '3',
+                    others: '5',
                     autoload: true,
                     disreadingload: true,
                 },
@@ -128,7 +129,7 @@
         if (!config.basics.refresh.search) {
             config.basics.refresh.search = defConfig().basics.refresh.search;
         }
-        // new in v1.4.5
+        // new in v1.5.0
         if (!config.basics.trends) {
             config.basics.trends = defConfig().basics.trends;
         }

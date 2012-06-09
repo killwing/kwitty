@@ -28,6 +28,14 @@ var cfgUpdater = {
                     }
                 });
             },
+            others: function(t) { // fav, users, trends
+                config.get().basics.refresh.others = t;
+                 $.each(TabMgr, function(k, v) {
+                    if (/^@/.test(k) || k == 'favorites' || k == 'trends') {
+                        v.setRefreshTime(t);
+                    }
+                });
+            },
             autoload: function(v) {
                 config.get().basics.refresh.autoload = v;
                 autoloadCfg = v;
@@ -481,17 +489,18 @@ var Render = {
     },
 
 
-    trends: function() {
+    trends: function(name) {
         var html = function() {
 /*
 <div class="tr">
+    <h2>{0}</h2>
     <ol></ol>
     <div class="loader"><img src="../img/loader.gif"></div>
 </div>
 */
         };
 
-        html = html.mlstr().format();
+        html = html.mlstr().format(name);
         return html;
     },
 
@@ -526,7 +535,6 @@ var TabMgr = {
     mentions: null,
     retweets: null,
     messages: null,
-    favorites: null,
 };
 var tweetBox = null;
 
@@ -866,7 +874,7 @@ var createFriendshipTab = function(id, fs) {
     return fsTab;
 };
 
-var createTrendsTab = function(id, tr) {
+var createTrendsTab = function(id, name, tr) {
     console.log('createFriendshipTab():', id);
     var trID = '#' + id + ' .tr ol';
     var loaderID = '#' + id + ' .loader';
@@ -874,6 +882,20 @@ var createTrendsTab = function(id, tr) {
     var trTab = createTab();
     trTab.onTrends = function(data) {
         console.log('TrendsTab.onTrends()');
+
+        var index = $('#tabs > div').index($('#'+id));
+        var labelID = '#tabs > ul li:eq('+index+') a';
+        var selected = $('#tabs').tabs('option', 'selected');
+        var label = $(labelID).text();
+        var labeltt = label;
+        if (label.slice(-1) == '*') {
+            labeltt = label.slice(0, label.length-1);
+        }
+        //document.title = 'kwitty | '+labeltt+' - '+'updated'  // blink title
+        if (index != selected && label.slice(-1) != '*') {
+            $(labelID).text(label+'*');
+        }
+
 
         $(loaderID).hide();
         $(trID).html('');
@@ -896,7 +918,7 @@ var createTrendsTab = function(id, tr) {
 
     trTab.init = function() {
         console.log('TrendsTab.init()');
-        $('#'+id).html(Render.trends(id));
+        $('#'+id).html(Render.trends(name));
         tr.get(this.onTrends, this.onError);
         return this;
     };
@@ -934,16 +956,16 @@ var createTweetBox = function(id) {
         var total = 140;
 
         var dm = /^d \w+ /i.exec(content);
-        var find = /^f \w+/i.test(content);
+        var find = /^f @?\w+/i.test(content);
         var search = /^s .+/i.test(content);
         if (dm) {
             total += dm[0].length;
             $(tweetID).text('Send');
         } else if (find) {
-            total = 22 // 20 letters for screen name
+            total = 32 // 30 letters for screen name
             $(tweetID).text('Find');
         } else if (search) {
-            total = 22
+            total = 32
             $(tweetID).text('Search');
         } else {
             $(tweetID).text('Tweet');
@@ -1056,7 +1078,7 @@ var createTweetBox = function(id) {
                     $('#tabs').tabs('select', 2);
                 }, tweetBox.onError);
             } else if ($(tweetID).text() == 'Find') {
-                var f = /^f (\w+)/i.exec(content);
+                var f = /^f @?(\w+)/i.exec(content);
                 showUser(f[1]);
                 tweetBox.reset();
             } else if ($(tweetID).text() == 'Search') {
@@ -1115,6 +1137,7 @@ var showUser = function(screenName) {
     if (index == -1) {
         $('#tabs').tabs('add', id, '@'+screenName);
         TabMgr[screenName] = createUserTab(screenName, kt.createUserTL(screenName)).init();
+        TabMgr[screenName].setRefreshTime(config.get().basics.refresh.others);
 
         // update
         index = $('#tabs > div').index($(id));
@@ -1125,7 +1148,7 @@ var showUser = function(screenName) {
 };
 
 var showSearch = function(q) {
-    var idStr = 's_' + q.replace(/[@#&"'><. ]/g, '-'); 
+    var idStr = 's_' + q.replace(/[@#&"'><:. ]/g, '-'); 
     var id = '#' + idStr;
 
     var index = $('#tabs > div').index($(id));
@@ -1229,6 +1252,7 @@ var showFavorites = function() {
     if (index == -1) {
         $("#tabs").tabs("add", id, 'Favorites');
         TabMgr.favorites = createStatusesTab('favorites', kt.createFavoritesTL()).init();
+        TabMgr.favorites.setRefreshTime(config.get().basics.refresh.others);
 
         // update
         index = $("#tabs > div").index($(id));
@@ -1242,12 +1266,17 @@ var showTrends = function() {
     var index = $("#tabs > div").index($(id));
     var country = config.get().basics.trends.country;
     var town = config.get().basics.trends.town;
-    var woeid = (town == '0' ? country : town);
+    var wid = (town == '0' ? country : town);
+
+    var name = woeid.getCountryNameById(country);
+    if (town != '0') {
+        name += ' - ' + woeid.getTownNameById(town);
+    }
+
     if (index == -1) {
         $("#tabs").tabs("add", id, 'Trends');
-        TabMgr.trends = createTrendsTab('trends', kt.createTrends(woeid)).init();
-        //TabMgr.trends.setRefreshTime(config.get().basics.refresh.trends);
-        TabMgr.trends.setRefreshTime(1);
+        TabMgr.trends = createTrendsTab('trends', name, kt.createTrends(wid)).init();
+        TabMgr.trends.setRefreshTime(config.get().basics.refresh.others);
 
         // update
         index = $("#tabs > div").index($(id));
@@ -1475,10 +1504,10 @@ var initEvent = function() {
 
 var onLoginSuccess = function(screenName) {
     // create instances
-    //TabMgr.home = createStatusesTab('home', kt.createHomeTL()).init();
-    //TabMgr.mentions = createStatusesTab('mentions', kt.createMentionsTL()).init();
-    //TabMgr.retweets = createStatusesTab('retweets', kt.createRetweetsTL()).init();
-    //TabMgr.messages = createStatusesTab('messages', kt.createMessagesTL()).init();
+    TabMgr.home = createStatusesTab('home', kt.createHomeTL()).init();
+    TabMgr.mentions = createStatusesTab('mentions', kt.createMentionsTL()).init();
+    TabMgr.retweets = createStatusesTab('retweets', kt.createRetweetsTL()).init();
+    TabMgr.messages = createStatusesTab('messages', kt.createMessagesTL()).init();
     tweetBox = createTweetBox('update');
 
     // update profile
@@ -1495,7 +1524,7 @@ var onLoginSuccess = function(screenName) {
 
 
     // init refresh time
-    //loadValues(config.get().basics.refresh, 'basics.refresh');
+    loadValues(config.get().basics.refresh, 'basics.refresh');
 
     // init event
     initEvent();
