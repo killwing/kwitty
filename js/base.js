@@ -1505,6 +1505,10 @@ var initEvent = function() {
 };
 
 var createSavedTabs = function() {
+    if (!localStorage.tabs) {
+        return;
+    }
+
     var tabs = JSON.parse(localStorage.tabs);
     var fo = new RegExp(String.fromCharCode(8678)+'$');
     var fr = new RegExp(String.fromCharCode(8680)+'$');
