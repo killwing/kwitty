@@ -4,6 +4,8 @@ var consumerSec = 'CUzPVKvD33nkyLKR9zgdnO3pgONztA8vi42PdFSx90';
 
 var autoloadCfg;
 
+var savedTabs = [];
+
 // handle config
 var cfgUpdater = {
     basics: {
@@ -1502,6 +1504,29 @@ var initEvent = function() {
 
 };
 
+var createSavedTabs = function() {
+    var tabs = JSON.parse(localStorage.tabs);
+    var fo = new RegExp(String.fromCharCode(8678)+'$');
+    var fr = new RegExp(String.fromCharCode(8680)+'$');
+    tabs.forEach(function(text, i) {
+        if (text == 'Trends') {
+            showTrends();
+        } else if (text == 'Favorites') {
+            showFavorites();
+        } else if (/^@/.test(text)) {
+            showUser(text.slice(1));
+        } else if (fo.test(text)) {
+            showFollowers(text.slice(0, -1));
+        } else if (fr.test(text)) {
+            showFriends(text.slice(0, -1));
+        } else if (/\/.+\//.test(text)) {
+            showSearch(text.slice(1).slice(0, -1));
+        } else {
+            console.info('can not create tab for', text);
+        }
+    });
+};
+
 var onLoginSuccess = function(screenName) {
     // create instances
     TabMgr.home = createStatusesTab('home', kt.createHomeTL()).init();
@@ -1509,6 +1534,9 @@ var onLoginSuccess = function(screenName) {
     TabMgr.retweets = createStatusesTab('retweets', kt.createRetweetsTL()).init();
     TabMgr.messages = createStatusesTab('messages', kt.createMessagesTL()).init();
     tweetBox = createTweetBox('update');
+
+    // create saved tabs
+    createSavedTabs();
 
     // update profile
     kt.user.show(screenName, function(data) {
@@ -1615,6 +1643,9 @@ var logout = function() {
     $('#update').hide();
     $('#profile').hide();
     $('#login').fadeIn('slow');
+
+    // clear saved tabs
+    localStorage.tabs = '[]'; 
 
     // redirect
     window.location = chrome.extension.getURL('main.html');

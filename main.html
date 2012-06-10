@@ -27,34 +27,38 @@
             return false;
         });
 
-        $("#tabs").tabs({
+        $('#tabs').tabs({
             tabTemplate: "<li><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close'>Remove Tab</span></li>",
+
             add: function(event, ui) {
                 //$('#tabs').tabs('select', '#'+ui.panel.id)
                 //$(ui.panel).append("");
+                savedTabs.push(ui.tab.text); // use text as key
+                localStorage.tabs = JSON.stringify(savedTabs);
             },
+
+            remove: function(event, ui) {
+                TabMgr[ui.panel.id].destroy();
+                delete TabMgr[ui.panel.id];
+                $('#tabs').tabs('select', 0);
+                savedTabs.splice(savedTabs.indexOf(ui.tab.text), 1);
+                localStorage.tabs = JSON.stringify(savedTabs);
+            },
+
+            select: function(event, ui) {
+                var label = $(ui.tab).text();
+                if (label.slice(-1) == '*') {
+                    var name = label.slice(0, label.length-1);
+                    $(ui.tab).text(name);
+                    // the 'new' button slideUp may not take effect when tab is hidden, so check it again
+                    TabMgr[ui.tab.hash.slice(1)].hideNewBtn && TabMgr[ui.tab.hash.slice(1)].hideNewBtn();
+                }
+            }
 		});
 
         $("#tabs span.ui-icon-close").live("click", function() {
             var index = $("li", "#tabs").index($(this).parent());
             $("#tabs").tabs("remove", index);
-        });
-
-        $('#tabs').live('tabsremove', function(event, ui) {
-            var tabId = ui.tab.hash.slice(1);
-            TabMgr[tabId].destroy();
-            delete TabMgr[tabId];
-            $('#tabs').tabs('select', 0);
-        });
-
-        $('#tabs').live('tabsselect', function(event, ui) {
-            var label = $(ui.tab).text();
-            if (label.slice(-1) == '*') {
-                var name = label.slice(0, label.length-1);
-                $(ui.tab).text(name);
-                // the 'new' button slideUp may not take effect when tab is hidden, so check it again
-                TabMgr[ui.tab.hash.slice(1)].hideNewBtn && TabMgr[ui.tab.hash.slice(1)].hideNewBtn();
-            }
         });
 
         $('#login a').click(function() {
