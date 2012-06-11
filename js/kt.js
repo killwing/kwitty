@@ -149,44 +149,42 @@
             destroy: {method: 'POST', url: '/favorites/destroy/{0}.json', id: 0},
         },
 
-        /*
         lists: {
             // Returns all lists the authenticating or specified user subscribes to, including their own. The user is specified using the user_id or screen_name parameters. If no user is given, the authenticating user is used.
             all: {method: 'GET', url: '/lists/all.json'},
             // Returns tweet timeline for members of the specified list. Historically, retweets were not available in list timeline responses but you can now use the include_rts=true parameter to additionally receive retweet objects.
             statuses: {method: 'GET', url: '/lists/statuses.json'},
             // Removes the specified member from the list. The authenticated user must be the list's owner to remove members from the list.
-            destroy: {method: 'POST', url: '/lists/members/destroy.json'},
+            //destroy: {method: 'POST', url: '/lists/members/destroy.json'},
             // Returns the lists the specified user has been added to. If user_id or screen_name are not provided the memberships for the authenticating user are returned.
-            memberships: {method: 'GET', url: '/lists/memberships.json'},
+            //memberships: {method: 'GET', url: '/lists/memberships.json'},
             // Returns the subscribers of the specified list. Private list subscribers will only be shown if the authenticated user owns the specified list.
-            subscribers: {method: 'GET', url: '/lists/subscribers.json'},
+            //subscribers: {method: 'GET', url: '/lists/subscribers.json'},
             // Subscribes the authenticated user to the specified list.
-            create: {method: 'POST', url: '/lists/subscribers/create.json'},
+            //create: {method: 'POST', url: '/lists/subscribers/create.json'},
             // Check if the specified user is a subscriber of the specified list. Returns the user if they are subscriber.
-            show: {method: 'GET', url: '/lists/subscribers/show.json'},
+            //show: {method: 'GET', url: '/lists/subscribers/show.json'},
             // Unsubscribes the authenticated user from the specified list.
-            destroy: {method: 'POST', url: '/lists/subscribers/destroy.json'},
+            //destroy: {method: 'POST', url: '/lists/subscribers/destroy.json'},
             // Adds multiple members to a list, by specifying a comma-separated list of member ids or screen names. The authenticated user must own the list to be able to add members to it. Note that lists can't have more than 500 members, and you are limited to adding up to 100 members to a list at a time with...
-            create_all: {method: 'POST', url: '/lists/members/create_all.json'},
+            //create_all: {method: 'POST', url: '/lists/members/create_all.json'},
             // Check if the specified user is a member of the specified list.
-            show: {method: 'GET', url: '/lists/members/show.json'},
+            //show: {method: 'GET', url: '/lists/members/show.json'},
             // Returns the members of the specified list. Private list members will only be shown if the authenticated user owns the specified list.
-            members: {method: 'GET', url: '/lists/members.json'},
+            //members: {method: 'GET', url: '/lists/members.json'},
             // Add a member to a list. The authenticated user must own the list to be able to add members to it. Note that lists can't have more than 500 members.
-            create: {method: 'POST', url: '/lists/members/create.json'},
+            //create: {method: 'POST', url: '/lists/members/create.json'},
             // Deletes the specified list. The authenticated user must own the list to be able to destroy it.
-            destroy: {method: 'POST', url: '/lists/destroy.json'},
+            //destroy: {method: 'POST', url: '/lists/destroy.json'},
             // Updates the specified list. The authenticated user must own the list to be able to update it.
-            update: {method: 'POST', url: '/lists/update.json'},
+            //update: {method: 'POST', url: '/lists/update.json'},
             // Creates a new list for the authenticated user. Note that you can't create more than 20 lists per account.
-            create: {method: 'POST', url: '/lists/create.json'},
+            //create: {method: 'POST', url: '/lists/create.json'},
             // Returns the lists of the specified (or authenticated) user. Private lists will be included if the authenticated user is the same as the user whose lists are being returned.
-            lists: {method: 'GET', url: '/lists.json'},
+            //lists: {method: 'GET', url: '/lists.json'},
             // Returns the specified list. Private lists will only be shown if the authenticated user owns the specified list.
-            show: {method: 'GET', url: '/lists/show.json'},
+            //show: {method: 'GET', url: '/lists/show.json'},
         },
-        */
 
         account: {
             // Returns the remaining number of API requests available to the requesting user before the API limit is reached for the current hour. Calls to rate_limit_status do not count against the rate limit. If authentication credentials are provided, the rate limit status for the authenticating user is...
@@ -980,7 +978,7 @@
             } else {
                 param.count = 200;
             }
-            this.sendRequest(param, function(data){
+            this.sendRequest(param, function(data) {
                 console.log('Statuses.getNew.sendRequest() - success');
 
                 if (isSearch()) {
@@ -1298,6 +1296,34 @@
         };
 
         return trends;
+    };
+
+    kt.createLists = function() {
+        console.log('createLists()');
+        var lists = createAPI(api.lists.all);
+        lists.get = function(success, error) {
+            lists.sendRequest(null, function(data) {
+                // sort by list full name
+                data.sort(function(a, b) {
+                    if (a.full_name > b.full_name) {
+                        return 1;
+                    } else if (a.full_name < b.full_name) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                });
+                success(data);
+            }, error);
+        };
+        return lists;
+    };
+
+    kt.createListTL = function(screenName, slug) {
+        console.log('createListTL()');
+        var listTL = createStatuses(api.lists.statuses);
+        listTL.addDefaultParam({include_rts: true, owner_screen_name: screenName, slug: slug});
+        return listTL;
     };
 
     kt.util = {

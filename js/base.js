@@ -528,6 +528,46 @@ var Render = {
     
         html = html.mlstr().format(state, t.name);
         return html;
+    },
+
+    lists: function(l) {
+        var html = function() {
+/*
+<div class="li">
+    <ol></ol>
+    <div class="loader"><img src="../img/loader.gif"></div>
+</div>
+*/
+        };
+
+        html = html.mlstr().format();
+        return html;
+    },
+
+    subs: function(s) {
+        var html = function() {
+/*
+<li class="t_status">
+    <span class="t_head"><img src="{0}"></span>
+    <span class="u_body">
+        <span class="t_info">
+            <span class="t_screen_name">{4}</span>
+            <span class="t_list_name"><a href="#">{1}</a></span>
+            <span> - {2} members</span>
+        </span>
+        {3}
+    </span>
+</li>
+*/
+        };
+
+        var description = '';
+        if (s.description) {
+            description = '<span class="t_text">{0}</span>'.format(s.description);
+        }
+
+        html = html.mlstr().format(s.user.profile_image_url, s.full_name, s.member_count, description, s.user.screen_name);
+        return html;
     }
 };
 
@@ -876,6 +916,50 @@ var createFriendshipTab = function(id, fs) {
     return fsTab;
 };
 
+var createListsTab = function(id, li) {
+    console.log('createListsTab():', id);
+    var liID = '#' + id + ' .li ol';
+    var loaderID = '#' + id + ' .loader';
+
+    var liTab = createTab();
+    liTab.append = function(data) {
+        console.log('ListsTab.append()');
+
+        $.each(data, function(i, s) {
+            $(liID).append(Render.subs(s));
+        });
+
+        $('button').button();
+    };
+
+    liTab.onLists = function(data) {
+        console.log('ListsTab.onLists()');
+
+        $(loaderID).hide();
+        if (data.length) {
+            liTab.append(data);
+        } else {
+            errorHandler('No lists');
+        }
+    };
+
+    liTab.destroy = function() {
+        console.log('ListsTab.destroy()');
+        //fs.destroy();
+    };
+
+    liTab.init = function() {
+        console.log('ListsTab.init()');
+        $('#'+id).html(Render.lists());
+        $('button').button();
+
+        li.get(this.onLists, this.onError);
+        return this;
+    };
+
+    return liTab;
+};
+
 var createTrendsTab = function(id, name, tr) {
     console.log('createFriendshipTab():', id);
     var trID = '#' + id + ' .tr ol';
@@ -1150,7 +1234,7 @@ var showUser = function(screenName) {
 };
 
 var showSearch = function(q) {
-    var idStr = 's_' + q.replace(/[@#&"'><:. ]/g, '-'); 
+    var idStr = 's_' + q.replace(/\/[@#&"'><:. ]/g, '-'); 
     var id = '#' + idStr;
 
     var index = $('#tabs > div').index($(id));
@@ -1223,36 +1307,36 @@ var makeFriendship = function(thisElem, screenName) {
 };
 
 var showFollowers = function(name) {
-    var id = "#fo_" + name;
-    var index = $("#tabs > div").index($(id));
+    var id = '#fo_' + name;
+    var index = $('#tabs > div').index($(id));
     if (index == -1) {
-        $("#tabs").tabs("add", id, name+String.fromCharCode(8678));
+        $('#tabs').tabs('add', id, name+String.fromCharCode(8678));
         TabMgr['fo_'+name] = createFriendshipTab('fo_'+name, kt.createFollowers(name)).init();
 
         // update
-        index = $("#tabs > div").index($(id));
+        index = $('#tabs > div').index($(id));
     }
     $('#tabs').tabs('select', index);
 };
 
 var showFriends = function(name) {
-    var id = "#fr_" + name;
+    var id = '#fr_' + name;
     var index = $("#tabs > div").index($(id));
     if (index == -1) {
-        $("#tabs").tabs("add", id, name+String.fromCharCode(8680));
+        $('#tabs').tabs('add', id, name+String.fromCharCode(8680));
         TabMgr['fr_'+name] = createFriendshipTab('fr_'+name, kt.createFriends(name)).init();
 
         // update
-        index = $("#tabs > div").index($(id));
+        index = $('#tabs > div').index($(id));
     }
     $('#tabs').tabs('select', index);
 };
 
 var showFavorites = function() {
-    var id = "#favorites";
+    var id = '#favorites';
     var index = $("#tabs > div").index($(id));
     if (index == -1) {
-        $("#tabs").tabs("add", id, 'Favorites');
+        $('#tabs').tabs('add', id, 'Favorites');
         TabMgr.favorites = createStatusesTab('favorites', kt.createFavoritesTL()).init();
         TabMgr.favorites.setRefreshTime(config.get().basics.refresh.others);
 
@@ -1264,7 +1348,7 @@ var showFavorites = function() {
 
 
 var showTrends = function() {
-    var id = "#trends";
+    var id = '#trends';
     var index = $("#tabs > div").index($(id));
     var country = config.get().basics.trends.country;
     var town = config.get().basics.trends.town;
@@ -1276,15 +1360,55 @@ var showTrends = function() {
     }
 
     if (index == -1) {
-        $("#tabs").tabs("add", id, 'Trends');
+        $('#tabs').tabs('add', id, 'Trends');
         TabMgr.trends = createTrendsTab('trends', name, kt.createTrends(wid)).init();
         TabMgr.trends.setRefreshTime(config.get().basics.refresh.others);
 
         // update
-        index = $("#tabs > div").index($(id));
+        index = $('#tabs > div').index($(id));
     }
     $('#tabs').tabs('select', index);
-}
+};
+
+var showLists = function() {
+    var id = '#lists';
+    var index = $("#tabs > div").index($(id));
+    if (index == -1) {
+        $('#tabs').tabs('add', id, 'Lists');
+        TabMgr.lists = createListsTab('lists', kt.createLists()).init();
+
+        // update
+        index = $('#tabs > div').index($(id));
+    }
+    $('#tabs').tabs('select', index);
+};
+
+var showList = function(listName) {
+    var name = /^@(\w+)\/(\w+)$/.exec(listName);
+    var screenName;
+    var slug;
+    if (name) {
+        screenName = name[1];
+        slug = name[2];
+    } else {
+        console.error('can not create list', listName);
+        return;
+    }
+    var idStr = 'li_' + screenName + '-' + slug;
+    var id = '#' + idStr;
+    var index = $('#tabs > div').index($(id));
+    if (index == -1) {
+        $('#tabs').tabs('add', id, String.fromCharCode(8803)+slug);
+        TabMgr[idStr] = createStatusesTab(idStr, kt.createListTL(screenName, slug)).init();
+        TabMgr[idStr].setRefreshTime(config.get().basics.refresh.others);
+
+        // update
+        index = $('#tabs > div').index($(id));
+    }
+
+    $('#tabs').tabs('select', index);
+    $(window).scrollTop(0);
+};
 
 var updateProfile = function(id, data) {
     console.log('updateProfile():', data);
@@ -1292,12 +1416,14 @@ var updateProfile = function(id, data) {
     $('#'+id+' .i_head').prop('src', data.profile_image_url).click(function() {
         $('#'+id+' .i_favorites').animate({opacity: 'toggle'});
         $('#'+id+' .i_trends').animate({opacity: 'toggle'});
+        $('#'+id+' .i_lists').animate({opacity: 'toggle'});
     });
     $('#'+id+' .i_screen_name').html(data.screen_name.bold()).click(function() { showUser(data.screen_name) });
     $('#'+id+' .i_followers').html(String.fromCharCode(8678)+data.followers_count).click(function() { showFollowers(data.screen_name) });
     $('#'+id+' .i_following').html(String.fromCharCode(8680)+data.friends_count).click(function() { showFriends(data.screen_name) });
-    $('#'+id+' .i_favorites').html(String.fromCharCode(9734).bold()).click(function() { showFavorites(); }).hide();
-    $('#'+id+' .i_trends').html(String.fromCharCode(65085).bold()).click(function() { showTrends(); }).hide();
+    $('#'+id+' .i_favorites').html(String.fromCharCode(9734)).click(function() { showFavorites(); }).hide();
+    $('#'+id+' .i_trends').html(String.fromCharCode(65085)).click(function() { showTrends(); }).hide();
+    $('#'+id+' .i_lists').html(String.fromCharCode(8803)).click(function() { showLists(); }).hide();
 };
 
 var initEvent = function() {
@@ -1434,6 +1560,11 @@ var initEvent = function() {
         showSearch(tag);
     });
 
+    $('.t_status .t_list_name a').live('click', function() {
+        var listName = $(this).text();
+        showList(listName);
+    });
+
     $('.profile .p_follow a:first').live('click', function() {
         var screenName = $(this).closest('.profile').find('.p_screen_name').text();
         showFriends(screenName);
@@ -1517,13 +1648,21 @@ var createSavedTabs = function() {
             showTrends();
         } else if (text == 'Favorites') {
             showFavorites();
+        } else if (text == 'Lists') {
+            showLists();
         } else if (/^@/.test(text)) {
             showUser(text.slice(1));
         } else if (fo.test(text)) {
             showFollowers(text.slice(0, -1));
         } else if (fr.test(text)) {
             showFriends(text.slice(0, -1));
-        } else if (/\/.+\//.test(text)) {
+        } else if (/^li_\w+-\w+$/.test(text)) {
+            var name = /^li_(\w+)-(\w+)$/.exec(text);
+            console.log(name, text)
+            if (name) {
+                showList('@'+name[1]+'/'+name[2]);
+            }
+        } else if (/^\/.+\/$/.test(text)) {
             showSearch(text.slice(1).slice(0, -1));
         } else {
             console.info('can not create tab for', text);

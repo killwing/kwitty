@@ -33,7 +33,11 @@
             add: function(event, ui) {
                 //$('#tabs').tabs('select', '#'+ui.panel.id)
                 //$(ui.panel).append("");
-                savedTabs.push(ui.tab.text); // use text as key
+                if (/^li_\w+-\w+$/.test(ui.panel.id)) {
+                    savedTabs.push(ui.panel.id); // use id as key for lists
+                } else {
+                    savedTabs.push(ui.tab.text); // use text as key
+                }
                 localStorage.tabs = JSON.stringify(savedTabs);
             },
 
@@ -41,7 +45,11 @@
                 TabMgr[ui.panel.id].destroy();
                 delete TabMgr[ui.panel.id];
                 $('#tabs').tabs('select', 0);
-                savedTabs.splice(savedTabs.indexOf(ui.tab.text), 1);
+                if (/^li_\w+-\w+$/.test(ui.panel.id)) {
+                    savedTabs.splice(savedTabs.indexOf(ui.panel.id), 1);
+                } else {
+                    savedTabs.splice(savedTabs.indexOf(ui.tab.text), 1);
+                }
                 localStorage.tabs = JSON.stringify(savedTabs);
             },
 
@@ -110,6 +118,7 @@
             </div>
             <a href="#" class="i_favorites"></a>
             <a href="#" class="i_trends"></a>
+            <a href="#" class="i_lists"></a>
         </div> 
             
         <div id="logo">

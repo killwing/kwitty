@@ -95,7 +95,7 @@ body {
     margin: 7px;
     vertical-align: middle;
 }
-.i_screen_name, .i_favorites, .i_trends {
+.i_screen_name, .i_favorites, .i_trends, .i_lists {
     vertical-align: middle;
 }
 .i_stat {
@@ -241,10 +241,14 @@ a.link_button:hover {
     padding-right: 10px;
 }
 
-.tl ol, .fs ol, .tr ol {
+.tl ol, .fs ol, .tr ol, .li ol {
     font: 14px "Trebuchet MS", sans-serif;
     margin: 0px;
     padding: 0px;
+}
+
+.li .t_screen_name {
+    display: none;
 }
 
 .profile {
