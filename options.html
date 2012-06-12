@@ -138,10 +138,12 @@
 <body>
 <div id="main-content">
     <div id="navbar-container">
-         <h1 id="settings-title">Options</h1>
+         <h1 id="settings-title">kwitty options</h1>
          <ul id="navbar">
              <li id="basicsPageNav" class="navbar-item navbar-item-selected">Basics</li>
              <li id="guiPageNav" class="navbar-item">GUI</li>
+             <br>
+             <li id="helpPageNav" class="navbar-item">Help</li>
          </ul>
     </div>
 
@@ -341,7 +343,7 @@
                         <div class="section-group">
                             <label class="checkbox">
                                 <input id="gui-display-compact" type="checkbox">
-                                <span>Use compact view when open as window (app mode)</span>
+                                <span>Use compact view when open as window</span>
                             </label>
                         </div>
 
@@ -372,6 +374,53 @@
                     </div>
                 </section>
             </div>
+
+            <div id="helpPage" class="page hidden">
+                <h1>Help</h1>
+                <section id="faqSection">
+                    <div>
+                        <p><b>How to send direct message to someone?</b></p>
+                        <p>Use "d username content" format in tweet box, note that the "Tweet" button will change to "Send".</p>
+                        <br>
+                        <p><b>How to find someone by username?</b></p>
+                        <p>Use "f username" format in tweet box, note that the "Tweet" button will change to "Find".</p>
+                        <br>
+                        <p><b>How to search tweets with keyword?</b></p>
+                        <p>Use "s keyword" format in tweet box, note that the "Tweet" button will change to "Search".</p>
+                        <br>
+                        <p><b>How to open favorites, lists and trends?</b></p>
+                        <p>Click your profile image in the left-up corner to open extra menu(icon).</p>
+                        <br>
+                        <p><b>How to apply the compact view?</b></p>
+                        <p>1. Check the option in "GUI - Display".</p>
+                        <p>2. Right click the APP start icon and select "open as window".</p>
+                        <p>3. Restart.</p>
+                        <br>
+                        <p><b>How to export/backup tweets?</b></p>
+                        <p>1. Click "Export" in a user tab.</p>
+                        <p>2. Wait the exporting progress to 100%.</p>
+                        <p>3. Save the exported page as (all content) a single local file.</p>
+                        <p>Note: There'll be max 3200 tweets limited by Twitter.</p>
+                        <br>
+                        <p><b>How to use API?</b></p>
+                        <p>1. Go to <a href="http://kwittyapp.appspot.com/" target="_blank">kwittyapp.appspot.com</a> and sign in with Twitter.</p>
+                        <p>2. Set your key of the API (don't set it same as your Twitter password).</p>
+                        <p>3. Use your username and API key to sign in with API in kwitty.</p>
+                        <br>
+                        <p><b>My kwitty doesn't work!</b></p>
+                        <p>Be sure your Chrome is upgraded to the latest version.</p>
+                        <p>Or try to <button>RESET</button> the APP. It'll clear all local settings.</p>
+                        <p>Still have trouble? Go to <a href="https://code.google.com/p/kwitty/issues/list" target="_blank">issues page</a> report bugs.</p>
+                    </div>
+                </section>
+                <section id="tipsSection">
+                    <div>
+                        <p><b>Tips</b></p>
+                        <p>The URL link will be detected automatically and be shortened to "t.co".</p>
+                        <p>Click the black top bar to go to top.</p>
+                    </div>
+                </section>
+            </div>            
 
         </div>
     </div>
