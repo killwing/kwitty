@@ -23,17 +23,15 @@ var cfgUpdater = {
                 TabMgr.messages.setRefreshTime(t);
             },
             search: function(t) {
-                config.get().basics.refresh.search = t;
                 $.each(TabMgr, function(k, v) {
                     if (/^s_/.test(k)) {
                         v.setRefreshTime(t);
                     }
                 });
             },
-            others: function(t) { // fav, users, trends
-                config.get().basics.refresh.others = t;
-                 $.each(TabMgr, function(k, v) {
-                    if (/^@/.test(k) || k == 'favorites' || k == 'trends') {
+            others: function(t) { // fav, trends, users, lists
+                $.each(TabMgr, function(k, v) {
+                    if (/^@/.test(k) || /^li_\w+-\w+$/.test(k) || k == 'favorites' || k == 'trends') {
                         v.setRefreshTime(t);
                     }
                 });
@@ -126,7 +124,6 @@ var cfgUpdater = {
             }
         }
     },
-
 
     bgImgData: function(data) {
         if (data) {
