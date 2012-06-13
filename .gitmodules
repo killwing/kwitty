@@ -1,0 +1,3 @@
+[submodule "js/jsut"]
+	path = js/jsut
+	url = git@github.com:killwing/jsut.git
