@@ -44,6 +44,29 @@
         })
     };
 
+    var insertTownsByCountry = function(id, save) {
+        $('#basics-trends-town').html('<option value="0">--</option>');
+        if (save) {
+            $('#basics-trends-town').change();
+        }
+        if (id == '1') { // worldwide
+            return;
+        }
+
+        woeid.towns.forEach(function(item, i) {
+            if (Number(item.parentid) == id) {
+                $('#basics-trends-town').append('<option value="'+item.woeid+'">'+item.name+'</option>');
+            }
+        });
+    };
+
+    var loadConfig = function() {
+        loadValues(config.get(), '');
+        // after load
+        insertTownsByCountry(config.get().basics.trends.country, false);
+        loadValue(config.get().basics.trends.town, 'basics-trends-town');
+    };
+
     $(function() {
         $('#navbar li').click(function() {
             $(this).addClass('navbar-item-selected');
@@ -51,28 +74,26 @@
             var pageID = '#' + $(this).prop('id').replace('Nav', '');
             $(pageID).siblings().hide();
             $(pageID).fadeIn();
+            $('#main-content').height($(pageID).height());
+        });
+
+        $('#reset').click(function() {
+            localStorage.clear();
+            config.reset();
+            loadConfig();
+
+            chrome.extension.sendRequest({msg: 'reset'}, function(response) {
+                if (response) {
+                    console.log('reset ok');
+                }
+            });
         });
 
         woeid.countries.forEach(function(item, i) {
             $('#basics-trends-country').append('<option value="'+item.woeid+'">'+item.name+'</option>');
         });
 
-        var insertTownsByCountry = function(id, save) {
-            $('#basics-trends-town').html('<option value="0">--</option>');
-            if (save) {
-                $('#basics-trends-town').change();
-            }
-            if (id == '1') { // worldwide
-                return;
-            }
 
-            woeid.towns.forEach(function(item, i) {
-                if (Number(item.parentid) == id) {
-                    $('#basics-trends-town').append('<option value="'+item.woeid+'">'+item.name+'</option>');
-                }
-            });
-        }
-     
         // select
         $('#refreshSection select, #themeSection select, #displaySection select, #trendsSection select').change(function() {
             saveValue(this);
@@ -126,11 +147,7 @@
         });
 
         config.init();
-        loadValues(config.get(), '');
-
-        // after load
-        insertTownsByCountry(config.get().basics.trends.country, false);
-        loadValue(config.get().basics.trends.town, 'basics-trends-town');
+        loadConfig(); 
     });
 </script>
 </head>
@@ -409,7 +426,7 @@
                         <br>
                         <p><b>My kwitty doesn't work!</b></p>
                         <p>Be sure your Chrome is upgraded to the latest version.</p>
-                        <p>Or try to <button>RESET</button> the APP. It'll clear all local settings.</p>
+                        <p>Or try to <button id="reset">RESET</button> the APP to clear all local settings.</p>
                         <p>Still have trouble? Go to <a href="https://code.google.com/p/kwitty/issues/list" target="_blank">issues page</a> report bugs.</p>
                     </div>
                 </section>

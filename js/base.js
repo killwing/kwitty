@@ -159,8 +159,10 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     if (request.msg == 'update') {
         console.log('config update: ', request.item, ':', request.value);
         loadValue(request.item, request.value);
-        sendResponse(true);
+    } else if (request.msg == 'reset') {
+        logout();
     }
+    sendResponse(true);
 });
 
 
@@ -1775,6 +1777,7 @@ var logout = function() {
         kt.getOAuth().logout();
     } else {
         console.error('logout(): invalid auth mode');
+        return;
     }
 
     // GUI reset

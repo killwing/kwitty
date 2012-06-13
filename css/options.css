@@ -41,6 +41,7 @@ a:active {
 #main-content {
     display: -webkit-box;
     position: absolute;
+    min-height: 100%;
     left: 0;
     right: 0;
     top: 0;
