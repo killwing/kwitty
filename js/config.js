@@ -43,7 +43,7 @@
                     disreadingload: true,
                 },
                 api: {
-                    address: 'http://kwittyapp.appspot.com/api/1',
+                    address: 'http://kwittyapp.appspot.com/',
                 },
                 trends: {
                     country: '1',
