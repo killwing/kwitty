@@ -1659,7 +1659,6 @@ var createSavedTabs = function() {
             showFriends(text.slice(0, -1));
         } else if (/^li_\w+-\w+$/.test(text)) {
             var name = /^li_(\w+)-(\w+)$/.exec(text);
-            console.log(name, text)
             if (name) {
                 showList('@'+name[1]+'/'+name[2]);
             }
@@ -1706,7 +1705,7 @@ var onLoginSuccess = function(screenName) {
     $('#topbar').animate({height: '50px'}, 'fast');
     $('#logout').fadeIn('slow');
     $('#update').fadeIn('slow');
-    $('#tabs').fadeIn('slow');
+    $('#tabs').fadeIn('slow').tabs('select', 0);
 
     if ('Basic' == kt.getAuthMode()) {
         $('#actions .t_upmedia_icon').hide();
