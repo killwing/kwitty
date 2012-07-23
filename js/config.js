@@ -133,8 +133,8 @@
         if (!config.basics.trends) {
             config.basics.trends = defConfig().basics.trends;
         }
-        if (!config.basics.others) {
-            config.basics.others = defConfig().basics.others;
+        if (!config.basics.refresh.others) {
+            config.basics.others = defConfig().basics.refresh.others;
         }
     };
 
