@@ -907,7 +907,7 @@ var createFriendshipTab = function(id, fs) {
 
     fsTab.destroy = function() {
         console.log('FriendshipTab.destroy()');
-        //fs.destroy();
+        //fs.destroy(); // no need
     };
 
     fsTab.init = function() {
@@ -951,7 +951,7 @@ var createListsTab = function(id, li) {
 
     liTab.destroy = function() {
         console.log('ListsTab.destroy()');
-        //fs.destroy();
+        //fs.destroy(); // no need
     };
 
     liTab.init = function() {
