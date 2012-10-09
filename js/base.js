@@ -136,10 +136,15 @@ var cfgUpdater = {
 };
 
 var loadValue = function(item, val) {
-    if (typeof(val) == 'string') {
-        val = '"' + val + '"';
+    var path = item.split('.');
+    var target = cfgUpdater;
+    for (var i = 0; i != path.length; ++i) {
+        if (i < path.length-1) {
+            target = target[path[i]];
+        } else {
+            target[path[i]](val);
+        }
     }
-    eval('cfgUpdater.' + item + '(' + val + ')');
 };
 
 var loadValues = function(obj, id) {
@@ -390,34 +395,34 @@ var Render = {
         return html;
     },
 
-    timeline: function(name) {
+    timeline: function() {
         var html = function() {
 /*
 <div class="tl">
-    <button class="new hidden" onclick="return showNew('{0}')">new</button>
+    <button class="new hidden">new</button>
     <ol></ol>
     <div class="loader"><img src="../img/loader.gif"></div>
-    <button class="more hidden" onclick="return showMore('{0}')">more</button>
+    <button class="more hidden">more</button>
 </div>
 */
         };
 
-        html = html.mlstr().format(name);
+        html = html.mlstr().format();
         return html;
     },
 
-    friendship: function(name) {
+    friendship: function() {
         var html = function() {
 /*
 <div class="fs">
     <ol></ol>
     <div class="loader"><img src="../img/loader.gif"></div>
-    <button class="more hidden" onclick="return showMore('{0}')">more</button>
+    <button class="more hidden">more</button>
 </div>
 */
         };
 
-        html = html.mlstr().format(name);
+        html = html.mlstr().format();
         return html;
     },
 
@@ -772,7 +777,7 @@ var createStatusesTab = function(id, tl) {
     };
 
     statusesTab.init = function() {
-        $('#'+id).html(Render.timeline(id));
+        $('#'+id).html(Render.timeline());
         $('button').button();
 
         this.preload(function() {
@@ -907,7 +912,7 @@ var createFriendshipTab = function(id, fs) {
 
     fsTab.init = function() {
         console.log('FriendshipTab.init()');
-        $('#'+id).html(Render.friendship(id));
+        $('#'+id).html(Render.friendship());
         $('button').button();
 
         fs.get(this.onMoreUsers, this.onError);
@@ -1428,6 +1433,16 @@ var updateProfile = function(id, data) {
 };
 
 var initEvent = function() {
+    $('.tl > button.more, .fs > button.more').live('click', function() {
+        var id = $(this).closest('.tl, .fs').parent().prop('id');
+        showMore(id);
+    });
+
+    $('.tl > button.new').live('click', function() {
+        var id = $(this).closest('.tl').parent().prop('id');
+        showNew(id);
+    });
+
     $('.t_status .t_actions .t_reply_icon').live('click', function() {
         var screenName = $(this).closest('.t_status').find('.t_screen_name').text();
         var statusID = $(this).closest('.t_status').prop('id');
