@@ -77,10 +77,15 @@
     };
 
     var saveValue = function(item, val) {
-        if (typeof(val) == 'string') {
-            val = '"' + val + '"';
+        var path = item.split('.');
+        var target = config;
+        for (var i = 0; i != path.length; ++i) {
+            if (i < path.length-1) {
+                target = target[path[i]];
+            } else {
+                target[path[i]] = val;
+            }
         }
-        eval('config.' + item + '=' + val);
         localStorage.config = JSON.stringify(config);
     };
 

@@ -136,10 +136,15 @@ var cfgUpdater = {
 };
 
 var loadValue = function(item, val) {
-    if (typeof(val) == 'string') {
-        val = '"' + val + '"';
+    var path = item.split('.');
+    var target = cfgUpdater;
+    for (var i = 0; i != path.length; ++i) {
+        if (i < path.length-1) {
+            target = target[path[i]];
+        } else {
+            target[path[i]](val);
+        }
     }
-    eval('cfgUpdater.' + item + '(' + val + ')');
 };
 
 var loadValues = function(obj, id) {
@@ -390,34 +395,34 @@ var Render = {
         return html;
     },
 
-    timeline: function(name) {
+    timeline: function() {
         var html = function() {
 /*
 <div class="tl">
-    <button class="new hidden" onclick="return showNew('{0}')">new</button>
+    <button class="new hidden">new</button>
     <ol></ol>
     <div class="loader"><img src="../img/loader.gif"></div>
-    <button class="more hidden" onclick="return showMore('{0}')">more</button>
+    <button class="more hidden">more</button>
 </div>
 */
         };
 
-        html = html.mlstr().format(name);
+        html = html.mlstr().format();
         return html;
     },
 
-    friendship: function(name) {
+    friendship: function() {
         var html = function() {
 /*
 <div class="fs">
     <ol></ol>
     <div class="loader"><img src="../img/loader.gif"></div>
-    <button class="more hidden" onclick="return showMore('{0}')">more</button>
+    <button class="more hidden">more</button>
 </div>
 */
         };
 
-        html = html.mlstr().format(name);
+        html = html.mlstr().format();
         return html;
     },
 
@@ -772,7 +777,7 @@ var createStatusesTab = function(id, tl) {
     };
 
     statusesTab.init = function() {
-        $('#'+id).html(Render.timeline(id));
+        $('#'+id).html(Render.timeline());
         $('button').button();
 
         this.preload(function() {
@@ -907,7 +912,7 @@ var createFriendshipTab = function(id, fs) {
 
     fsTab.init = function() {
         console.log('FriendshipTab.init()');
-        $('#'+id).html(Render.friendship(id));
+        $('#'+id).html(Render.friendship());
         $('button').button();
 
         fs.get(this.onMoreUsers, this.onError);
@@ -1428,6 +1433,16 @@ var updateProfile = function(id, data) {
 };
 
 var initEvent = function() {
+    $('.tl > button.more, .fs > button.more').live('click', function() {
+        var id = $(this).closest('.tl, .fs').parent().prop('id');
+        showMore(id);
+    });
+
+    $('.tl > button.new').live('click', function() {
+        var id = $(this).closest('.tl').parent().prop('id');
+        showNew(id);
+    });
+
     $('.t_status .t_actions .t_reply_icon').live('click', function() {
         var screenName = $(this).closest('.t_status').find('.t_screen_name').text();
         var statusID = $(this).closest('.t_status').prop('id');
@@ -1839,3 +1854,89 @@ var showTip = function(info)  {
     });
 }
 
+
+// init page
+$(function() {
+    $('#topbar').click(function() {
+        $("body").animate({scrollTop:0});
+    });
+
+    $('#update').click(function() {
+        return false;
+    });
+
+    $('#tabs').tabs({
+        tabTemplate: "<li><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close'>Remove Tab</span></li>",
+
+        add: function(event, ui) {
+            //$('#tabs').tabs('select', '#'+ui.panel.id)
+            //$(ui.panel).append("");
+            if (/^li_\w+-\w+$/.test(ui.panel.id)) {
+                savedTabs.push(ui.panel.id); // use id as key for lists
+            } else {
+                savedTabs.push(ui.tab.text); // use text as key
+            }
+            localStorage.tabs = JSON.stringify(savedTabs);
+        },
+
+        remove: function(event, ui) {
+            TabMgr[ui.panel.id].destroy();
+            delete TabMgr[ui.panel.id];
+            $('#tabs').tabs('select', 0);
+            if (/^li_\w+-\w+$/.test(ui.panel.id)) {
+                savedTabs.splice(savedTabs.indexOf(ui.panel.id), 1);
+            } else {
+                savedTabs.splice(savedTabs.indexOf(ui.tab.text), 1);
+            }
+            localStorage.tabs = JSON.stringify(savedTabs);
+        },
+
+        select: function(event, ui) {
+            var label = $(ui.tab).text();
+            if (label.slice(-1) == '*') {
+                var name = label.slice(0, label.length-1);
+                $(ui.tab).text(name);
+                // the 'new' button slideUp may not take effect when tab is hidden, so check it again
+                TabMgr[ui.tab.hash.slice(1)].hideNewBtn && TabMgr[ui.tab.hash.slice(1)].hideNewBtn();
+            }
+        }
+    });
+
+    $("#tabs span.ui-icon-close").live("click", function() {
+        var index = $("li", "#tabs").index($(this).parent());
+        $("#tabs").tabs("remove", index);
+    });
+
+    $('#login a').click(function() {
+        $('#login .loader').show();
+        basicLogin($('#username').val(), $('#password').val());
+    })
+    $('#login img').click(function() {
+        $('#login .loader').show();
+        oauthLogin();
+    })
+
+    $('#logout').html(String.fromCharCode(8624));
+
+    config.init();
+    // set background image independently
+    cfgUpdater.bgImgData(config.loadFromLS('bgImgData'));
+    // update theme
+    loadValues(config.get().gui.theme, 'gui.theme');
+    // update tabwidth
+    loadValues(config.get().gui.display.tabwidth, 'gui.display.tabwidth');
+
+    chrome.windows.getCurrent(function(w) {
+        console.log('window type:', w.type);
+        if ((w.type == 'app' || w.type == 'popup') && config.get().gui.display.compact) {
+            // cuz chrome will remember the window size
+            // don't reset the size if user tune the window a little
+            if (w.width > 500 || w.width < 450) {
+                chrome.windows.update(w.id, {width: 480});
+            }
+            makeCompact();
+        }
+    })
+
+    autoLogin();
+})
