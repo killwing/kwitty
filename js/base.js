@@ -1240,7 +1240,7 @@ var showUser = function(screenName) {
 };
 
 var showSearch = function(q) {
-    var idStr = 's_' + q.replace(/[+\/@#&"'><:. ]/g, '-');
+    var idStr = 's_' + q.replace(/[+\/@$#&"'><:. ]/g, '-');
     var id = '#' + idStr;
 
     var index = $('#tabs > div').index($(id));
