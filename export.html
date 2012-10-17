@@ -2,15 +2,7 @@
 <html>
 <head>
 <title>kwitty tweets backup</title>  
-<script type="text/javascript">
-    chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-        if (request.msg == 'export') {
-            document.getElementById("tweets").innerHTML = request.html;
-            sendResponse({});
-        }
-    });
-</script>
-
+<script type="text/javascript" src="js/export.js"></script>
 <style type="text/css">
 body {
     font-family: Verdana, sans-serif, Arial;
