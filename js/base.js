@@ -1649,6 +1649,10 @@ var initEvent = function() {
         makeFriendship(this, screenName);
     });
 
+    $('#logout').live('click', function() {
+        logout();
+    });
+
 };
 
 var createSavedTabs = function() {
