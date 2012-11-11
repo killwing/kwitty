@@ -162,7 +162,7 @@ var loadValues = function(obj, id) {
     }
 };
 
-chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.msg == 'update') {
         console.log('config update: ', request.item, ':', request.value);
         loadValue(request.item, request.value);
@@ -1619,9 +1619,17 @@ var initEvent = function() {
                     });
 
                     chrome.tabs.create({url: chrome.extension.getURL("export.html")}, function(tab) {
-                        chrome.extension.sendRequest({msg: 'export', html: html}, function(response) {
-                            console.log('export tweets ok')
-                        })
+                        var sendMsg = function() {
+                            chrome.extension.sendMessage({msg: 'export', html: html}, function(response) {
+                                if (response) {
+                                    console.log('export tweets ok')
+                                } else {
+                                    console.error('export failed: ', chrome.extension.lastError.message);
+                                    setTimeout(sendMsg, 1000); // retry
+                                }
+                            })
+                        };
+                        sendMsg();
                     });
 
                 }, function(errorStatus) {

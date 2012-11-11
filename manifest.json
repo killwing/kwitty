@@ -1,7 +1,7 @@
 {
     "name": "kwitty",
     "description": "A chrome application of twitter",
-    "version": "1.5.4",
+    "version": "1.5.5",
     "manifest_version": 2,
     "app": {
         "launch": {

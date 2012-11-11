@@ -6,9 +6,11 @@ var saveValue = function(elem, val) {
     var item = $(elem).prop('id').replace(/-/g, '.');
     config.saveValue(item, val);
     // notify main page
-    chrome.extension.sendRequest({msg: 'update', item: item, value: val}, function(response) {
+    chrome.extension.sendMessage({msg: 'update', item: item, value: val}, function(response) {
         if (response) {
             console.log('update value ok');
+        } else {
+            console.error('update value failed');
         }
     });
 };
@@ -72,9 +74,11 @@ $(function() {
         config.reset();
         loadConfig();
 
-        chrome.extension.sendRequest({msg: 'reset'}, function(response) {
+        chrome.extension.sendMessage({msg: 'reset'}, function(response) {
             if (response) {
                 console.log('reset ok');
+            } else {
+                console.error('reset failed');
             }
         });
     });
@@ -121,8 +125,12 @@ $(function() {
         reader.readAsDataURL(file);
         reader.onload = function(e) {
             config.saveToLS('bgImgData', this.result);
-            chrome.extension.sendRequest({msg: 'update', item: 'bgImgData', value: this.result}, function(response) {
-                console.log('update bgImgData ok')
+            chrome.extension.sendMessage({msg: 'update', item: 'bgImgData', value: this.result}, function(response) {
+                if (response) {
+                    console.log('update bgImgData ok');
+                } else {
+                    console.error('update bgImgData failed');
+                }
             });
         };
     });
