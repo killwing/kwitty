@@ -40,7 +40,7 @@ $.fn.extend({
             if (tcoRe.test(v.node.text()) && v.url.length > 30) { // already official expanded
                 showEx({'long-url': v.url});
             } else if (v.url.length <= 30) {
-                $.getJSON('http://api.longurl.org/v2/expand?callback=?', {url: encodeURI(v.url), format: 'json'}, showEx);
+                $.getJSON('http://api.longurl.org/v2/expand?', {url: encodeURI(v.url), format: 'json'}, showEx);
             }
         });
     

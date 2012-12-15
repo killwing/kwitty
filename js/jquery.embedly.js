@@ -154,11 +154,10 @@
          }).join(',');
          $.ajax({
              url: getUrl(),
-             dataType: 'jsonp',
+             dataType: 'json',
              data: getParams(urls),
              success: function(data) {
-                 return $.each(data,
-                 function(index, elem) {
+                 return $.each(data, function(index, elem) {
                      return elem.type != 'error' ? processEmbed(elem, batch[index]) : null;
                  });
              }
