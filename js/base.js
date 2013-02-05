@@ -85,20 +85,26 @@ var cfgUpdater = {
         },
         theme: {
             tltheme: function(v) {
-                var cssLink = $('<link href="'+config.themes[v]+'" type="text/css" rel="Stylesheet" class="ui-theme" />');
-                var linkColor = config.themes[v].match(/fcActive=(\w+)&/)[1];
-                if (v == 'Start' || v == 'Cupertino' || v == 'Hot sneaks' || v == 'Excite Bike') {
-                    linkColor = config.themes[v].match(/bgColorActive=(\w+)&/)[1];
-                }
-                var style = $('<style type="text/css" class="ui-theme">.ui-widget-content a {color: #'+linkColor+'} .t_ref a {color: #888}</style>');
-
-                $('head').append(cssLink).append(style);
+                var cssLink = $('<link href="css/jquery-ui-themes-1.9.2/themes/'+v+'/jquery-ui.css" type="text/css" rel="Stylesheet" class="ui-theme" />');
+                $('head').append(cssLink);
                 if ($('link.ui-theme').size() > 3) { // cache
                     $('link.ui-theme:first').remove();
                 }
-                if ($('style.ui-theme').size() > 3) { // cache
-                    $('style.ui-theme:first').remove();
-                }
+
+                // wait the style file have loaded
+                setTimeout(function() {
+                    var linkColor;
+                    if (['start', 'cupertino', 'hot-sneaks', 'excite-bike', 'dark-hive'].indexOf(v) != -1) {
+                        linkColor = $('.ui-state-active').css('background-color');
+                    } else {
+                        linkColor = $('.ui-state-active').css('color');
+                    }
+                    var style = $('<style type="text/css" class="ui-theme">.ui-widget-content a {color: '+linkColor+'} .t_ref a {color: #888}</style>');
+                    $('head').append(style);
+                    if ($('style.ui-theme').size() > 3) { // cache
+                        $('style.ui-theme:first').remove();
+                    }
+                }, 1000);
             }
         },
         display: {
@@ -399,10 +405,10 @@ var Render = {
         var html = function() {
 /*
 <div class="tl">
-    <button class="new hidden">new</button>
+    <div class="new hidden"><button>new</button></div>
     <ol></ol>
     <div class="loader"><img src="../img/loader.gif"></div>
-    <button class="more hidden">more</button>
+    <div class="more hidden"><button>more</button></div>
 </div>
 */
         };
@@ -417,7 +423,7 @@ var Render = {
 <div class="fs">
     <ol></ol>
     <div class="loader"><img src="../img/loader.gif"></div>
-    <button class="more hidden">more</button>
+    <div class="more hidden"><button>more</button></div>
 </div>
 */
         };
@@ -605,6 +611,7 @@ var createStatusesTab = function(id, tl) {
 
     var tlID = '#' + id + ' .tl ol';
     var newBtnID = '#' + id + ' .new';
+    var newBtn = '#' + id + ' .new button';
     var moreBtnID = '#' + id + ' .more';
     var loaderID = '#' + id + ' .loader';
     var newTextID = '#' + id +' .newTweet .t_text';
@@ -738,7 +745,8 @@ var createStatusesTab = function(id, tl) {
             if (autoloadCfg) {
                 statusesTab.showNew();
             } else {
-                $(newBtnID).text(count+' new').slideDown();
+                $(newBtn).text(count+' new')
+                $(newBtnID).slideDown();
             }
         } else {
             $(loaderID).hide();
@@ -967,7 +975,7 @@ var createListsTab = function(id, li) {
 };
 
 var createTrendsTab = function(id, name, tr) {
-    console.log('createFriendshipTab():', id);
+    console.log('createTrendsTab():', id);
     var trID = '#' + id + ' .tr ol';
     var loaderID = '#' + id + ' .loader';
 
@@ -1433,12 +1441,12 @@ var updateProfile = function(id, data) {
 };
 
 var initEvent = function() {
-    $('.tl > button.more, .fs > button.more').live('click', function() {
+    $('.tl > div.more, .fs > div.more').live('click', function() {
         var id = $(this).closest('.tl, .fs').parent().prop('id');
         showMore(id);
     });
 
-    $('.tl > button.new').live('click', function() {
+    $('.tl > div.new').live('click', function() {
         var id = $(this).closest('.tl').parent().prop('id');
         showNew(id);
     });
