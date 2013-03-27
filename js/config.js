@@ -113,32 +113,32 @@
 
     var check = function() {
         // new in v1.1
-        if (!config.gui.display) {
+        if (typeof config.gui.display === 'undefined') {
             config.gui.display = defConfig().gui.display;
         }
         // new in v1.2
-        if (!config.gui.theme) {
+        if (typeof config.gui.theme === 'undefined') {
             config.gui.theme = defConfig().gui.theme;
         }
         // new in v1.4
-        if (!config.basics.refresh.retweets) {
+        if (typeof config.basics.refresh.retweets === 'undefined') {
             config.basics.refresh.retweets = defConfig().basics.refresh.retweets;
         }
-        if (!config.gui.display.tabwidth) {
+        if (typeof config.gui.display.tabwidth === 'undefined') {
             config.gui.display.tabwidth = defConfig().gui.display.tabwidth;
         }
-        if (!config.basics.refresh.disreadingload) {
+        if (typeof config.basics.refresh.disreadingload === 'undefined') {
             config.basics.refresh.disreadingload = defConfig().basics.refresh.disreadingload;
         }
         // new in v1.4.4
-        if (!config.basics.refresh.search) {
+        if (typeof config.basics.refresh.search === 'undefined') {
             config.basics.refresh.search = defConfig().basics.refresh.search;
         }
         // new in v1.5.0
-        if (!config.basics.trends) {
+        if (typeof config.basics.trends === 'undefined') {
             config.basics.trends = defConfig().basics.trends;
         }
-        if (!config.basics.refresh.others) {
+        if (typeof config.basics.refresh.others === 'undefined') {
             config.basics.others = defConfig().basics.refresh.others;
         }
     };
