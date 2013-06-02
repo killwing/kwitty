@@ -4,7 +4,7 @@
     var bauth = null;
     var authMode = null;
 
-    // REST API Resources
+    // REST API Resources: https://dev.twitter.com/docs/api/1.1
     var api = {
         bauthBase: '',
         oauthBase: 'https://api.twitter.com',
@@ -21,14 +21,10 @@
                     base += '/api/1';
                 }
             } else if (authMode == 'OAuth' && oauth) {
-                if (rest.domain == 'search') {
-                    base = 'https://search.twitter.com';
-                } else if (rest.domain == 'upload') {
-                    base = 'https://upload.twitter.com/1';
-                } else if (rest.domain == 'oauth') {
+                if (rest.domain == 'oauth') {
                     base = api.oauthBase;
                 } else {
-                    base = api.oauthBase + '/1';
+                    base = api.oauthBase + '/1.1';
                 }
             }
 
@@ -40,269 +36,68 @@
         },
 
         statuses: {
-            // Returns the 20 most recent statuses, including retweets if they exist, posted by the authenticating user and the user's they follow. This is the same timeline seen by a user when they login to twitter.com. This method is identical to statuses/friends_timeline, except that this method always...
             home_timeline: {method: 'GET', url: '/statuses/home_timeline.json'},
-            // Returns the 20 most recent mentions (status containing @username) for the authenticating user. The timeline returned is the equivalent of the one seen when you view your mentions on twitter.com. This method can only return up to 800 statuses. If include_rts is set only 800 statuses, including...
-            mentions: {method: 'GET', url: '/statuses/mentions.json'},
-            // Returns the 20 most recent statuses, including retweets if they exist, from non-protected users. The public timeline is cached for 60 seconds. Requesting more frequently than that will not return any more data, and will count against your rate limit usage. Consider using the Streaming API's...
-            //public_timeline: {method: 'GET', url: '/statuses/public_timeline.json'},
-            // Returns the 20 most recent retweets posted by the authenticating user.
-            //retweeted_by_me: {method: 'GET', url: '/statuses/retweeted_by_me.json'},
-            // Returns the 20 most recent retweets posted by users the authenticating user follow.
-            //retweeted_to_me: {method: 'GET', url: '/statuses/retweeted_to_me.json'},
-            // Returns the 20 most recent tweets of the authenticated user that have been retweeted by others.
+            mentions_timeline: {method: 'GET', url: '/statuses/mentions_timeline.json'},
             retweets_of_me: {method: 'GET', url: '/statuses/retweets_of_me.json'},
-            // Returns the 20 most recent statuses posted by the authenticating user. It is also possible to request another user's timeline by using the screen_name or user_id parameter. The other users timeline will only be visible if they are not protected, or if the authenticating user's follow request was...
             user_timeline: {method: 'GET', url: '/statuses/user_timeline.json'},
-            // Returns the 20 most recent retweets posted by users the specified user follows. The user is specified using the user_id or screen_name parameters. This method is identical to statuses/retweeted_to_me except you can choose the user to view.
-            //retweeted_to_user: {method: 'GET', url: '/statuses/retweeted_to_user.json'},
-            // Returns the 20 most recent retweets posted by the specified user. The user is specified using the user_id or screen_name parameters. This method is identical to statuses/retweeted_by_me except you can choose the user to view. Does not require authentication, unless the user is protected.
-            //retweeted_by_user: {method: 'GET', url: '/statuses/retweeted_by_user.json'},
-            // Show user objects of up to 100 members who retweeted the status.
             retweeted_by: {method: 'GET', url: '/statuses/{0}/retweeted_by.json'},
-            // Show user ids of up to 100 users who retweeted the status.
-            //ids: {method: 'GET', url: '/statuses/:id/retweeted_by/ids.json'},
-            // Returns up to 100 of the first retweets of a given tweet.
-            //retweets: {method: 'GET', url: '/statuses/retweets/{0}.json'},
-            // Returns a single status, specified by the id parameter below. The status's author will be returned inline.
-            show: {method: 'GET', url: '/statuses/show/{0}.json', id: 0},
-            // Destroys the status specified by the required ID parameter. The authenticating user must be the author of the specified status. Returns the destroyed status if successful.
+            show: {method: 'GET', url: '/statuses/show.json'},
             destroy: {method: 'POST', url: '/statuses/destroy/{0}.json', id: 0},
-            // Retweets a tweet. Returns the original tweet with retweet details embedded.
             retweet: {method: 'POST', url: '/statuses/retweet/{0}.json', id: 0},
-            // Updates the authenticating user's status, also known as tweeting. To upload an image to accompany the tweet, use POST statuses/update_with_media. For each update attempt, the update text is compared with the authenticating user's recent tweets. Any attempt that would result in duplication will be...
             update: {method: 'POST', url: '/statuses/update.json'},
-            // Updates the authenticating user's status and attaches media for upload. Unlike POST statuses/update, this method expects raw multipart data. Your POST request's Content-Type should be set to multipart/form-data with the media[] parameter The Tweet text will be rewritten to include the media...
             update_with_media: {method: 'POST', url: '/statuses/update_with_media.json', domain: 'upload'},
         },
 
         search: {
-            // Returns tweets that match a specified query. To best learn how to use Twitter Search effectively, consult our guide to Using the Twitter Search API Notice: As of April 1st 2010, the Search API provides an option to retrieve "popular tweets" in addition to real-time search results. In an upcoming...
-            search: {method: 'GET', url: '/search.json', domain: 'search'},
+            tweets: {method: 'GET', url: '/search/tweets.json'},
         },
 
         direct_messages: {
-            // Returns the 20 most recent direct messages sent to the authenticating user. The XML and JSON versions include detailed information about the sender and recipient user. Important: This method requires an access token with RWD (read, write...
             direct_messages: {method: 'GET', url: '/direct_messages.json'},
-            // Returns the 20 most recent direct messages sent by the authenticating user. The XML and JSON versions include detailed information about the sender and recipient user. Important: This method requires an access token with RWD (read, write...
             sent: {method: 'GET', url: '/direct_messages/sent.json'},
-            // Important: This method requires an access token with RWD (read, write...
-            destroy: {method: 'POST', url: '/direct_messages/destroy/{0}.json', id: 0},
-            // Sends a new direct message to the specified user from the authenticating user. Requires both the user and text parameters and must be a POST. Returns the sent message in the requested format if successful.
+            destroy: {method: 'POST', url: '/direct_messages/destroy.json'},
             'new': {method: 'POST', url: '/direct_messages/new.json'},
-            // Returns a single direct message, specified by an id parameter. Like the /1/direct_messages.format request, this method will include the user objects of the sender and recipient. Important: This method requires an access token with RWD (read, write...
-            //direct_message: {method: 'GET', url: '/direct_messages/{0}.json'},
         },
 
         friendships: {
-            // Returns an array of numeric IDs for every user following the specified user. This method is powerful when used in conjunction with users/lookup.
             followers: {method: 'GET', url: '/followers/ids.json'},
-            // Returns an array of numeric IDs for every user the specified user is following. This method is powerful when used in conjunction with users/lookup.
             friends: {method: 'GET', url: '/friends/ids.json'},
-            // Test for the existence of friendship between two users. Will return true if user_a follows user_b, otherwise will return false. Authentication is required if either user A or user B are protected. Additionally the authenticating user must be a follower of the protected user. Consider using...
-            //exists: {method: 'GET', url: '/friendships/exists.json'},
-            // Returns an array of numeric IDs for every user who has a pending request to follow the authenticating user.
-            //incoming: {method: 'GET', url: '/friendships/incoming.json'},
-            // Returns an array of numeric IDs for every protected user for whom the authenticating user has a pending follow request.
-            //outgoing: {method: 'GET', url: '/friendships/outgoing.json'},
-            // Returns detailed information about the relationship between two users.
             show: {method: 'GET', url: '/friendships/show.json'},
-            // Allows the authenticating users to follow the user specified in the ID parameter. Returns the befriended user in the requested format when successful. Returns a string describing the failure condition when unsuccessful. If you are already friends with the user a HTTP 403 may be returned, though for...
             create: {method: 'POST', url: '/friendships/create.json'},
-            // Allows the authenticating users to unfollow the user specified in the ID parameter. Returns the unfollowed user in the requested format when successful. Returns a string describing the failure condition when unsuccessful.
             destroy: {method: 'POST', url: '/friendships/destroy.json'},
-            // Returns the relationship of the authenticating user to the comma separated list of up to 100 screen_names or user_ids provided. Values for connections can be: following, following_requested, followed_by, none.
-            //lookup: {method: 'GET', url: '/friendships/lookup.json'},
-            // Allows one to enable or disable retweets and device notifications from the specified user.
-            //update: {method: 'POST', url: '/friendships/update.json'},
-            // Returns an array of user_ids that the currently authenticated user does not want to see retweets from.
-            //no_retweet_ids: {method: 'GET', url: '/friendships/no_retweet_ids.json'},
         },
 
         users: {
-            // Return up to 100 users worth of extended information, specified by either ID, screen name, or combination of the two. The author's most recent status (if the authenticating user has permission) will be returned inline. This method is crucial for consumers of the Streaming API. It's also well suited...
             lookup: {method: 'GET', url: '/users/lookup.json'},
-            // Access the profile image in various sizes for the user with the indicated screen_name. If no size is provided the normal image is returned. This resource does not return JSON or XML, but instead returns a 302 redirect to the actual image resource. This method should only be used by application...
-            //{method: 'GET', url: '/users/profile_image/:screen_name.json'},
-            // Runs a search for users similar to Find People button on Twitter.com. The results returned by people search on Twitter.com are the same as those returned by this API request. Note that unlike GET search, this method does not support any operators. Only the first 1000 matches are available.
-            //search: {method: 'GET', url: '/users/search.json'},
-            // Returns extended information of a given user, specified by ID or screen name as per the required id parameter. The author's most recent status will be returned inline.
             show: {method: 'GET', url: '/users/show.json'},
-            // Returns an array of users that the specified user can contribute to.
-            //contributees: {method: 'GET', url: '/users/contributees.json'},
-            // Returns an array of users who can contribute to the specified account.
-            //contributors: {method: 'GET', url: '/users/contributors.json'},
-            // Access to Twitter's suggested user list. This returns the list of suggested user categories. The category can be used in GET users/suggestions/:slug to get the users in that category.
-            //suggestions: {method: 'GET', url: '/users/suggestions.json'},
-            // Access the users in a given category of the Twitter suggested user list. It is recommended that end clients cache this data for no more than one hour.
-            //{method: 'GET', url: '/users/suggestions/:slug.json'},
-            // Access the users in a given category of the Twitter suggested user list and return their most recent status if they are not a protected user.
-            //{method: 'GET', url: '/users/suggestions/:slug/members.format.json'},
         },
 
         favorites: {
-            // Returns the 20 most recent favorite statuses for the authenticating user or user specified by the ID parameter in the requested format.
-            favorites: {method: 'GET', url: '/favorites.json'},
-            // Favorites the status specified in the ID parameter as the authenticating user. Returns the favorite status when successful.
-            create: {method: 'POST', url: '/favorites/create/{0}.json', id: 0},
-            // Un-favorites the status specified in the ID parameter as the authenticating user. Returns the un-favorited status in the requested format when successful.
-            destroy: {method: 'POST', url: '/favorites/destroy/{0}.json', id: 0},
+            list: {method: 'GET', url: '/favorites/list.json'},
+            create: {method: 'POST', url: '/favorites/create.json'},
+            destroy: {method: 'POST', url: '/favorites/destroy.json'},
         },
 
         lists: {
-            // Returns all lists the authenticating or specified user subscribes to, including their own. The user is specified using the user_id or screen_name parameters. If no user is given, the authenticating user is used.
-            all: {method: 'GET', url: '/lists/all.json'},
-            // Returns tweet timeline for members of the specified list. Historically, retweets were not available in list timeline responses but you can now use the include_rts=true parameter to additionally receive retweet objects.
+            list: {method: 'GET', url: '/lists/list.json'},
             statuses: {method: 'GET', url: '/lists/statuses.json'},
-            // Removes the specified member from the list. The authenticated user must be the list's owner to remove members from the list.
-            //destroy: {method: 'POST', url: '/lists/members/destroy.json'},
-            // Returns the lists the specified user has been added to. If user_id or screen_name are not provided the memberships for the authenticating user are returned.
-            //memberships: {method: 'GET', url: '/lists/memberships.json'},
-            // Returns the subscribers of the specified list. Private list subscribers will only be shown if the authenticated user owns the specified list.
-            //subscribers: {method: 'GET', url: '/lists/subscribers.json'},
-            // Subscribes the authenticated user to the specified list.
-            //create: {method: 'POST', url: '/lists/subscribers/create.json'},
-            // Check if the specified user is a subscriber of the specified list. Returns the user if they are subscriber.
-            //show: {method: 'GET', url: '/lists/subscribers/show.json'},
-            // Unsubscribes the authenticated user from the specified list.
-            //destroy: {method: 'POST', url: '/lists/subscribers/destroy.json'},
-            // Adds multiple members to a list, by specifying a comma-separated list of member ids or screen names. The authenticated user must own the list to be able to add members to it. Note that lists can't have more than 500 members, and you are limited to adding up to 100 members to a list at a time with...
-            //create_all: {method: 'POST', url: '/lists/members/create_all.json'},
-            // Check if the specified user is a member of the specified list.
-            //show: {method: 'GET', url: '/lists/members/show.json'},
-            // Returns the members of the specified list. Private list members will only be shown if the authenticated user owns the specified list.
-            //members: {method: 'GET', url: '/lists/members.json'},
-            // Add a member to a list. The authenticated user must own the list to be able to add members to it. Note that lists can't have more than 500 members.
-            //create: {method: 'POST', url: '/lists/members/create.json'},
-            // Deletes the specified list. The authenticated user must own the list to be able to destroy it.
-            //destroy: {method: 'POST', url: '/lists/destroy.json'},
-            // Updates the specified list. The authenticated user must own the list to be able to update it.
-            //update: {method: 'POST', url: '/lists/update.json'},
-            // Creates a new list for the authenticated user. Note that you can't create more than 20 lists per account.
-            //create: {method: 'POST', url: '/lists/create.json'},
-            // Returns the lists of the specified (or authenticated) user. Private lists will be included if the authenticated user is the same as the user whose lists are being returned.
-            //lists: {method: 'GET', url: '/lists.json'},
-            // Returns the specified list. Private lists will only be shown if the authenticated user owns the specified list.
-            //show: {method: 'GET', url: '/lists/show.json'},
         },
 
         account: {
-            // Returns the remaining number of API requests available to the requesting user before the API limit is reached for the current hour. Calls to rate_limit_status do not count against the rate limit. If authentication credentials are provided, the rate limit status for the authenticating user is...
             rate_limit_status: {method: 'GET', url: '/account/rate_limit_status.json'},
-            // Returns an HTTP 200 OK response code and a representation of the requesting user if authentication was successful; returns a 401 status code and an error message if not. Use this method to test if supplied user credentials are valid.
             verify_credentials: {method: 'GET', url: '/account/verify_credentials.json'},
-            // Ends the session of the authenticating user, returning a null cookie. Use this method to sign users out of client-facing applications like widgets.
-            //end_session: {method: 'POST', url: '/account/end_session.json'},
-            // Sets which device Twitter delivers updates to for the authenticating user. Sending none as the device parameter will disable SMS updates.
-            //update_delivery_device: {method: 'POST', url: '/account/update_delivery_device.json'},
-            // Sets values that users are able to set under the "Account" tab of their settings page. Only the parameters specified will be updated.
-            //update_profile: {method: 'POST', url: '/account/update_profile.json'},
-            // Updates the authenticating user's profile background image. This method can also be used to enable or disable the profile background image. Although each parameter is marked as optional, at least one of image, tile or use must be provided when making this request.
-            //update_profile_background_image: {method: 'POST', url: '/account/update_profile_background_image.json'},
-            // Sets one or more hex values that control the color scheme of the authenticating user's profile page on twitter.com. Each parameter's value must be a valid hexidecimal value, and may be either three or six characters (ex: #fff or #ffffff).
-            //update_profile_colors: {method: 'POST', url: '/account/update_profile_colors.json'},
-            // Updates the authenticating user's profile image. Note that this method expects raw multipart data, not a URL to an image. This method asynchronously processes the uploaded file before updating the user's profile image URL. You can either update your local cache the next time you request the user's...
-            //update_profile_image: {method: 'POST', url: '/account/update_profile_image.json'},
-            // Returns the current count of friends, followers, updates (statuses) and favorites of the authenticating user.
-            //totals: {method: 'GET', url: '/account/totals.json'},
-            // Returns settings (including current trend, geo and sleep time information) for the authenticating user.
-            //settings: {method: 'GET', url: '/account/settings.json'},
-            // Updates the authenticating user's settings.
-            //settings: {method: 'POST', url: '/account/settings.json'},
         },
-
-        /*
-        notifications: {
-            // Enables device notifications for updates from the specified user. Returns the specified user when successful.
-            follow: {method: 'POST', url: '/notifications/follow.json'},
-            // Disables notifications for updates from the specified user to the authenticating user. Returns the specified user when successful.
-            leave: {method: 'POST', url: '/notifications/leave.json'},
-        },
-
-        saved_searches: {
-            // Returns the authenticated user's saved search queries.
-            saved_searches: {method: 'GET', url: '/saved_searches.json'},
-            // Retrieve the information for the saved search represented by the given id. The authenticating user must be the owner of saved search ID being requested.
-            {method: 'GET', url: '/saved_searches/show/:id.json'},
-            // Create a new saved search for the authenticated user. A user may only have 25 saved searches.
-            create: {method: 'POST', url: '/saved_searches/create.json'},
-            // Destroys a saved search for the authenticating user. The authenticating user must be the owner of saved search id being destroyed.
-            {method: 'POST', url: '/saved_searches/destroy/:id.json'},
-        },
-
-
-        geo: {
-            // Returns all the information about a known place.
-            {method: 'GET', url: '/geo/id/:place_id.json'},
-            // This method is deprecated and has been replaced by geo/search. Please update your applications with the new endpoint.
-            nearby_places: {method: 'GET', url: '/geo/nearby_places.json'},
-            // Given a latitude and a longitude, searches for up to 20 places that can be used as a place_id when updating a status. This request is an informative call and will deliver generalized results about geography.
-            reverse_geocode: {method: 'GET', url: '/geo/reverse_geocode.json'},
-            // Search for places that can be attached to a statuses/update. Given a latitude and a longitude pair, an IP address, or a name, this request will return a list of all the valid places that can be used as the place_id when updating a status. Conceptually, a query can be made from the user's location...
-            search: {method: 'GET', url: '/geo/search.json'},
-            // Locates places near the given coordinates which are similar in name. Conceptually you would use this method to get a list of known places to choose from first. Then, if the desired place doesn't exist, make a request to post/geo/place to create a new one. The token contained in the response is the...
-            similar_places: {method: 'GET', url: '/geo/similar_places.json'},
-            // Creates a new place object at the given latitude and longitude. Before creating a place you need to query GET geo/similar_places with the latitude, longitude and name of the place you wish to create. The query will return an array of places which are similar to the one you wish to create, and a...
-            place: {method: 'POST', url: '/geo/place.json'},
-        },
-        */
 
         trends: {
-            // Returns the top 10 trending topics for a specific WOEID, if trending information is available for it. The response is an array of "trend" objects that encode the name of the trending topic, the query parameter that can be used to search for the topic on Twitter Search, and the Twitter Search URL....
-            trends: {method: 'GET', url: '/trends/{0}.json', id: 0},
-            // Returns the locations that Twitter has trending topic information for. The response is an array of "locations" that encode the location's WOEID and some other human-readable information such as a canonical name and country the location belongs in. A WOEID is a Yahoo! Where On Earth ID.
-            //available: {method: 'GET', url: '/trends/available.json'},
-            // Returns the top 20 trending topics for each hour in a given day.
-            //daily: {method: 'GET', url: '/trends/daily.json'},
-            // Returns the top 30 trending topics for each day in a given week.
-            //weekly: {method: 'GET', url: '/trends/weekly.json'},
+            place: {method: 'GET', url: '/trends/place.json'},
         },
-
-        /*
-        blocks: {
-            // Returns an array of user objects that the authenticating user is blocking. Consider using GET blocks/blocking/ids with GET users/lookup instead of this method.
-            blocking: {method: 'GET', url: '/blocks/blocking.json'},
-            // Returns an array of numeric user ids the authenticating user is blocking.
-            ids: {method: 'GET', url: '/blocks/blocking/ids.json'},
-            // Returns if the authenticating user is blocking a target user. Will return the blocked user's object if a block exists, and error with a HTTP 404 response code otherwise.
-            exists: {method: 'GET', url: '/blocks/exists.json'},
-            // Blocks the specified user from following the authenticating user. In addition the blocked user will not show in the authenticating users mentions or timeline (unless retweeted by another user). If a follow or friend relationship exists it is destroyed.
-            create: {method: 'POST', url: '/blocks/create.json'},
-            // Un-blocks the user specified in the ID parameter for the authenticating user. Returns the un-blocked user in the requested format when successful. If relationships existed before the block was instated, they will not be restored.
-            destroy: {method: 'POST', url: '/blocks/destroy.json'},
-            // The user specified in the id is blocked by the authenticated user and reported as a spammer.
-            report_spam: {method: 'POST', url: '/report_spam.json'},
-        },
-        */
 
         oauth: {
-            // Allows a Consumer application to use an OAuth request_token to request user authorization. This method is a replacement of Section 6.2 of the OAuth 1.0 authentication flow for applications using the Sign in with Twitter authentication flow. The method will use the currently logged in user as the...
             authenticate: {method: 'GET', url: '/oauth/authenticate', domain: 'oauth'},
-            // Allows a Consumer application to use an OAuth Request Token to request user authorization. This method fulfills Section 6.2 of the OAuth 1.0 authentication flow. Desktop applications must use this method (and cannot use GET oauth/authenticate). Please use HTTPS for this method, and all other OAuth...
             authorize: {method: 'GET', url: '/oauth/authorize', domain: 'oauth'},
-            // Allows a Consumer application to exchange the OAuth Request Token for an OAuth Access Token. This method fulfills Section 6.3 of the OAuth 1.0 authentication flow. The OAuth access token may also be used for xAuth operations. Please use HTTPS for this method, and all other OAuth token negotiation...
             access_token: {method: 'POST', url: '/oauth/access_token', domain: 'oauth', format: 'text'},
-            // Allows a Consumer application to obtain an OAuth Request Token to request user authorization. This method fulfills Section 6.1 of the OAuth 1.0 authentication flow. It is strongly recommended you use HTTPS for all OAuth authorization steps. Usage Note: Only ASCII values are accepted for the...
             request_token: {method: 'POST', url: '/oauth/request_token', domain: 'oauth', format: 'text'},
         },
-
-        /*
-        help: {
-            // Returns the string "ok" in the requested format with a 200 OK HTTP status code. This method is great for sending a HEAD request to determine our servers current time.
-            test: {method: 'GET', url: '/help/test.json'},
-            // Returns the current configuration used by Twitter including twitter.com slugs which are not usernames, maximum photo resolutions, and t.co URL lengths. It is recommended applications request this endpoint when they are loaded, but no more than once a day.
-            configuration: {method: 'GET', url: '/help/configuration.json'},
-            // Returns the list of languages supported by Twitter along with their ISO 639-1 code. The ISO 639-1 code is the two letter value to use if you include lang with any of your requests.
-            languages: {method: 'GET', url: '/help/languages.json'},
-        },
-
-        legal: {
-            // Returns Twitter's Privacy Policy in the requested format.
-            privacy: {method: 'GET', url: '/legal/privacy.json'},
-            // Returns the Twitter Terms of Service in the requested format. These are not the same as the Developer Rules of the Road.
-            tos: {method: 'GET', url: '/legal/tos.json'},
-        },
-        */
 
         // ex
         urls: {
@@ -690,10 +485,8 @@
     kt.tweet = {
         show: function(id, success, error) {
             console.log('Tweet.show()');
-            var rest = api.statuses.show;
-            rest.id = id;
-            var s = createAPI(rest);
-            s.sendRequest({include_entities: true}, success, error);
+            var s = createAPI(api.statuses.show);
+            s.sendRequest({include_entities: true, id: id}, success, error);
         },
 
         update: function(msg, to, success, error) {
@@ -748,10 +541,8 @@
 
         destroyMsg: function(id, success, error) {
             console.log('Tweet.destroyMsg()');
-            var rest = api.direct_messages.destroy;
-            rest.id = id;
-            var d = createAPI(rest);
-            d.sendRequest(null, success, error);
+            var d = createAPI(api.direct_messages.destroy);
+            d.sendRequest({id: id}, success, error);
         },
 
         retweetedBy: function(id, success, error) {
@@ -766,18 +557,14 @@
     kt.fav = {
         create: function(id, success, error) {
             console.log('Fav.create()');
-            var rest = api.favorites.create;
-            rest.id = id;
-            var c = createAPI(rest);
-            c.sendRequest(null, success, error);
+            var c = createAPI(api.favorites.create);
+            c.sendRequest({id: id}, success, error);
         },
 
         destroy: function(id, success, error) {
             console.log('Fav.destroy()');
-            var rest = api.favorites.destroy;
-            rest.id = id;
-            var d = createAPI(rest);
-            d.sendRequest(null, success, error);
+            var d = createAPI(api.favorites.destroy);
+            d.sendRequest({id: id}, success, error);
         },
 
     };
@@ -822,7 +609,7 @@
         var exportTimer = null;
 
         var isSearch = function() {
-            return api.search.search == rest;
+            return api.search.tweets == rest;
         }
 
         var statuses = createAPI(rest);
@@ -865,7 +652,7 @@
                 console.log('Statuses.get.sendRequest() - success');
 
                 if (isSearch()) {
-                    data = data.results;
+                    data = data.statuses;
                 }
 
                 if (data.length) {
@@ -901,7 +688,7 @@
                 console.log('Statuses.getMore.sendRequest() - success');
 
                 if (isSearch()) {
-                    data = data.results;
+                    data = data.statuses;
                 }
 
                 if (data.length) {
@@ -972,17 +759,12 @@
             }
 
             // should catch new tweets as much as possible
-            var param = {since_id: sinceID};
-            if (isSearch()) {
-                param.rpp = 100;
-            } else {
-                param.count = 200;
-            }
+            var param = {since_id: sinceID, count: 200};
             this.sendRequest(param, function(data) {
                 console.log('Statuses.getNew.sendRequest() - success');
 
                 if (isSearch()) {
-                    data = data.results;
+                    data = data.statuses;
                 }
 
                 if (data.length) {
@@ -1041,7 +823,7 @@
 
     kt.createMentionsTL = function() {
         console.log('createMentionsTL()');
-        var mentionsTL = createStatuses(api.statuses.mentions);
+        var mentionsTL = createStatuses(api.statuses.mentions_timeline);
         return mentionsTL;
     };
 
@@ -1129,7 +911,7 @@
     
     kt.createFavoritesTL = function() {
         console.log('createFavoritesTL()');
-        var favoritesTL = createStatuses(api.favorites.favorites);
+        var favoritesTL = createStatuses(api.favorites.list);
         return favoritesTL;
     };
 
@@ -1208,7 +990,7 @@
 
     kt.createSearchTL = function(q) {
         console.log('createSearchTL()');
-        var searchTL = createStatuses(api.search.search);
+        var searchTL = createStatuses(api.search.tweets);
         searchTL.addDefaultParam({
             q: q,
             //show_user: true,
@@ -1221,9 +1003,7 @@
         var cache = [];
         var refreshData = {};
 
-        var rest = api.trends.trends;
-        rest.id = woeid;
-        var trends = createAPI(rest);
+        var trends = createAPI(api.trends.place);
 
         trends.setRefreshTime = function(s) { // in min, set 0 to stop
             var interval = s*60*1000;
@@ -1248,7 +1028,7 @@
         };
 
         trends.get = function(success, error) {
-            trends.sendRequest(null, function(data) {
+            trends.sendRequest({id: woeid}, function(data) {
                 $.each(data[0].trends, function(i, t) {
                     var found =  -1;
                     for (var j = 0; j != cache.length; ++j) {
@@ -1300,7 +1080,7 @@
 
     kt.createLists = function() {
         console.log('createLists()');
-        var lists = createAPI(api.lists.all);
+        var lists = createAPI(api.lists.list);
         lists.get = function(success, error) {
             lists.sendRequest(null, function(data) {
                 // sort by list full name
