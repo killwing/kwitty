@@ -13,13 +13,7 @@
             var base = '';
             if (authMode == 'Basic' && bauth) {
                 base = api.bauthBase.replace(/(https?:\/\/[\w\.\_\-]+)\/?.*/, '$1');
-                if (rest.domain == 'search') {
-                    base += '/search';
-                } else if (rest.domain == 'upload') {
-                    base += '/upload/1'
-                } else {
-                    base += '/api/1';
-                }
+                base += '/api/1.1';
             } else if (authMode == 'OAuth' && oauth) {
                 if (rest.domain == 'oauth') {
                     base = api.oauthBase;
@@ -40,12 +34,12 @@
             mentions_timeline: {method: 'GET', url: '/statuses/mentions_timeline.json'},
             retweets_of_me: {method: 'GET', url: '/statuses/retweets_of_me.json'},
             user_timeline: {method: 'GET', url: '/statuses/user_timeline.json'},
-            retweeted_by: {method: 'GET', url: '/statuses/{0}/retweeted_by.json'},
+            retweets: {method: 'GET', url: '/statuses/retweets/{0}.json'},
             show: {method: 'GET', url: '/statuses/show.json'},
             destroy: {method: 'POST', url: '/statuses/destroy/{0}.json', id: 0},
             retweet: {method: 'POST', url: '/statuses/retweet/{0}.json', id: 0},
             update: {method: 'POST', url: '/statuses/update.json'},
-            update_with_media: {method: 'POST', url: '/statuses/update_with_media.json', domain: 'upload'},
+            update_with_media: {method: 'POST', url: '/statuses/update_with_media.json'},
         },
 
         search: {
@@ -60,15 +54,14 @@
         },
 
         friendships: {
-            followers: {method: 'GET', url: '/followers/ids.json'},
-            friends: {method: 'GET', url: '/friends/ids.json'},
+            followers: {method: 'GET', url: '/followers/list.json'},
+            friends: {method: 'GET', url: '/friends/list.json'},
             show: {method: 'GET', url: '/friendships/show.json'},
             create: {method: 'POST', url: '/friendships/create.json'},
             destroy: {method: 'POST', url: '/friendships/destroy.json'},
         },
 
         users: {
-            lookup: {method: 'GET', url: '/users/lookup.json'},
             show: {method: 'GET', url: '/users/show.json'},
         },
 
@@ -84,7 +77,7 @@
         },
 
         account: {
-            rate_limit_status: {method: 'GET', url: '/account/rate_limit_status.json'},
+            rate_limit_status: {method: 'GET', url: '/application/rate_limit_status.json'},
             verify_credentials: {method: 'GET', url: '/account/verify_credentials.json'},
         },
 
@@ -108,6 +101,10 @@
     var createRequest = function(rest, data, success, error) {
         var url = api.buildUrl(rest);
 
+        var isUpdateWithMedia = function() {
+            return api.statuses.update_with_media == rest;
+        }
+
         var request = {};
         request.sign = function() {
             // sign the request
@@ -116,7 +113,7 @@
 
                 // compute hash of all base string
                 var hash = null;
-                if (rest.domain == 'upload') { // not sign params
+                if (isUpdateWithMedia()) { // not sign params
                     hash = oauth.sign(rest.method, url);
                 } else {
                     hash = oauth.sign(rest.method, url, data);
@@ -152,7 +149,7 @@
                 timeout: 10*1000,
             };
 
-            if (rest.domain == 'upload') { // media upload
+            if (isUpdateWithMedia()) { // media upload
                 options.contentType = false; // should set false while not 'multipart/form-data' (missing boundary)
                 options.processData = false;
                 options.data = data.formData; // only include form data
@@ -478,7 +475,7 @@
         rateLimit: function(success, error) {
             console.log('User.rateLimit()');
             var rls = createAPI(api.account.rate_limit_status);
-            rls.sendRequest(null, success, error);
+            rls.sendRequest({resources: 'statuses'}, success, error);
         }
     };
 
@@ -547,10 +544,16 @@
 
         retweetedBy: function(id, success, error) {
             console.log('Tweet.retweetedBy()');
-            var rest = api.statuses.retweeted_by;
+            var rest = api.statuses.retweets;
             rest.id = id;
             var rb = createAPI(rest);
-            rb.sendRequest({include_entities: true}, success, error);
+            rb.sendRequest({count: 100}, function(data) {
+                var users = [];
+                $.each(data, function(i, t) {
+                    users.push(t.user);
+                });
+                success(users);
+            }, error);
         },
     };
 
@@ -917,52 +920,15 @@
 
     var createFriendship = function(rest) {
         var cursor = -1;
-        var ids = [];
-
-        var friendship = createAPI(rest);
-        friendship.getDirect = function(success, error) {
-            if (ids.length == 0) {
-                success([]); // pass empty users
-                return;
-            }
-
-            var userids = ids.splice(0, 100); // max 100 users
-            var lookup = createAPI(api.users.lookup);
-            lookup.sendRequest({include_entities: true, user_id: userids.join()}, function(data) {
-                console.log('Friendship.getDirect.sendRequest() - success');
-
-                // sort
-                var sorted = [];
-                $.each(userids, function(i, id) {
-                    for (j in data) {
-                        if (data[j].id == id) {
-                            sorted.push(data[j]);
-                            break;
-                        }
-                    }
-
-                })
-                success(sorted);
-            }, error);
-        };
 
         friendship.get = function(success, error) {
-
-            if (ids.length) {
-                friendship.getDirect(success, error);            
-            } else {
-                this.sendRequest({cursor: cursor}, function(data) {
-                    console.log('Friendship.get.sendRequest() - success');
-
-                    // update cursor
-                    cursor = data.next_cursor_str;
-                    ids = data.ids;
-
-                    friendship.getDirect(success, error);            
-                }, error);
-            }
+            this.sendRequest({cursor: cursor}, function(data) {
+                console.log('Friendship.get.sendRequest() - success');
+                // update cursor
+                cursor = data.next_cursor_str;
+                success(data.users);
+            }, error);
         };
-
         return friendship;
     };
 

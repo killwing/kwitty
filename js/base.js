@@ -1603,8 +1603,9 @@ var initEvent = function() {
                 console.log('got rate limit', data)
 
                 // need about 16 hits to get 3200 tweets
-                if (data.remaining_hits < 20) { // a bit more than 16
-                    errorHandler('Too few APIs remain to complete export');
+                var tlLimit = data.resources.statuses['/statuses/user_timeline'];
+                if (tlLimit.remaining < 20) { // a bit more than 16
+                    errorHandler('Too few APIs (' + tlLimit.remaining + '/' + tlLimit.limit + ') remain to complete export');
                     return;
                 }
 
