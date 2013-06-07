@@ -97,7 +97,7 @@
             resolve: {method: 'GET', url: '/urls/resolve.json'},
         },
     };
-    
+
     var createRequest = function(rest, data, success, error) {
         var url = api.buildUrl(rest);
 
@@ -209,13 +209,13 @@
                     errorThrown: errorThrown,
                     retry: function() {
                         setTimeout(function() {
-                            console.warn('API.sendRequest(): retry for ', xmlHttpRequest, textStatus)                
+                            console.warn('API.sendRequest(): retry for ', xmlHttpRequest, textStatus)
                             req.send();
                         }, retryInterval);
                     }
                 };
-                if (textStatus != 'timeout' && (xmlHttpRequest.status == 401 || 
-                    xmlHttpRequest.status == 404 || 
+                if (textStatus != 'timeout' && (xmlHttpRequest.status == 401 ||
+                    xmlHttpRequest.status == 404 ||
                     xmlHttpRequest.status == 406)) {
                     delete errorStatus.retry // do not retry for these errors
                 }
@@ -229,7 +229,7 @@
 
     var setAuthorizationHeader = function(header) {
         $.ajaxSetup({
-            beforeSend: function(xhr) { 
+            beforeSend: function(xhr) {
                 xhr.setRequestHeader('Authorization', header);
             }
         });
@@ -310,7 +310,7 @@
             } else {
                 this.loadConfd();
                 if (confd) {
-                    console.log('BAuth.login(): already login, user: ', confd.screen_name) 
+                    console.log('BAuth.login(): already login, user: ', confd.screen_name)
 
                     // just set auth header
                     //setAuthorizationHeader('Basic ' + confd.x);
@@ -372,7 +372,7 @@
 
         oa.access = function(verifier, success, error) {
             console.log('OAuth.access()', token);
-        
+
             var at = createAPI(api.oauth.access_token);
             at.sendRequest({oauth_verifier: verifier}, success, error);
         };
@@ -404,7 +404,7 @@
                 sig.oauth_token = token.oauth_token;
                 sig.oauth_secret = token.oauth_token_secret;
             }
-            
+
             return OAuthSimple().sign({
                 path: url,
                 action: type,
@@ -420,11 +420,11 @@
             this.loadToken();
 
             if (token && token.screen_name) {
-                console.log('OAuth.login(): already login, user: ', token.screen_name) 
+                console.log('OAuth.login(): already login, user: ', token.screen_name)
                 success(token.screen_name);
             } else if (verifier) {
                 console.log('OAuth.login(): already verified');
-                this.access(verifier, function(ret) {                    
+                this.access(verifier, function(ret) {
                     console.log('access() - result:', ret);
 
                     // update token
@@ -510,7 +510,7 @@
                 formData.append('in_reply_to_status_id', to);
             }
             formData.append('media[]', file);
-            
+
             u.sendRequest({formData: formData}, success, error);
         },
 
@@ -675,7 +675,7 @@
                 }
                 refreshData.success = success;
                 refreshData.error = error;
-                
+
                 success(data);
 
             }, error);
@@ -710,7 +710,7 @@
         statuses.getAll = function(success, error) {
             if (!maxIDForAll) {
                 maxIDForAll = sinceID;
-            } 
+            }
 
             if (!maxIDForAll) {
                 console.warn('Statuses.getAll(): maxIDForAll is null');
@@ -781,8 +781,8 @@
                 success(data);
 
             }, function(errorStatus) {
-                if (errorStatus.retry) { 
-                    // overwrite and do nothing, 
+                if (errorStatus.retry) {
+                    // overwrite and do nothing,
                     // getNew() do not need to retry for any errors, since the refresh will do for this.
                     errorStatus.retry = function() {}
                 }
@@ -820,7 +820,7 @@
             });
         }
         userTL.addDefaultParam({include_rts: true});
-    
+
         return userTL;
     };
 
@@ -860,7 +860,7 @@
         messagesTL.getCachedTweets = function() {
             var cached = receivedTL.getCachedTweets();
             cached = cached.concat(sentTL.getCachedTweets());
-     
+
             messagesTL.sortByDate(cached);
             return cached;
         };
@@ -874,7 +874,7 @@
             if (!initalSent && !initalRecved) {
                 success();
             } else if (initalSent.length != 0 && initalRecved.length != 0) {
-                var initialTweets = initalRecved.concat(initalSent) 
+                var initialTweets = initalRecved.concat(initalSent)
                 messagesTL.sortByDate(initialTweets);
                 success(initialTweets);
                 initalRecved = null;
@@ -911,7 +911,7 @@
 
         return messagesTL;
     };
-    
+
     kt.createFavoritesTL = function() {
         console.log('createFavoritesTL()');
         var favoritesTL = createStatuses(api.favorites.list);
@@ -921,6 +921,7 @@
     var createFriendship = function(rest) {
         var cursor = -1;
 
+        var friendship = createAPI(rest);
         friendship.get = function(success, error) {
             this.sendRequest({cursor: cursor}, function(data) {
                 console.log('Friendship.get.sendRequest() - success');
@@ -1033,7 +1034,7 @@
             }, error);
         };
 
-        
+
         trends.destroy = function() {
             console.log('Trends.destroy()');
             if (refreshData.id) {
