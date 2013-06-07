@@ -281,4 +281,8 @@ input[type=radio] {
     width: 600px;
 }
 
-
+table, td {
+    padding: 7px;
+    border-collapse: collapse;
+    border: 1px solid #ddd;
+}

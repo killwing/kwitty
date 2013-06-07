@@ -5,6 +5,7 @@ var CONSUMER_SEC = 'CUzPVKvD33nkyLKR9zgdnO3pgONztA8vi42PdFSx90';
 // char limit
 var TWEET_TEXT_LENGTH = 140;
 var USERNAME_LENGTH = 15;
+var SEARCH_LENGTH = 140;
 var MAX_MEDIA_PER_UPLOAD = 1;
 var CHARACTERS_RESERVED_PER_MEDIA = 23;
 var SHORT_URL_LENGTH_HTTPS = 23;
@@ -1066,7 +1067,7 @@ var createTweetBox = function(id) {
             total = USERNAME_LENGTH + 3;
             $(tweetID).text('Find');
         } else if (search) {
-            total = 32
+            total = SEARCH_LENGTH;
             $(tweetID).text('Search');
         } else {
             $(tweetID).text('Tweet');

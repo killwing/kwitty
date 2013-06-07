@@ -214,7 +214,9 @@
                         }, retryInterval);
                     }
                 };
-                if (textStatus != 'timeout' && (xmlHttpRequest.status == 401 ||
+                if (textStatus != 'timeout' && (
+                    xmlHttpRequest.status == 401 ||
+                    xmlHttpRequest.status == 403 ||
                     xmlHttpRequest.status == 404 ||
                     xmlHttpRequest.status == 406)) {
                     delete errorStatus.retry // do not retry for these errors
