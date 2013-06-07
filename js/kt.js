@@ -1095,8 +1095,6 @@
         makeEntities: function(text, entities, ex) {
             // NOTE: text is already HTML escaped by Twitter
 
-            console.log(entities);
-
             if (!entities) {
                 return twttr.txt.autoLink(text, {target: '_blank', usernameClass: 't_userlink', usernameUrlBase: '#'});
             }

@@ -4,6 +4,7 @@ var CONSUMER_SEC = 'CUzPVKvD33nkyLKR9zgdnO3pgONztA8vi42PdFSx90';
 
 // char limit
 var TWEET_TEXT_LENGTH = 140;
+var USERNAME_LENGTH = 15;
 var MAX_MEDIA_PER_UPLOAD = 1;
 var CHARACTERS_RESERVED_PER_MEDIA = 23;
 var SHORT_URL_LENGTH_HTTPS = 23;
@@ -41,7 +42,7 @@ var cfgUpdater = {
             others: function(t) { // fav, trends, users, lists
                 config.get().basics.refresh.others = t;
                 $.each(TabMgr, function(k, v) {
-                    if (/^@/.test(k) || /^li_\w+-\w+$/.test(k) || k == 'favorites' || k == 'trends') {
+                    if (/^@/.test(k) || /^li_\w+-[a-zA-Z0-9_-]+$/.test(k) || k == 'favorites' || k == 'trends') {
                         v.setRefreshTime(t);
                     }
                 });
@@ -110,7 +111,7 @@ var cfgUpdater = {
             }
         },
         display: {
-            compact: function() { 
+            compact: function() {
                 // do not update compact mode during runtime
             },
             expandurl: function(v) {
@@ -228,9 +229,9 @@ var Render = {
         if (tweet.in_reply_to_screen_name && tweet.in_reply_to_status_id_str) {
             re = '<span class="t_conversation_icon icon" /><span class="t_reply" id="{1}"><a href="#">to {0}</a></span>&nbsp;<img class="spinner invisible" src="../img/spinner.gif">'.format(tweet.in_reply_to_screen_name, tweet.in_reply_to_status_id_str);
         }
-        
+
         // search tweet
-        if (t.from_user_name) { 
+        if (t.from_user_name) {
             t.user = {};
             t.user.profile_image_url = t.profile_image_url;
             t.user.screen_name = t.from_user;
@@ -292,7 +293,7 @@ var Render = {
 
         var text = kt.util.makeEntities(tweet.text, tweet.entities);
 
- 
+
         html = html.mlstr().format(tweet.user.profile_image_url,
                                    tweet.user.screen_name,
                                    tweet.user.name,
@@ -539,7 +540,7 @@ var Render = {
         } else if (t.state == "level") {
             state = "ui-icon-arrowthick-1-e";
         }
-    
+
         html = html.mlstr().format(state, t.name);
         return html;
     },
@@ -645,7 +646,7 @@ var createStatusesTab = function(id, tl) {
         $.each(data, function(i, t) {
             $(tlID).append(Render.tweet(t));
         });
- 
+
         if (config.get().gui.display.rich) {
             $(newTextID).embedly(embedparams);
         }
@@ -869,7 +870,7 @@ var createUserTab = function(id, tl) {
             } else {
                 success(data);
             }
-        
+
         }, error);
     };
 
@@ -1062,7 +1063,7 @@ var createTweetBox = function(id) {
             total += dm[0].length;
             $(tweetID).text('Send');
         } else if (find) {
-            total = 32 // 30 letters for screen name
+            total = USERNAME_LENGTH + 3;
             $(tweetID).text('Find');
         } else if (search) {
             total = 32
@@ -1406,7 +1407,7 @@ var showLists = function() {
 };
 
 var showList = function(listName) {
-    var name = /^@(\w+)\/(\w+)$/.exec(listName);
+    var name = /^@(\w+)\/([a-zA-Z0-9_-]+)$/.exec(listName);
     var screenName;
     var slug;
     if (name) {
@@ -1659,7 +1660,7 @@ var initEvent = function() {
                 $(progress).text('');
                 errorHandler('Failed to query rate limit', errorStatus);
             });
-           
+
         } else {
             errorHandler('UserTab does not exist');
         }
@@ -1701,8 +1702,8 @@ var createSavedTabs = function() {
             showFollowers(text.slice(0, -1));
         } else if (fr.test(text)) {
             showFriends(text.slice(0, -1));
-        } else if (/^li_\w+-\w+$/.test(text)) {
-            var name = /^li_(\w+)-(\w+)$/.exec(text);
+        } else if (/^li_\w+-[a-zA-Z0-9_-]+$/.test(text)) {
+            var name = /^li_(\w+)-([a-zA-Z0-9_-]+)$/.exec(text);
             if (name) {
                 showList('@'+name[1]+'/'+name[2]);
             }
@@ -1833,7 +1834,7 @@ var logout = function() {
     $('#login').fadeIn('slow');
 
     // clear saved tabs
-    localStorage.tabs = '[]'; 
+    localStorage.tabs = '[]';
 
     // redirect
     window.location = chrome.extension.getURL('main.html');
@@ -1900,7 +1901,7 @@ $(function() {
         add: function(event, ui) {
             //$('#tabs').tabs('select', '#'+ui.panel.id)
             //$(ui.panel).append("");
-            if (/^li_\w+-\w+$/.test(ui.panel.id)) {
+            if (/^li_\w+-[a-zA-Z0-9_-]+$/.test(ui.panel.id)) {
                 savedTabs.push(ui.panel.id); // use id as key for lists
             } else {
                 savedTabs.push(ui.tab.text); // use text as key
@@ -1912,7 +1913,7 @@ $(function() {
             TabMgr[ui.panel.id].destroy();
             delete TabMgr[ui.panel.id];
             $('#tabs').tabs('select', 0);
-            if (/^li_\w+-\w+$/.test(ui.panel.id)) {
+            if (/^li_\w+-[a-zA-Z0-9_-]+$/.test(ui.panel.id)) {
                 savedTabs.splice(savedTabs.indexOf(ui.panel.id), 1);
             } else {
                 savedTabs.splice(savedTabs.indexOf(ui.tab.text), 1);
