@@ -1095,6 +1095,8 @@
         makeEntities: function(text, entities, ex) {
             // NOTE: text is already HTML escaped by Twitter
 
+            console.log(entities);
+
             if (!entities) {
                 return twttr.txt.autoLink(text, {target: '_blank', usernameClass: 't_userlink', usernameUrlBase: '#'});
             }
@@ -1105,6 +1107,9 @@
             }
             if (entities.hashtags) {
                 all = all.concat(entities.hashtags);
+            }
+            if (entities.symbols) {
+                all = all.concat(entities.symbols);
             }
             if (entities.user_mentions) {
                 all = all.concat(entities.user_mentions);
@@ -1129,12 +1134,13 @@
                             realurl = 'http://' + realurl;
                         }
                         retStr += '<a href="'+realurl+'" target="_blank">'+v.url+'</a>';
-                    } else if (v.text) { // hashtag
+                    } else if (v.text) { // hashtag or symbol
                         //var ggSearch = 'https://encrypted.google.com/search?q=' + hashtag.text + '&tbs=mbl:1';
+                        var sign = text[v.indices[0]];
                         if (ex) {
-                            retStr += '<a href="https://twitter.com/search/%23'+v.text+'" target="_blank">#'+v.text+'</a>';
+                            retStr += '<a href="https://twitter.com/search/%23'+v.text+'" target="_blank">'+sign+v.text+'</a>';
                         } else {
-                            retStr += '<a href="#" class="t_hashtag">#'+v.text+'</a>';
+                            retStr += '<a href="#" class="t_hashtag">'+sign+v.text+'</a>';
                         }
                     } else if (v.screen_name) { // user_mention
                         if (ex) {
