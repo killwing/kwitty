@@ -1216,7 +1216,11 @@ var createTweetBox = function(id) {
                 return;
             }
 
-            $(fileNameID).text('['+file.name+']');
+            var displayName = file.name;
+            if (displayName.length > 30) {
+                displayName = displayName.slice(0, 30) + '...';
+            }
+            $(fileNameID).text('['+displayName+']');
             upfile = file;
             tweetBox.change();
         });
