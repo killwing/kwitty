@@ -1,6 +1,14 @@
 // app keys
-var consumerKey = 'Nqs01pigEQdfrDH0Qrt3w';
-var consumerSec = 'CUzPVKvD33nkyLKR9zgdnO3pgONztA8vi42PdFSx90';
+var CONSUMER_KEY = 'Nqs01pigEQdfrDH0Qrt3w';
+var CONSUMER_SEC = 'CUzPVKvD33nkyLKR9zgdnO3pgONztA8vi42PdFSx90';
+
+// char limit
+var TWEET_TEXT_LENGTH = 140;
+var MAX_MEDIA_PER_UPLOAD = 1;
+var CHARACTERS_RESERVED_PER_MEDIA = 23;
+var SHORT_URL_LENGTH_HTTPS = 23;
+var SHORT_URL_LENGTH = 22;
+
 
 var autoloadCfg;
 
@@ -1045,7 +1053,7 @@ var createTweetBox = function(id) {
 
     tweetBox.change = function() {
         content = $(taID).val();
-        var total = 140;
+        var total = TWEET_TEXT_LENGTH;
 
         var dm = /^d \w+ /i.exec(content);
         var find = /^f @?\w+/i.test(content);
@@ -1062,7 +1070,7 @@ var createTweetBox = function(id) {
         } else {
             $(tweetID).text('Tweet');
             if (upfile) {
-                total -= 20; // media url (t.co) takes 20 chars    
+                total -= CHARACTERS_RESERVED_PER_MEDIA; // media url (t.co)
             }
 
             var urls = twttr.txt.extractUrls(content);
@@ -1073,13 +1081,17 @@ var createTweetBox = function(id) {
             }
             urls.forEach(function(item, index) {
                 total += item.length;
-                total -= 20;
+                if (/^https:/i.test(item)) {
+                    total -= SHORT_URL_LENGTH_HTTPS;
+                } else { // http
+                    total -= SHORT_URL_LENGTH;
+                }
             });
         }
 
         var charleft = total - content.length;
         $(counterID).text(charleft);
-        if (charleft >= 0 && charleft < 140) {
+        if (charleft >= 0 && charleft < TWEET_TEXT_LENGTH) {
             $(tweetID).show();
         } else {
             $(tweetID).hide();
@@ -1093,7 +1105,7 @@ var createTweetBox = function(id) {
         $(tweetID).text('Tweet');
         $(tweetID).hide();
         $(spinnerID).css('visibility', 'hidden');
-        $(counterID).text(140);
+        $(counterID).text(TWEET_TEXT_LENGTH);
         content = null;
         toStatus = null;
         upfile = null;
@@ -1776,7 +1788,7 @@ var autoLogin = function() {
     var bauth = kt.getBAuth();
     bauth.setAPIBase(config.get().basics.api.address);
     var oauth = kt.getOAuth();
-    oauth.setConsumerToken(consumerKey, consumerSec);
+    oauth.setConsumerToken(CONSUMER_KEY, CONSUMER_SEC);
 
     // try basic auth first
     if (bauth.loadConfd()) {
