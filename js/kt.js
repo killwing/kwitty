@@ -548,11 +548,18 @@
             rest.id = id;
             var rb = createAPI(rest);
             rb.sendRequest({count: 100}, function(data) {
+                var rtCnt = 0;
+                var favCnt = 0;
+                if (data.length) {
+                    // latest one
+                    rtCnt = data[0].retweeted_status.retweet_count;
+                    favCnt = data[0].retweeted_status.favorite_count;
+                }
                 var users = [];
                 $.each(data, function(i, t) {
                     users.push(t.user);
                 });
-                success(users);
+                success(users, rtCnt, favCnt);
             }, error);
         },
     };

@@ -381,7 +381,7 @@ a.link_button:hover {
 .t_embed {
     margin: 4px;
 }
-.t_ref {
+.t_ref, .t_retweeters {
     font-size: 12px;
     color: #888;
     margin-top: 4px;
@@ -403,6 +403,7 @@ a.link_button:hover {
 }
 .t_retweeters img{
     cursor: pointer;
+    vertical-align: middle;
 }
 
 .icon {

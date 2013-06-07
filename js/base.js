@@ -324,10 +324,10 @@ var Render = {
         return html;
     },
 
-    retweeters: function(users) {
+    retweeters: function(users, rtCnt, favCnt) {
         var html = function() {
 /*
-<span class="t_retweeters">{0}</span>
+<span class="t_retweeters">RT:{1} FAV:{2} &nbsp; {0}</span>
 */
         };
 
@@ -336,7 +336,7 @@ var Render = {
             userslist += '<img src="{0}" title="{1}"> '.format(u.profile_image_url.replace('_normal.', '_mini.'), u.screen_name);
         });
 
-        html = html.mlstr().format(userslist);
+        html = html.mlstr().format(userslist, rtCnt, favCnt);
         return html;
     },
 
@@ -1296,16 +1296,18 @@ var showReply = function(thisElem, id) {
 var showRetweetedBy = function(thisElem, id) {
     var tRef = $(thisElem).closest('.t_ref');
     var rters = $(tRef).siblings('.t_retweeters');
-    if (rters.length) { // already loaded
-        $(rters).slideToggle();
-    } else {
+    if (rters.length == 0) {
         $(tRef).find('.spinner').css('visibility', 'visible');
-        kt.tweet.retweetedBy(id, function(data) {
+        kt.tweet.retweetedBy(id, function(data, rtCnt, favCnt) {
             $(tRef).find('.spinner').css('visibility', 'hidden');
-            $(tRef).after(Render.retweeters(data));
+            $(tRef).after(Render.retweeters(data, rtCnt, favCnt));
         }, function(errorStatus) {
             $(tRef).find('.spinner').css('visibility', 'hidden');
             errorHandler('Failed to load retweeters', errorStatus);
+        });
+    } else {
+        $(rters).slideUp('normal', function() { 
+            $(this).remove(); 
         });
     }
 
