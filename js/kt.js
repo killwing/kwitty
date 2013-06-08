@@ -15,7 +15,7 @@
                 base = api.bauthBase.replace(/(https?:\/\/[\w\.\_\-]+)\/?.*/, '$1');
                 base += '/api/1.1';
             } else if (authMode == 'OAuth' && oauth) {
-                if (rest.domain == 'oauth') {
+                if (/^\/oauth\//i.test(rest.url)) {
                     base = api.oauthBase;
                 } else {
                     base = api.oauthBase + '/1.1';
@@ -86,10 +86,10 @@
         },
 
         oauth: {
-            authenticate: {method: 'GET', url: '/oauth/authenticate', domain: 'oauth'},
-            authorize: {method: 'GET', url: '/oauth/authorize', domain: 'oauth'},
-            access_token: {method: 'POST', url: '/oauth/access_token', domain: 'oauth', format: 'text'},
-            request_token: {method: 'POST', url: '/oauth/request_token', domain: 'oauth', format: 'text'},
+            authenticate: {method: 'GET', url: '/oauth/authenticate'},
+            authorize: {method: 'GET', url: '/oauth/authorize'},
+            access_token: {method: 'POST', url: '/oauth/access_token', format: 'text'},
+            request_token: {method: 'POST', url: '/oauth/request_token', format: 'text'},
         },
 
         // ex
