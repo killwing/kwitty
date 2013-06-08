@@ -214,12 +214,12 @@
                         }, retryInterval);
                     }
                 };
-                if (textStatus != 'timeout' && (
-                    xmlHttpRequest.status == 401 ||
+                if (textStatus != 'timeout' && (     // should retry for timeout
+                    xmlHttpRequest.status == 401 ||  // do not retry for these errors
                     xmlHttpRequest.status == 403 ||
                     xmlHttpRequest.status == 404 ||
                     xmlHttpRequest.status == 406)) {
-                    delete errorStatus.retry // do not retry for these errors
+                    delete errorStatus.retry
                 }
                 error(errorStatus);
             });
@@ -791,7 +791,7 @@
 
             }, function(errorStatus) {
                 if (errorStatus.retry) {
-                    // overwrite and do nothing,
+                    // retry() will be called, overwrite and do nothing,
                     // getNew() do not need to retry for any errors, since the refresh will do for this.
                     errorStatus.retry = function() {}
                 }

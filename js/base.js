@@ -597,14 +597,23 @@ var TabMgr = {
 var tweetBox = null;
 
 
-var createTab = function() {
+var createTab = function(id) {
     var tab = {}
+
+    tab.close = function() {
+        var index = $('#tabs > div').index($('#'+id));
+        if (index != -1) {
+            $('#tabs').tabs('remove', index);
+        }
+    };
+
     tab.onError = function(errorStatus) {
         console.warn('Tab.onError():', errorStatus);
         if (errorStatus.retry) { // if we can retry
             errorStatus.retry();
         } else {
-            errorHandler('Failed to load tweets', errorStatus);
+            tab.close();
+            errorHandler('Failed to load', errorStatus);
         }
     };
     return tab;
@@ -627,7 +636,7 @@ var createStatusesTab = function(id, tl) {
     };
     var inited = false;
 
-    var statusesTab = createTab();
+    var statusesTab = createTab(id);
     // [override] called after fist get successfully, no callback
     statusesTab.loadOnce = function(data) {
         console.log('StatusesTab.loadOnce()');
@@ -759,12 +768,7 @@ var createStatusesTab = function(id, tl) {
                     statusesTab.loadOnce(data);
                     $(moreBtnID).show();
                 } else { // no tweets when first get
-                    // close this tab
-                    var index = $('#tabs > div').index($('#'+id));
-                    if (index != -1) {
-                        $('#tabs').tabs('remove', index);
-                    }
-                    statusesTab.onError({textStatus: 'No tweet found.'});
+                    statusesTab.onError({retry: false, textStatus: 'No tweet found.'});
                 }
 
                 inited = true;
@@ -792,9 +796,7 @@ var createStatusesTab = function(id, tl) {
 
         this.preload(function() {
             // first get
-            tl.get(statusesTab.onNewTweets, function(errorStatus) {
-                statusesTab.onError(errorStatus);  // make overridable
-            });
+            tl.get(statusesTab.onNewTweets, statusesTab.onError);
         }, function(errorStatus) {
             // do nothing
         });
@@ -811,19 +813,6 @@ var createUserTab = function(id, tl) {
     var userTab = createStatusesTab(id, tl);
     var relationship = null;
     var user = null;
-
-    userTab.onError = function(errorStatus) {
-        if (errorStatus.retry) {
-            errorStatus.retry();
-        } else {
-            // close this user tab
-            var index = $('#tabs > div').index($('#'+id));
-            if (index != -1) {
-                $('#tabs').tabs('remove', index);
-            }
-            errorHandler('Failed to show user', errorStatus);
-        }
-    };
 
     // the following info of user object is not correct, use another api instead
     userTab.preload = function(success, error) {
@@ -884,7 +873,7 @@ var createFriendshipTab = function(id, fs) {
     var moreBtnID = '#' + id + ' .more';
     var loaderID = '#' + id + ' .loader';
 
-    var fsTab = createTab();
+    var fsTab = createTab(id);
     fsTab.append = function(data) {
         console.log('FriendshipTab.append()');
 
@@ -937,7 +926,7 @@ var createListsTab = function(id, li) {
     var liID = '#' + id + ' .li ol';
     var loaderID = '#' + id + ' .loader';
 
-    var liTab = createTab();
+    var liTab = createTab(id);
     liTab.append = function(data) {
         console.log('ListsTab.append()');
 
@@ -981,7 +970,7 @@ var createTrendsTab = function(id, name, tr) {
     var trID = '#' + id + ' .tr ol';
     var loaderID = '#' + id + ' .loader';
 
-    var trTab = createTab();
+    var trTab = createTab(id);
     trTab.onTrends = function(data) {
         console.log('TrendsTab.onTrends()');
 
