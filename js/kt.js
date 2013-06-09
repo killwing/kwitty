@@ -178,7 +178,8 @@
             });
 
             var req = createRequest(rest, param, function(data) {
-                if (data.error) { // handle non-transmission errors
+                // some API proxy (gtap) may treat http error as success
+                if (data.error) {
                     error({textStatus: data.error});
                     return;
                 } else if (data.errors) {
@@ -189,19 +190,6 @@
                 }
             }, function(xmlHttpRequest, textStatus, errorThrown) {
                 console.log('API.sendRequest() - error'/*, xmlHttpRequest, textStatus, errorThrown*/);
-                /*
-200 OK: Success!
-304 Not Modified: There was no new data to return.
-400 Bad Request: The request was invalid. An accompanying error message will explain why. This is the status code will be returned during rate limiting.
-401 Unauthorized: Authentication credentials were missing or incorrect.
-403 Forbidden: The request is understood, but it has been refused. An accompanying error message will explain why. This code is used when requests are being denied due to update limits.
-404 Not Found: The URI requested is invalid or the resource requested, such as a user, does not exists.
-406 Not Acceptable: Returned by the Search API when an invalid format is specified in the request.
-420 Enhance Your Calm: Returned by the Search and Trends API when you are being rate limited.
-500 Internal Server Error: Something is broken. Please post to the group so the Twitter team can investigate.
-502 Bad Gateway: Twitter is down or being upgraded.
-503 Service Unavailable: The Twitter servers are up, but overloaded with requests. Try again later.
-                */
 
                 var errorStatus = {
                     xmlHttpRequest: xmlHttpRequest,
@@ -214,11 +202,18 @@
                         }, retryInterval);
                     }
                 };
-                if (textStatus != 'timeout' && (     // should retry for timeout
-                    xmlHttpRequest.status == 401 ||  // do not retry for these errors
-                    xmlHttpRequest.status == 403 ||
-                    xmlHttpRequest.status == 404 ||
-                    xmlHttpRequest.status == 406)) {
+
+                // https://dev.twitter.com/docs/error-codes-responses
+                if (textStatus != 'timeout' && (      // should retry for timeout, but do not retry for these errors
+                    xmlHttpRequest.status == 400 ||   // Bad Request
+                    xmlHttpRequest.status == 401 ||   // Unauthorized
+                    xmlHttpRequest.status == 403 ||   // Forbidden
+                    xmlHttpRequest.status == 404 ||   // Not Found
+                    xmlHttpRequest.status == 406 ||   // Not Acceptable
+                    xmlHttpRequest.status == 410 ||   // Gone
+                    xmlHttpRequest.status == 422 )) { // Unprocessable Entity
+                    //xmlHttpRequest.status == 420 ||  // Enhance Your Calm
+                    //xmlHttpRequest.status == 429 ||  // Too Many Requests
                     delete errorStatus.retry
                 }
                 error(errorStatus);

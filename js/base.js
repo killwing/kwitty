@@ -612,7 +612,10 @@ var createTab = function(id) {
         if (errorStatus.retry) { // if we can retry
             errorStatus.retry();
         } else {
-            tab.close();
+            // do not close fixed tabs anyway
+            if (!/home|mentions|retweets|messages/.test(id)) {
+                tab.close();
+            }
             errorHandler('Failed to load', errorStatus);
         }
     };
