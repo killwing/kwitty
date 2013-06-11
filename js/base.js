@@ -1011,6 +1011,11 @@ var createTrendsTab = function(id, name, tr) {
     return trTab;
 };
 
+var goTabTop = function(i) {
+    $('#tabs').tabs('select', i);
+    $(window).scrollTop(0);
+};
+
 var createTweetBox = function(id) {
     console.log('createTweetBox():', id);
     var ID = '#' + id;
@@ -1110,9 +1115,9 @@ var createTweetBox = function(id) {
         tweetBox.reset();
 
         // show in home TL
+        goTabTop(0);
         TabMgr.home.showNew();
         $(homeTLID).prepend($(Render.tweet(data)).addClass('tmpTweet'));
-        $('#tabs').tabs('select', 0);
     };
 
     tweetBox.reply = function(screenName, statusID) {
@@ -1163,9 +1168,9 @@ var createTweetBox = function(id) {
                     tweetBox.reset();
 
                     // show in messages TL
+                    goTabTop(2);
                     TabMgr.messages.showNew();
                     $('#messages .tl ol').prepend($(Render.tweet(data)).addClass('tmpTweet'));
-                    $('#tabs').tabs('select', 2);
                 }, tweetBox.onError);
             } else if ($(tweetID).text() == 'Find') {
                 var f = /^f @?(\w+)/i.exec(content);
@@ -1237,8 +1242,7 @@ var showUser = function(screenName) {
         index = $('#tabs > div').index($(id));
     }
 
-    $('#tabs').tabs('select', index);
-    $(window).scrollTop(0);
+    goTabTop(index);
 };
 
 var showSearch = function(q) {
@@ -1255,8 +1259,7 @@ var showSearch = function(q) {
         index = $('#tabs > div').index($(id));
     }
 
-    $('#tabs').tabs('select', index);
-    $(window).scrollTop(0);
+    goTabTop(index);
 };
 
 var showReply = function(thisElem, id) {
@@ -1416,8 +1419,7 @@ var showList = function(listName) {
         index = $('#tabs > div').index($(id));
     }
 
-    $('#tabs').tabs('select', index);
-    $(window).scrollTop(0);
+    goTabTop(index);
 };
 
 var updateProfile = function(id, data) {
@@ -1473,9 +1475,9 @@ var initEvent = function() {
         var thisElem = this;
         kt.tweet.retweet(statusID, function(data) {
             // show in home TL
+            goTabTop(0);
             TabMgr.home.showNew();
             $('#home .tl ol').prepend(Render.tweet(data));
-            $('#tabs').tabs('select', 0);
         }, function(errorStatus) {
             errorHandler('Failed to retweet', errorStatus);
         });
