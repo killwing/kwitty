@@ -856,8 +856,8 @@
 
         messagesTL.sortByDate = function(data) {
             data.sort(function(a, b) {
-                //return (new Date(a.created_at)) > (new Date(b.created_at));
-                return Number(a.id_str) > Number(b.id_str);
+                //return (new Date(a.created_at)) - (new Date(b.created_at));
+                return a.id - b.id; // not exact id (id_str), but enough
             });
         };
 
