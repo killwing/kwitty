@@ -352,7 +352,7 @@ var Render = {
         <span class="p_tweets">{8} tweets since {3}, {10} t/day <a href="#">Export</a><b class="p_progress"></b></span>
         {5}
         {9}
-        <span class="p_follow"><a href="#">Following: {7}</a> <a href="#">Followers: {6}</a> {12}</span>
+        <span class="p_follow"><a href="#">Following: {7}</a> <a href="#">Followers: {6}</a>&nbsp;<span class="p_relationship">{12}</span></span>
         <br />
     </span>
 </div>
@@ -645,12 +645,6 @@ var createStatusesTab = function(id, tl) {
         console.log('StatusesTab.loadOnce()');
     };
 
-    // [override] called before fist get
-    statusesTab.preload = function(success, error) {
-        console.log('StatusesTab.preload()');
-        success();
-    };
-
     statusesTab.append = function(data) {
         console.log('StatusesTab.append()');
 
@@ -797,13 +791,8 @@ var createStatusesTab = function(id, tl) {
         $('#'+id).html(Render.timeline());
         $('button').button();
 
-        this.preload(function() {
-            // first get
-            tl.get(statusesTab.onNewTweets, statusesTab.onError);
-        }, function(errorStatus) {
-            // do nothing
-        });
-
+        // first get
+        tl.get(statusesTab.onNewTweets, statusesTab.onError);
         return this;
     };
 
@@ -817,23 +806,26 @@ var createUserTab = function(id, tl) {
     var relationship = null;
     var user = null;
 
-    // the following info of user object is not correct, use another api instead
-    userTab.preload = function(success, error) {
-        kt.friendship.show(id, function(data) {
-            relationship = data.relationship;
-            success();
-        }, function(errorStatus) {
-            userTab.onError(errorStatus);
-            error(errorStatus);
-        });
-    };
+    // get relationship immediately
+    kt.friendship.show(id, function(data) {
+        relationship = data.relationship;
+        if (user) { // if loadOnce get the user
+            var relshp = '(Not following you)';
+            if (relationship.source.followed_by) {
+                relshp = '(Following you)';
+            }
+            $('#'+id+' .p_relationship').text(relshp);
+        }
+    }, function(errorStatus) {
+        userTab.onError(errorStatus);
+    });
 
     userTab.loadOnce = function(data) {
-        console.log('UserTab.loadOnce()');
+        console.log('UserTab.loadOnce()', relationship);
         var tabID = '#' + id;
 
         user = data[0].user;
-        if (relationship && user.screen_name != kt.getCurrentUserName()) {
+        if (relationship && user.screen_name != kt.getCurrentUserName()) { // if get the relationship and not self
             user.following = relationship.source.following;
             user.followed_by = relationship.source.followed_by;
         } else {
