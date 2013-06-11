@@ -41,6 +41,7 @@
                     others: '5',
                     autoload: true,
                     disreadingload: true,
+                    infinitescroll: false,
                 },
                 api: {
                     address: 'http://kwittyapp.appspot.com/',
@@ -69,7 +70,6 @@
     };
 
     var config = defConfig();
-    
 
     var set = function(cfg) {
         config = cfg;
@@ -141,6 +141,10 @@
         if (typeof config.basics.refresh.others === 'undefined') {
             config.basics.others = defConfig().basics.refresh.others;
         }
+        // new in v1.5.7
+        if (typeof config.basics.refresh.infinitescroll === 'undefined') {
+            config.basics.infinitescroll = defConfig().basics.refresh.infinitescroll;
+        }
     };
 
     var init = function() {
@@ -150,7 +154,7 @@
         } else {
             // set default to LS
             localStorage.config = JSON.stringify(config);
-        }   
+        }
     };
 
     // exports

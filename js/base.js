@@ -58,6 +58,19 @@ var cfgUpdater = {
                     autoloadCfg = config.get().basics.refresh.autoload;
                 }
             },
+            infinitescroll: function(v) {
+                if (v) {
+                    $(window).scroll(function() {
+                        if ($('body').height() - $('body').scrollTop() < $(window).height() + 400) { // 400 is the distance to trigger
+                            var selected = $('#tabs').tabs('option', 'selected');
+                            var id = $('#tabs > div:eq('+selected+')').prop('id');
+                            showMore(id);
+                        }
+                    });
+                } else {
+                    $(window).off('scroll');
+                }
+            }
         },
         api: {
             address: function(url) {
@@ -710,10 +723,14 @@ var createStatusesTab = function(id, tl) {
 
     statusesTab.showMore = function() {
         console.log('StatusesTab.showMore()');
+        if ($(moreBtnID).is(':hidden')) { // showMore is disabled
+            return;
+        }
+
         $(moreBtnID).hide();
         $(loaderID).show();
 
-        tl.getMore(this.onMoreTweets, statusesTab.onError);
+        tl.getMore(statusesTab.onMoreTweets, statusesTab.onError);
     };
 
     statusesTab.onMoreTweets = function(data) {
@@ -893,10 +910,14 @@ var createFriendshipTab = function(id, fs) {
 
     fsTab.showMore = function() {
         console.log('FriendshipTab.showMore()');
+        if ($(moreBtnID).is(':hidden')) { // showMore is running
+            return;
+        }
+
         $(moreBtnID).hide();
         $(loaderID).show();
 
-        fs.get(this.onMoreUsers, this.onError);
+        fs.get(fsTab.onMoreUsers, fsTab.onError);
     };
 
     fsTab.destroy = function() {
@@ -909,7 +930,7 @@ var createFriendshipTab = function(id, fs) {
         $('#'+id).html(Render.friendship());
         $('button').button();
 
-        fs.get(this.onMoreUsers, this.onError);
+        fs.get(fsTab.onMoreUsers, fsTab.onError);
         return this;
     };
 
@@ -953,7 +974,7 @@ var createListsTab = function(id, li) {
         $('#'+id).html(Render.lists());
         $('button').button();
 
-        li.get(this.onLists, this.onError);
+        li.get(liTab.onLists, liTab.onError);
         return this;
     };
 
@@ -1005,7 +1026,7 @@ var createTrendsTab = function(id, name, tr) {
     trTab.init = function() {
         console.log('TrendsTab.init()');
         $('#'+id).html(Render.trends(name));
-        tr.get(this.onTrends, this.onError);
+        tr.get(trTab.onTrends, trTab.onError);
         return this;
     };
     return trTab;
@@ -1223,11 +1244,17 @@ var createTweetBox = function(id) {
 }
 
 var showMore = function(id) {
-    TabMgr[id].showMore();
+    var show = TabMgr[id].showMore;
+    if (show) {
+        show();
+    }
 };
 
 var showNew = function(id) {
-    TabMgr[id].showNew();
+    var show = TabMgr[id].showNew;
+    if (show) {
+        show();
+    }
 };
 
 var showUser = function(screenName) {
@@ -1294,8 +1321,8 @@ var showRetweetedBy = function(thisElem, id) {
             errorHandler('Failed to load retweeters', errorStatus);
         });
     } else {
-        $(rters).slideUp('normal', function() { 
-            $(this).remove(); 
+        $(rters).slideUp('normal', function() {
+            $(this).remove();
         });
     }
 
@@ -1667,7 +1694,6 @@ var initEvent = function() {
     $('#logout').live('click', function() {
         logout();
     });
-
 };
 
 var createSavedTabs = function() {

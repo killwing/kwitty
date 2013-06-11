@@ -140,10 +140,10 @@ $(function() {
     });
 
     // checkbox
-    $('#basics-refresh-autoload, #basics-refresh-disreadingload, #gui-display-compact, #gui-display-expandurl, #gui-display-rich').change(function() {
+    $('#basics-refresh-autoload, #basics-refresh-disreadingload, #basics-refresh-infinitescroll, #gui-display-compact, #gui-display-expandurl, #gui-display-rich').change(function() {
         saveValue(this, $(this).prop('checked'));
     });
 
     config.init();
-    loadConfig(); 
+    loadConfig();
 });
