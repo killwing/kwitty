@@ -826,7 +826,7 @@ var createUserTab = function(id, tl) {
     // get relationship immediately
     kt.friendship.show(id, function(data) {
         relationship = data.relationship;
-        if (user) { // if loadOnce get the user
+        if (user && user.screen_name != kt.getCurrentUserName()) { // if loadOnce get the user and not self
             var relshp = '(Not following you)';
             if (relationship.source.followed_by) {
                 relshp = '(Following you)';
