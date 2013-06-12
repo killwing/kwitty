@@ -1,7 +1,7 @@
 {
     "name": "kwitty",
     "description": "A chrome application of twitter",
-    "version": "1.5.6",
+    "version": "1.5.7",
     "manifest_version": 2,
     "app": {
         "launch": {
@@ -17,7 +17,7 @@
     "permissions": [
         "unlimitedStorage",
         "notifications",
-        "tabs", 
+        "tabs",
         "*://*.twitter.com/*",
         "*://*.appspot.com/*",
         "http://api.longurl.org/",
