@@ -85,24 +85,6 @@ usp.getQueryStringParams = function(s) {
     }
 };
 
-// encode special chars not done by encodeURIComponent
-usp.encodeURIComponentEx = function(s) {
-    return s.replace(/\!/g, '%21')
-            .replace(/\*/g, '%2A')
-            .replace(/'/g, '%27')
-            .replace(/\(/g, '%28')
-            .replace(/\)/g, '%29');
-};
-
-// decode special chars not done by decodeURIComponent
-usp.decodeURIComponentEx = function(s) {
-    return s.replace(/%21/g, '!')
-            .replace(/%2A/g, '*')
-            .replace(/%27/g, "'")
-            .replace(/%28/g, '(')
-            .replace(/%29/g, ')');
-};
-
 // encode a value according to the RFC3986 specification
 usp.toRfc3986 = function(val) {
     return encodeURIComponent(val).replace(/\!/g, '%21')
