@@ -465,8 +465,7 @@
         show: function(screenName, success, error) {
             console.log('User.show()');
             var s = createAPI(api.users.show);
-            s.sendRequest({screen_name: screenName,
-                             include_entities: true}, success, error);
+            s.sendRequest({screen_name: screenName}, success, error);
         },
 
         rateLimit: function(success, error) {
@@ -480,13 +479,13 @@
         show: function(id, success, error) {
             console.log('Tweet.show()');
             var s = createAPI(api.statuses.show);
-            s.sendRequest({include_entities: true, id: id}, success, error);
+            s.sendRequest({id: id}, success, error);
         },
 
         update: function(msg, to, success, error) {
             console.log('Tweet.update()');
             var u = createAPI(api.statuses.update);
-            var params = {status: msg, include_entities: true};
+            var params = {status: msg};
             if (to) {
                 params.in_reply_to_status_id = to;
             }
@@ -502,7 +501,6 @@
             if (msg) { // msg could be null
                 formData.append('status', msg);
             }
-            //formData.append('include_entities', true);
             if (to) {
                 formData.append('in_reply_to_status_id', to);
             }
@@ -516,7 +514,7 @@
             var rest = api.statuses.retweet;
             rest.id = id;
             var r = createAPI(rest);
-            r.sendRequest({include_entities: true}, success, error);
+            r.sendRequest(null, success, error);
         },
 
         destroy: function(id, success, error) {
@@ -530,7 +528,7 @@
         directMsg: function(screenName, msg, success, error) {
             console.log('Tweet.directMsg()');
             var n = createAPI(api.direct_messages.new);
-            n.sendRequest({screen_name: screenName, text: msg, include_entities: true}, success, error);
+            n.sendRequest({screen_name: screenName, text: msg}, success, error);
         },
 
         destroyMsg: function(id, success, error) {
@@ -620,10 +618,6 @@
         }
 
         var statuses = createAPI(rest);
-        statuses.addDefaultParam({
-            include_entities: true,
-        });
-
         statuses.setRefreshTime = function(s) { // in min, set 0 to stop
             var interval = s*60*1000;
             if (refreshData.interval == interval) {
