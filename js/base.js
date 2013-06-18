@@ -61,7 +61,12 @@ var cfgUpdater = {
             infinitescroll: function(v) {
                 if (v) {
                     $(window).scroll(function() {
-                        if ($('body').height() - $('body').scrollTop() < $(window).height() + 400) { // 400 is the distance to trigger
+                        var offset = 400; // the distance to trigger
+                        if (isCompact()) {
+                            offset += $('body').height() / 10;
+                        }
+
+                        if ($('body').height() - $('body').scrollTop() - $(window).height() < offset) {
                             var selected = $('#tabs').tabs('option', 'selected');
                             var id = $('#tabs > div:eq('+selected+')').prop('id');
                             showMore(id);
@@ -136,7 +141,7 @@ var cfgUpdater = {
             },
             tabwidth: function(v) {
                 chrome.windows.getCurrent(function(w) {
-                    if (!((w.type == 'app' || w.type == 'popup') && config.get().gui.display.compact)) {
+                    if (!isCompact()) {
                         if (v == 'Normal') {
                             $('#container').width(540);
                         } else if (v == 'Wider') {
@@ -1791,6 +1796,10 @@ var makeCompact = function() {
         'border-bottom-right-radius': '0px',
     });
     $('#container').width(500);
+};
+
+var isCompact = function() {
+    return $('body').css('zoom') < 1;
 };
 
 var onLoginError = function(errorStatus) {
