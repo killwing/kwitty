@@ -231,17 +231,18 @@ var Render = {
         // retweet replace
         var rt = '';
         if (t.retweeted_status) {
-            rt = '<span class="t_retweeted_icon icon" /> by <span class="t_retweet" id="{1}"><a href="#">{0}</a></span>'.format(t.user.screen_name, t.id_str);
+            rt = _.format('<span class="t_retweeted_icon icon" /> by <span class="t_retweet" id="{1}"><a href="#">{0}</a></span>', t.user.screen_name, t.id_str);
             tweet = t.retweeted_status;
         }
 
         // retweeted by
-        var rtby = '<span class="t_retweeted_by" id="{0}">, <a href="#">retweeted by</a></span>&nbsp;<img class="spinner invisible" src="../img/spinner.gif">'.format(tweet.id_str);
+        var rtby = _.format('<span class="t_retweeted_by" id="{0}">, <a href="#">retweeted by</a></span>&nbsp;<img class="spinner invisible" src="../img/spinner.gif">', tweet.id_str);
 
         // reply
         var re = '';
         if (tweet.in_reply_to_screen_name && tweet.in_reply_to_status_id_str) {
-            re = '<span class="t_conversation_icon icon" /><span class="t_reply" id="{1}"><a href="#">to {0}</a></span>&nbsp;<img class="spinner invisible" src="../img/spinner.gif">'.format(tweet.in_reply_to_screen_name, tweet.in_reply_to_status_id_str);
+            re = _.format('<span class="t_conversation_icon icon" /><span class="t_reply" id="{1}"><a href="#">to {0}</a></span>&nbsp;<img class="spinner invisible" src="../img/spinner.gif">',
+                tweet.in_reply_to_screen_name, tweet.in_reply_to_status_id_str);
         }
 
         // search tweet
@@ -279,12 +280,12 @@ var Render = {
 
             // msg sent by me
             if (tweet.sender_screen_name == me) {
-                re = '<span class="t_msgto_icon icon" /><span class="t_msgto"><a href="#">{0}</a></span>'.format(tweet.recipient_screen_name);
+                re = _.format('<span class="t_msgto_icon icon" /><span class="t_msgto"><a href="#">{0}</a></span>', tweet.recipient_screen_name);
             }
 
         } else { // normal tweet
-            from = 'via {0}'.format(ut.addBlankTarget(ut.unescapeHtml(tweet.source)));
-            ref = ut.addBlankTarget(kt.util.makeTime(tweet.created_at).link("https://twitter.com/"+tweet.user.screen_name+"/status/"+tweet.id_str));
+            from = 'via ' + _.addBlankTarget(_.unescapeHtml(tweet.source));
+            ref = _.addBlankTarget(kt.util.makeTime(tweet.created_at).link("https://twitter.com/"+tweet.user.screen_name+"/status/"+tweet.id_str));
 
             // hide retweet if it is your own tweet or retweeted
             if (tweet.user.screen_name == me || t.user.screen_name == me) {
@@ -308,22 +309,22 @@ var Render = {
         var text = kt.util.makeEntities(tweet.text, tweet.entities);
 
 
-        html = html.mlstr().format(tweet.user.profile_image_url,
-                                   tweet.user.screen_name,
-                                   tweet.user.name,
-                                   text,
-                                   ref,
-                                   from,
-                                   re,
-                                   rt,
-                                   tweet.id_str,
-                                   replyIcon,
-                                   rtIcon,
-                                   retweetIcon,
-                                   favIcon,
-                                   dmIcon,
-                                   delIcon,
-                                   rtby);
+        html = _.format(_.mlstr(html), tweet.user.profile_image_url,
+                                       tweet.user.screen_name,
+                                       tweet.user.name,
+                                       text,
+                                       ref,
+                                       from,
+                                       re,
+                                       rt,
+                                       tweet.id_str,
+                                       replyIcon,
+                                       rtIcon,
+                                       retweetIcon,
+                                       favIcon,
+                                       dmIcon,
+                                       delIcon,
+                                       rtby);
         return html;
     },
 
@@ -334,7 +335,7 @@ var Render = {
 */
         };
 
-        html = html.mlstr().format(kt.util.makeEntities(t.text, t.entities));
+        html = _.format(_.mlstr(html), kt.util.makeEntities(t.text, t.entities));
         return html;
     },
 
@@ -347,10 +348,10 @@ var Render = {
 
         var userslist = '';
         $.each(users, function(i, u) {
-            userslist += '<img src="{0}" title="{1}"> '.format(u.profile_image_url.replace('_normal.', '_mini.'), u.screen_name);
+            userslist += _.format('<img src="{0}" title="{1}"> ', u.profile_image_url.replace('_normal.', '_mini.'), u.screen_name);
         });
 
-        html = html.mlstr().format(userslist, rtCnt, favCnt);
+        html = _.format(_.mlstr(html), userslist, rtCnt, favCnt);
         return html;
     },
 
@@ -378,12 +379,12 @@ var Render = {
 
         var description = '';
         if (user.description) {
-            description = '<span class="p_desc">{0}</span>'.format(user.description);
+            description = _.format('<span class="p_desc">{0}</span>', user.description);
         }
 
         var link = '';
         if (user.url) {
-            link = '<span class="p_link"><a href="{0}" target="_blank">{0}</a></span>'.format(user.url);
+            link = _.format('<span class="p_link"><a href="{0}" target="_blank">{0}</a></span>', user.url);
         }
 
         var action = '';
@@ -402,19 +403,19 @@ var Render = {
             }
         }
 
-        html = html.mlstr().format(user.profile_image_url.replace('_normal.', '_bigger.'), // make bigger image
-                                   user.screen_name,
-                                   user.name,
-                                   since,
-                                   user.location,
-                                   description,
-                                   user.followers_count,
-                                   user.friends_count,
-                                   user.statuses_count,
-                                   link,
-                                   freq,
-                                   action,
-                                   foYou);
+        html = _.format(_.mlstr(html), user.profile_image_url.replace('_normal.', '_bigger.'), // make bigger image
+                                       user.screen_name,
+                                       user.name,
+                                       since,
+                                       user.location,
+                                       description,
+                                       user.followers_count,
+                                       user.friends_count,
+                                       user.statuses_count,
+                                       link,
+                                       freq,
+                                       action,
+                                       foYou);
         return html;
     },
 
@@ -430,7 +431,7 @@ var Render = {
 */
         };
 
-        html = html.mlstr().format();
+        html = _.mlstr(html);
         return html;
     },
 
@@ -445,7 +446,7 @@ var Render = {
 */
         };
 
-        html = html.mlstr().format();
+        html = _.mlstr(html);
         return html;
     },
 
@@ -470,7 +471,7 @@ var Render = {
 
         var description = '';
         if (u.description) {
-            description = '<span class="t_text">{0}</span>'.format(u.description);
+            description = _.format('<span class="t_text">{0}</span>', u.description);
         }
 
         var action = 'Unfollow';
@@ -488,13 +489,13 @@ var Render = {
 
         var freq = kt.util.computeFreq(u.created_at, u.statuses_count);
 
-        html = html.mlstr().format(u.profile_image_url,
-                                   u.screen_name,
-                                   u.name,
-                                   description,
-                                   action,
-                                   freq,
-                                   protectedIcon);
+        html = _.format(_.mlstr(html), u.profile_image_url,
+                                       u.screen_name,
+                                       u.name,
+                                       description,
+                                       action,
+                                       freq,
+                                       protectedIcon);
         return html;
     },
 
@@ -511,11 +512,11 @@ var Render = {
         };
 
         var text = kt.util.makeEntities(t.text, t.entities, true);
-        var from = ut.addBlankTarget(t.source);
+        var from = _.addBlankTarget(t.source);
         var time = kt.util.makeTime(t.created_at);
-        var id = ut.addBlankTarget((t.id_str).link("https://twitter.com/"+t.user.screen_name+"/status/"+t.id_str));
+        var id = _.addBlankTarget((t.id_str).link("https://twitter.com/"+t.user.screen_name+"/status/"+t.id_str));
 
-        html = html.mlstr().format(id, text, time, from);
+        html = _.format(_.mlstr(html), id, text, time, from);
         return html;
     },
 
@@ -531,7 +532,7 @@ var Render = {
 */
         };
 
-        html = html.mlstr().format(name);
+        html = _.format(_.mlstr(html), name);
         return html;
     },
 
@@ -555,7 +556,7 @@ var Render = {
             state = "ui-icon-arrowthick-1-e";
         }
 
-        html = html.mlstr().format(state, t.name);
+        html = _.format(_.mlstr(html), state, t.name);
         return html;
     },
 
@@ -569,7 +570,7 @@ var Render = {
 */
         };
 
-        html = html.mlstr().format();
+        html = _.mlstr(html);
         return html;
     },
 
@@ -592,10 +593,14 @@ var Render = {
 
         var description = '';
         if (s.description) {
-            description = '<span class="t_text">{0}</span>'.format(s.description);
+            description = _.format('<span class="t_text">{0}</span>', s.description);
         }
 
-        html = html.mlstr().format(s.user.profile_image_url, s.full_name, s.member_count, description, s.user.screen_name);
+        html = _.format(_.mlstr(html), s.user.profile_image_url,
+                                       s.full_name,
+                                       s.member_count,
+                                       description,
+                                       s.user.screen_name);
         return html;
     }
 };
@@ -1817,7 +1822,7 @@ var autoLogin = function() {
     }
 
     // continue oauth login
-    var params = ut.getQueryStringParams(window.location.href);
+    var params = _.getQueryStringParams(window.location.href);
     if (params.oauth_verifier) {
         $('#login .loader').show();
         oauthLogin(params.oauth_verifier);

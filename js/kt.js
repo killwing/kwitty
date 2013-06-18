@@ -24,7 +24,7 @@
 
             var url = rest.url;
             if (rest.id) {
-                url = rest.url.format(rest.id);
+                url = _.format(rest.url, rest.id);
             }
             return base + url;
         },
@@ -359,12 +359,12 @@
 
         oa.authorize = function() {
             console.log('OAuth.authorize()', token);
-            window.location = ut.addURLParam(api.oauthBase+api.oauth.authorize.url, 'oauth_token', token.oauth_token);
+            window.location = _.addURLParam(api.oauthBase+api.oauth.authorize.url, 'oauth_token', token.oauth_token);
         };
 
         oa.authenticate = function() {
             console.log('OAuth.authenticate()', token);
-            window.location = ut.addURLParam(api.oauthBase+api.oauth.authenticate.url, 'oauth_token', token.oauth_token);
+            window.location = _.addURLParam(api.oauthBase+api.oauth.authenticate.url, 'oauth_token', token.oauth_token);
         };
 
         oa.access = function(verifier, success, error) {
@@ -425,7 +425,7 @@
                     console.log('access() - result:', ret);
 
                     // update token
-                    token = ut.getQueryStringParams(ret);
+                    token = _.getQueryStringParams(ret);
                     oa.saveToken();
 
                     success(token.screen_name);
@@ -439,7 +439,7 @@
                 this.requestToken(callbackURL, function(ret) {
                     console.log('requestToken() - result:', ret);
 
-                    token = ut.getQueryStringParams(ret);
+                    token = _.getQueryStringParams(ret);
                     oa.saveToken();
 
                     // redirect
