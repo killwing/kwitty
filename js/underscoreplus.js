@@ -85,14 +85,20 @@ usp.getQueryStringParams = function(s) {
     }
 };
 
+// hack, replace the encodeURIComponent for jquery
+var oldEncodeURIComponent = encodeURIComponent;
+
 // encode a value according to the RFC3986 specification
 usp.toRfc3986 = function(val) {
-    return encodeURIComponent(val).replace(/\!/g, '%21')
+    return oldEncodeURIComponent(val).replace(/\!/g, '%21')
                                   .replace(/\*/g, '%2A')
                                   .replace(/'/g, '%27')
                                   .replace(/\(/g, '%28')
                                   .replace(/\)/g, '%29');
 };
+
+encodeURIComponent = usp.toRfc3986;
+
 
 // decode a string that has been encoded according to RFC3986
 usp.fromRfc3986 = function(val) {
