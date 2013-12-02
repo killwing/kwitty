@@ -10,7 +10,7 @@ var saveValue = function(elem, val) {
         if (response) {
             console.log('update value ok');
         } else {
-            console.error('update value failed');
+            console.error('update value but no response from main page');
         }
     });
 };
@@ -28,10 +28,10 @@ var loadValue = function(v, id) {
 var loadValues = function(obj, id) {
     $.each(obj, function(k, v) {
         if (typeof(v) == 'object') {
-            loadValues(v, id+k+'-') 
+            loadValues(v, id+k+'-')
         } else {
             loadValue(v, id+k);
-        } 
+        }
     })
 };
 
@@ -78,7 +78,7 @@ $(function() {
             if (response) {
                 console.log('reset ok');
             } else {
-                console.error('reset failed');
+                console.error('reset but no response from main page');
             }
         });
     });
@@ -129,7 +129,7 @@ $(function() {
                 if (response) {
                     console.log('update bgImgData ok');
                 } else {
-                    console.error('update bgImgData failed');
+                    console.error('update bgImgData but no response from main page');
                 }
             });
         };
