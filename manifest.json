@@ -22,7 +22,7 @@
         "*://*.appspot.com/*",
         "http://api.longurl.org/",
         "http://api.embed.ly/"
-    ]
+    ],
     "web_accessible_resources": [
         "main.html"
     ]
